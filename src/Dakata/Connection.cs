@@ -109,9 +109,7 @@ namespace Dakata
 
         public static T Execute<T>(Func<IDbConnection, T> func)
         {
-            var connection = _dbProvider.CreateConnection(_connectionString);
-
-            using (var conn = connection)
+            using (var conn = _dbProvider.CreateConnection(_connectionString))
             {
                 try
                 {
