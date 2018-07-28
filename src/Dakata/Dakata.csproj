@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dapper.ColumnMapper" Version="1.2.0" />
+      <PackageReference Include="Dapper.Contrib" Version="1.50.5" />
+      <PackageReference Include="Slapper.AutoMapper" Version="1.0.0.9" />
+      <PackageReference Include="SqlKata" Version="1.0.3" />
+    </ItemGroup>
+
+</Project>
