@@ -107,14 +107,9 @@ namespace Dakata
             return Execute(conn => conn.Delete(entityToDelete, transaction, commandTimeout));
         }
 
-        private static IDbConnection CreateConnection()
-        {
-            return _dbProvider.CreateConnection(_connectionString);
-        }
-        
         public static T Execute<T>(Func<IDbConnection, T> func)
         {
-            var connection = CreateConnection();
+            var connection = _dbProvider.CreateConnection(_connectionString);
 
             using (var conn = connection)
             {
