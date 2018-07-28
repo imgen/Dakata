@@ -111,14 +111,7 @@ namespace Dakata
         {
             using (var conn = _dbProvider.CreateConnection(_connectionString))
             {
-                try
-                {
-                    return func(conn);
-                }
-                finally
-                {
-                    conn.Close();
-                }
+                return func(conn);
             }
         }
     }
