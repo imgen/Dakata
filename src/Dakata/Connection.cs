@@ -114,24 +114,19 @@ namespace Dakata
         
         public static T Execute<T>(Func<IDbConnection, T> func)
         {
-            var executeFunc = new Func<T>(() =>
+            var connection = CreateConnection();
+
+            using (var conn = connection)
             {
-                var connection = CreateConnection();
-
-                using (var conn = connection)
+                try
                 {
-                    try
-                    {
-                        return func(conn);
-                    }
-                    finally
-                    {
-                        conn.Close();
-                    }
+                    return func(conn);
                 }
-            });
-
-            return executeFunc();
+                finally
+                {
+                    conn.Close();
+                }
+            }
         }
     }
 }
