@@ -90,7 +90,7 @@ namespace Dakata
 
             Execute(sql, parameters);
             
-            RefreshEntityFromJustInsertedOrUpdatedRow(entity);
+            RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
 
             string SimpleProcessColumn(string column) => 
                 ProcessColumn(column, columnValueProvider, parameters, entity);
@@ -147,11 +147,6 @@ namespace Dakata
             var keyColumnName = GetColumnName(keyProperty);
             var values = entities.Select(entity => keyProperty.GetValue(entity)).Distinct();
             DeleteByInClause(keyColumnName, values);
-        }
-
-        public virtual void InsertAllByParams(params object[] entities)
-        {
-            InsertAll(entities);
         }
 
         protected virtual T ExecuteScalar<T>(Query query) => DapperConnection.ExecuteScalar<T>(query);
@@ -271,7 +266,6 @@ namespace Dakata
             return ExecuteScalar<TCount>(NewQuery().AsCount());
         }
 
-
         public int GetCount(Query query)
         {
             return ExecuteScalar<int>(query.AsCount());
@@ -346,43 +340,39 @@ namespace Dakata
 
         protected virtual int InsertAll(IEnumerable<object> entities,
             int batchSize = DefaultBatchSize,
-            bool ignoreAutoIncrementColumns = true,
-            bool enableMultithreading = true,
+            bool parallel = false,
             Func<string, string> columnValueProvider = null,
             params string[] columns)
         {
             columns = !columns.IsNullOrEmpty() ?
-                columns : GetTableColumns(ignoreAutoIncrementColumns, false);
+                columns : GetTableColumns(ignoreAutoIncrementColumns: true, ignoreKeyProperty: false);
             var isOracle = IsOracle;
             var joinedColumns = columns.JoinString(",");
 
-            var batchIndex = 0;
-
             batchSize = CalculateBatchSize(batchSize, columns.Length);
-            if (enableMultithreading)
+            if (parallel)
             {
                 Parallel.ForEach(entities.Batch(batchSize), batch =>
                 {
-                    batchIndex = InsertAll(columns, isOracle, joinedColumns, batch, columnValueProvider, batchIndex);
+                    InsertAll(columns, isOracle, joinedColumns, batch, columnValueProvider);
                 });
             }
             else
             {
                 entities.Batch(batchSize).ForEach(batch =>
                 {
-                    batchIndex = InsertAll(columns, isOracle, joinedColumns, batch, columnValueProvider, batchIndex);
+                    InsertAll(columns, isOracle, joinedColumns, batch, columnValueProvider);
                 });
             }
 
             return batchSize;
         }
 
-        private int InsertAll(string[] columns,
+        private void InsertAll(string[] columns,
             bool isOracle,
             string joinedColumns,
             IEnumerable<object> batch,
-            Func<string, string> columnValueProvider,
-            int batchIndex)
+            Func<string, string> columnValueProvider)
         {
             var sql = isOracle ? "INSERT ALL " : $"INSERT INTO {TableName} ({joinedColumns}) VALUES ";
             var (valueClauses, parameters) = BuildValueClauses(batch, columnValueProvider, columns);
@@ -399,12 +389,11 @@ namespace Dakata
             }
 
             Execute(sql, parameters);
-            return batchIndex;
         }
 
         // Based on SE/SO answer https://dba.stackexchange.com/a/186149 and https://stackoverflow.com/a/16932591
         protected virtual int UpdateAll(IEnumerable<object> entities, int batchSize = DefaultBatchSize,
-            bool enableMultithreading = true,
+            bool parallel = false,
             Func<string, string> columnValueProvider = null,
             params string[] columnsToUpdate)
         {
@@ -413,7 +402,7 @@ namespace Dakata
                 throw new NotImplementedException();
             }
             columnsToUpdate = !columnsToUpdate.IsNullOrEmpty() ?
-                columnsToUpdate : GetTableColumns(false, ignoreKeyProperty: true);
+                columnsToUpdate : GetTableColumns(ignoreAutoIncrementColumns: false, ignoreKeyProperty: true);
             var keyColumns = GetKeyColumns();
             if (keyColumns.IsNullOrEmpty())
             {
@@ -422,35 +411,34 @@ namespace Dakata
             var allColumns = keyColumns.Concat(columnsToUpdate).ToArray();
             var tempTableName = $"{TableName}_Values";
 
-            var batchIndex = 0;
-
             batchSize = CalculateBatchSize(batchSize, allColumns.Length);
 
-            if (enableMultithreading)
+            if (parallel)
             {
                 Parallel.ForEach(entities.Batch(batchSize), batch =>
                 {
-                    batchIndex = UpdateAll(columnsToUpdate, tempTableName, batch, allColumns, keyColumns, 
-                        columnValueProvider, batchIndex);
+                    UpdateAll(columnsToUpdate, tempTableName, batch, allColumns, keyColumns, 
+                        columnValueProvider);
                 });
             }
             else
             {
                 entities.Batch(batchSize).ForEach(batch =>
                 {
-                    batchIndex = UpdateAll(columnsToUpdate, tempTableName, batch, allColumns, keyColumns,
-                        columnValueProvider,
-                        batchIndex);
+                    UpdateAll(columnsToUpdate, tempTableName, batch, allColumns, keyColumns,
+                        columnValueProvider);
                 });
             }
 
             return batchSize;
         }
 
-        private int UpdateAll(string[] columnsToUpdate, string tempTableName, IEnumerable<object> batch,
-            string[] allColumns, string[] keyColumns,
-            Func<string, string> columnValueProvider,
-            int batchIndex)
+        private void UpdateAll(string[] columnsToUpdate, 
+            string tempTableName, 
+            IEnumerable<object> batch,
+            string[] allColumns, 
+            string[] keyColumns,
+            Func<string, string> columnValueProvider)
         {
             var sql = $"UPDATE {TableName} SET ";
             var setClause = columnsToUpdate.Select(column =>
@@ -464,12 +452,12 @@ namespace Dakata
 ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{column}").JoinString(" AND ")}";
 
             Execute(sql, parameters);
-            return batchIndex;
         }
 
         // Based on SO answer https://stackoverflow.com/a/36257723/915147
-        protected virtual int DeleteAll(IEnumerable<object> entities, int batchSize = DefaultBatchSize,
-            bool parallel = true,
+        protected virtual int DeleteAll(IEnumerable<object> entities, 
+            int batchSize = DefaultBatchSize,
+            bool parallel = false,
             Func<string, string> columnValueProvider = null,
             params string[] criteriaColumns)
         {
@@ -487,28 +475,26 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
             batchSize = CalculateBatchSize(batchSize, criteriaColumns.Length);
             var tempTableName = $"{TableName}_Values";
 
-            var batchIndex = 0;
-
             if (parallel)
             {
                 Parallel.ForEach(entities.Batch(batchSize), batch =>
                 {
-                    batchIndex = DeleteAll(criteriaColumns, batch, tempTableName, columnValueProvider, batchIndex);
+                    DeleteAll(criteriaColumns, batch, tempTableName, columnValueProvider);
                 });
             }
             else
             {
                 entities.Batch(batchSize).ForEach(batch =>
                 {
-                    batchIndex = DeleteAll(criteriaColumns, batch, tempTableName, columnValueProvider, batchIndex);
+                    DeleteAll(criteriaColumns, batch, tempTableName, columnValueProvider);
                 });
             }
 
             return batchSize;
         }
 
-        private int DeleteAll(string[] criteriaColumns, IEnumerable<object> batch, string tempTableName,
-            Func<string, string> columnValueProvider, int batchIndex)
+        private void DeleteAll(string[] criteriaColumns, IEnumerable<object> batch, string tempTableName,
+            Func<string, string> columnValueProvider)
         {
             var sql = $@"DELETE {TableName} FROM {TableName} INNER JOIN (VALUES ";
             var (valueClauses, parameters) = BuildValueClauses(batch, columnValueProvider, criteriaColumns);
@@ -518,7 +504,6 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
 ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{column}").JoinString(" AND ")}";
 
             Execute(sql, parameters);
-            return batchIndex;
         }
 
         public long InsertByRawSql(object entity, Func<string, string> columnValueProvider)
@@ -551,12 +536,12 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
                     Convert.ChangeType(identity, propertyType));
             }
 
-            RefreshEntityFromJustInsertedOrUpdatedRow(entity);
+            RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
             
             return identity;
         }
 
-        private void RefreshEntityFromJustInsertedOrUpdatedRow(object entity)
+        private void RefreshEntityFromJustInsertedOrUpdatedRecord(object entity)
         {
             var keyColumns = GetKeyColumns();
             if (keyColumns.IsNullOrEmpty()) return;
@@ -641,9 +626,9 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
     }
 
     public class BaseDal<TEntity> : BaseDal
-        where TEntity: class, new()
+        where TEntity: class
     {
-        protected static readonly TEntity Entity = new TEntity(); // To be used with nameof
+        protected static readonly TEntity Entity = default; // To be used with nameof
         
         public BaseDal(string tableName, DapperConnection dapperConnection): base(tableName, dapperConnection)
         {
@@ -760,56 +745,44 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
             return GetRecordsWithMaxValueOfColumn(GetColumnName(memberExpression)).FirstOrDefault();
         }
 
-        public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider)
+        public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider = null)
         {
             return InsertByRawSql(entity, columnValueProvider);
         }
 
-        public virtual int InsertAll(IEnumerable<TEntity> entities, int batchSize,
-            bool ignoreAutoIncrementColumns, bool parallel,
-            Func<string, string> columnValueProvider,
+        public virtual int InsertAll(IEnumerable<TEntity> entities, 
+            int batchSize = DefaultBatchSize,
+            bool parallel = false,
+            Func<string, string> columnValueProvider = null,
             params string[] columns)
         {
-            return base.InsertAll(entities, batchSize, ignoreAutoIncrementColumns, parallel, columnValueProvider: columnValueProvider, columns: columns);
+            return base.InsertAll(entities, batchSize, parallel, columnValueProvider, columns);
         }
 
-        public virtual int UpdateAll(IEnumerable<TEntity> entities, int batchSize,
-            bool parallel,
-            Func<string, string> columnValueProvider,
+        public virtual int UpdateAll(IEnumerable<TEntity> entities, 
+            int batchSize = DefaultBatchSize,
+            bool parallel = false,
+            Func<string, string> columnValueProvider = null,
             params string[] columnsToUpdate)
         {
             return base.UpdateAll(entities, batchSize, parallel, columnValueProvider, columnsToUpdate);
         }
 
-        public virtual int DeleteAll(IEnumerable<TEntity> entities, int batchSize,
-            bool parallel,
-            Func<string, string> columnValueProvider,
+        public virtual int DeleteAll(IEnumerable<TEntity> entities, 
+            int batchSize = DefaultBatchSize,
+            bool parallel = false,
+            Func<string, string> columnValueProvider = null,
             params string[] criteriaColumns)
         {
             return base.DeleteAll(entities, batchSize, parallel, columnValueProvider, criteriaColumns);
         }
 
-        public virtual void InsertAllByParams(params TEntity[] entities)
-        {
-            base.InsertAll(entities);
-        }
-
-        public virtual void Update(TEntity entity)
-        {
-            Update(entity, columnValueProvider: null);
-        }
-
-        public virtual void Update(TEntity entity, Func<string, string> columnValueProvider)
+        public virtual void Update(TEntity entity, Func<string, string> columnValueProvider = null)
         {
             UpdateByRawSql(entity, columnValueProvider);
         }
 
-        public virtual void Delete(TEntity entity)
-        {
-            Delete(entity, columnValueProvider: null);
-        }
-
-        public virtual void Delete(TEntity entity, Func<string, string> columnValueProvider)
+        public virtual void Delete(TEntity entity, Func<string, string> columnValueProvider = null)
         {
             DeleteByRawSql(entity, columnValueProvider);
         }
