@@ -15,12 +15,15 @@ namespace Dakata
 {
     public class BaseDal
     {
+        protected readonly DapperConnection DapperConnection;
+
         public const int DefaultBatchSize = 100;
         public virtual string TableName { get; }
 
-        public BaseDal(string tableName)
+        public BaseDal(string tableName, DapperConnection dapperConnection)
         {
             TableName = tableName;
+            DapperConnection = dapperConnection;
         }
 
         public static IDbProvider DbProvider { get; set; }
@@ -44,7 +47,7 @@ namespace Dakata
 
         protected virtual IEnumerable<dynamic> QueryDynamic(Query query)
         {
-            return Connection.Query<dynamic>(query);
+            return DapperConnection.Query<dynamic>(query);
         }
 
         protected virtual TMaxColumn GetMaxValueOfColumn<TMaxColumn>(string columnName)
@@ -151,12 +154,12 @@ namespace Dakata
             InsertAll(entities);
         }
 
-        protected virtual T ExecuteScalar<T>(Query query) => Connection.ExecuteScalar<T>(query);
-        protected virtual T ExecuteScalar<T>(string sql, object parameters) => Connection.ExecuteScalar<T>(sql, parameters);
+        protected virtual T ExecuteScalar<T>(Query query) => DapperConnection.ExecuteScalar<T>(query);
+        protected virtual T ExecuteScalar<T>(string sql, object parameters) => DapperConnection.ExecuteScalar<T>(sql, parameters);
 
-        protected virtual void Execute(Query query) => Connection.Execute(query);
+        protected virtual void Execute(Query query) => DapperConnection.Execute(query);
 
-        protected virtual void Execute(string sql, object parameters = null) => Connection.Execute(sql, parameters);
+        protected virtual void Execute(string sql, object parameters = null) => DapperConnection.Execute(sql, parameters);
 
         protected virtual Query AddWhereQueryWithPrefix(Query query, string columnName, object value, bool allowNull = false, string tableName = null)
         {
@@ -168,7 +171,6 @@ namespace Dakata
         }
 
         protected virtual Query AddWhereQueryWithPrefix<TEntity>(Query query, string columnName, object value, bool allowNull = false)
-            where TEntity: class
         {
             return AddWhereQueryWithPrefix(query, columnName, value, allowNull, GetTableName<TEntity>());
         }
@@ -467,7 +469,7 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
 
         // Based on SO answer https://stackoverflow.com/a/36257723/915147
         protected virtual int DeleteAll(IEnumerable<object> entities, int batchSize = DefaultBatchSize,
-            bool enableMultithreading = true,
+            bool parallel = true,
             Func<string, string> columnValueProvider = null,
             params string[] criteriaColumns)
         {
@@ -487,7 +489,7 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
 
             var batchIndex = 0;
 
-            if (enableMultithreading)
+            if (parallel)
             {
                 Parallel.ForEach(entities.Batch(batchSize), batch =>
                 {
@@ -539,7 +541,7 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
             }
 
             var sql = $"INSERT INTO {TableName} ({columns.JoinString(",")}) VALUES ({valueClause.JoinString(",")})";
-            long identity = Connection.Execute(connection => DbProvider.Insert(sql, parameters, connection));
+            long identity = DapperConnection.Execute(connection => DbProvider.Insert(sql, parameters, connection));
             var autoIncrementAttributeProperty =
                 EntityType.GetPropertiesWithAttribute<AutoIncrementAttribute>().FirstOrDefault();
             if (autoIncrementAttributeProperty != null)
@@ -562,7 +564,7 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
             var whereClause = keyColumns.Select(column => ProcessColumn(column, null, parameters, entity))
                 .JoinString(" AND ");
             var sql = $"SELECT * FROM {TableName} WHERE {whereClause}";
-            var results = Connection.Query<dynamic>(sql, parameters);
+            var results = DapperConnection.Query<dynamic>(sql, parameters);
             if (!(results.FirstOrDefault() is IDictionary<string, object> row))
             {
                 return;
@@ -643,13 +645,13 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
     {
         protected static readonly TEntity Entity = new TEntity(); // To be used with nameof
         
-        public BaseDal(string tableName): base(tableName)
+        public BaseDal(string tableName, DapperConnection dapperConnection): base(tableName, dapperConnection)
         {
             EntityType = typeof(TEntity);
         }
 
-        protected BaseDal() :
-            this(GetTableName<TEntity>())
+        protected BaseDal(DapperConnection dapperConnection) :
+            this(GetTableName<TEntity>(), dapperConnection)
         {
         }
 
@@ -688,12 +690,12 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
 
         public virtual IEnumerable<TEntity> Query(string sql, object parameter)
         {
-            return Connection.Query<TEntity>(sql, parameter);
+            return DapperConnection.Query<TEntity>(sql, parameter);
         }
 
         protected virtual IEnumerable<TEntity> Query(Query query)
         {
-            return Connection.Query<TEntity>(query);
+            return DapperConnection.Query<TEntity>(query);
         }
 
         protected virtual IEnumerable<TEntity> QueryByEntityKeys(TEntity keyEntity)
@@ -734,33 +736,28 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
             return GetMaxValueOfColumn<TMaxColumn>(GetColumnName(columnExpression));
         }
 
-        protected IEnumerable<TEntity> GetMaxItems(string column)
+        protected IEnumerable<TEntity> GetRecordsWithMaxValueOfColumn(string column)
         {
             var maxQuerySql = NewQuery().AsMax(column).CompileResult().Sql;
             var query = NewQuery().WhereRaw($"{column} = ({maxQuerySql})");
             return Query(query);
         }
 
-        protected IEnumerable<TEntity> GetMaxItems<TMember>(
+        protected IEnumerable<TEntity> GetRecordsWithMaxValueOfColumn<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression)
         {
-            return GetMaxItems(GetColumnName(memberExpression));
+            return GetRecordsWithMaxValueOfColumn(GetColumnName(memberExpression));
         }
 
-        protected TEntity GetMaxItem(string column)
+        protected TEntity GetRecordWithMaxValueOfColumn(string column)
         {
-            return GetMaxItems(column).FirstOrDefault();
+            return GetRecordsWithMaxValueOfColumn(column).FirstOrDefault();
         }
 
-        protected TEntity GetMaxItem<TMember>(
+        protected TEntity GetRecordWithMaxValueOfColumn<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression)
         {
-            return GetMaxItems(GetColumnName(memberExpression)).FirstOrDefault();
-        }
-
-        public virtual long Insert(TEntity entity)
-        {
-            return Insert(entity, columnValueProvider: null);
+            return GetRecordsWithMaxValueOfColumn(GetColumnName(memberExpression)).FirstOrDefault();
         }
 
         public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider)
@@ -768,49 +765,28 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
             return InsertByRawSql(entity, columnValueProvider);
         }
 
-        public virtual void InsertAll(IEnumerable<TEntity> entities, int batchSize = DefaultBatchSize,
-            bool ignoreAutoIncrementColumns = true, bool enableMultithreading = true,
-            params string[] columns)
-        {
-            InsertAll(entities, batchSize, ignoreAutoIncrementColumns, enableMultithreading, null, columns);
-        }
-
         public virtual int InsertAll(IEnumerable<TEntity> entities, int batchSize,
-            bool ignoreAutoIncrementColumns, bool enableMultithreading,
+            bool ignoreAutoIncrementColumns, bool parallel,
             Func<string, string> columnValueProvider,
             params string[] columns)
         {
-            return base.InsertAll(entities, batchSize, ignoreAutoIncrementColumns, enableMultithreading, columnValueProvider: columnValueProvider, columns: columns);
-        }
-
-        public virtual void UpdateAll(IEnumerable<TEntity> entities, int batchSize = DefaultBatchSize,
-            bool enableMultithreading = true,
-            params string[] columnsToUpdate)
-        {
-            UpdateAll(entities, batchSize, enableMultithreading, columnValueProvider: null, columnsToUpdate: columnsToUpdate);
+            return base.InsertAll(entities, batchSize, ignoreAutoIncrementColumns, parallel, columnValueProvider: columnValueProvider, columns: columns);
         }
 
         public virtual int UpdateAll(IEnumerable<TEntity> entities, int batchSize,
-            bool enableMultithreading,
+            bool parallel,
             Func<string, string> columnValueProvider,
             params string[] columnsToUpdate)
         {
-            return base.UpdateAll(entities, batchSize, enableMultithreading, columnValueProvider, columnsToUpdate);
-        }
-
-        public virtual void DeleteAll(IEnumerable<TEntity> entities, int batchSize = DefaultBatchSize,
-            bool enableMultithreading = true,
-            params string[] critieraColumns)
-        {
-            DeleteAll(entities, batchSize, enableMultithreading, columnValueProvider: null, critieraColumns: critieraColumns);
+            return base.UpdateAll(entities, batchSize, parallel, columnValueProvider, columnsToUpdate);
         }
 
         public virtual int DeleteAll(IEnumerable<TEntity> entities, int batchSize,
-            bool enableMultithreading,
+            bool parallel,
             Func<string, string> columnValueProvider,
-            params string[] critieraColumns)
+            params string[] criteriaColumns)
         {
-            return base.DeleteAll(entities, batchSize, enableMultithreading, columnValueProvider, critieraColumns);
+            return base.DeleteAll(entities, batchSize, parallel, columnValueProvider, criteriaColumns);
         }
 
         public virtual void InsertAllByParams(params TEntity[] entities)
