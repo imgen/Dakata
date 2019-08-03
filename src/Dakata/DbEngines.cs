@@ -5,6 +5,8 @@
         SqlServer,
         Postgres,
         MySql,
-        Oracle
+        Oracle,
+        SQLite,
+        Firebird
     }
 }
