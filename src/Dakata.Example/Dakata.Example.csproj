@@ -8,4 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Dakata\Dakata.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SqlKata" Version="1.1.7" />
+  </ItemGroup>
 </Project>

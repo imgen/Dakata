@@ -26,7 +26,8 @@ namespace Dakata
             DapperConnection = dapperConnection;
         }
 
-        public static IDbProvider DbProvider { get; set; }
+        [ThreadStatic]
+        public static IDbProvider DbProvider;
 
         protected static DbEngines DbEngine => DbProvider.DbEngine;
 
@@ -628,7 +629,7 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
     public class BaseDal<TEntity> : BaseDal
         where TEntity: class
     {
-        protected static readonly TEntity Entity = default; // To be used with nameof
+        protected static readonly TEntity Entity = default; // To be used with nameof such as nameof(Entity.Prop1), etc
         
         public BaseDal(string tableName, DapperConnection dapperConnection): base(tableName, dapperConnection)
         {

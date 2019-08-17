@@ -1,0 +1,1 @@
+﻿Use https://www.sql2object.com/ to generate C# classes
