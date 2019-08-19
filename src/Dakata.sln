@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dakata", "Dakata\Dakata.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dakata.Example", "Dakata.Example\Dakata.Example.csproj", "{4074B75C-BD74-466A-8295-F8CBB98673A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dakata.MySql", "Dakata.MySql\Dakata.MySql.csproj", "{3CC5FEF5-D79F-4758-A891-CD4A3D8CDCAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dakata.SqlServer", "Dakata.SqlServer\Dakata.SqlServer.csproj", "{C397BC39-614F-45FC-B59A-3903C35DDCE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,5 +23,13 @@ Global
 		{4074B75C-BD74-466A-8295-F8CBB98673A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4074B75C-BD74-466A-8295-F8CBB98673A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4074B75C-BD74-466A-8295-F8CBB98673A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CC5FEF5-D79F-4758-A891-CD4A3D8CDCAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CC5FEF5-D79F-4758-A891-CD4A3D8CDCAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CC5FEF5-D79F-4758-A891-CD4A3D8CDCAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CC5FEF5-D79F-4758-A891-CD4A3D8CDCAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C397BC39-614F-45FC-B59A-3903C35DDCE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C397BC39-614F-45FC-B59A-3903C35DDCE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C397BC39-614F-45FC-B59A-3903C35DDCE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C397BC39-614F-45FC-B59A-3903C35DDCE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
