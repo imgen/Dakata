@@ -6,7 +6,6 @@ namespace Dakata
 {
     public interface IDbProvider
     {
-        void Initialize();
         DbEngines DbEngine { get; }
         IDbConnection CreateConnection(string connectionString);
         Func<Compiler> SqlCompilerProvider { get; }

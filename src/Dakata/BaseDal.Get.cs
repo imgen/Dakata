@@ -1,4 +1,5 @@
 ﻿using Dapper.Contrib.Extensions;
+using Slapper;
 using SqlKata;
 using System;
 using System.Collections.Generic;

@@ -21,7 +21,6 @@ namespace Dakata
             AutoMapper.Configuration.TypeConverters.Add(new DateTimeAutoMapperTypeConverter());
             _connectionString = connectionString;
             SqlUtils.CompilerProvider = dbProvider.SqlCompilerProvider;
-            dbProvider.Initialize();
             DbProvider = dbProvider;
         }
 
