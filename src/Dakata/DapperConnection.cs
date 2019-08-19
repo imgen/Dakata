@@ -13,7 +13,7 @@ namespace Dakata
     public  class DapperConnection
     {
         private readonly string _connectionString;
-        private readonly IDbProvider _dbProvider;
+        public IDbProvider DbProvider { get; }
 
         public DapperConnection(string connectionString, IDbProvider dbProvider)
         {
@@ -21,8 +21,8 @@ namespace Dakata
             AutoMapper.Configuration.TypeConverters.Add(new DateTimeAutoMapperTypeConverter());
             _connectionString = connectionString;
             SqlUtils.CompilerProvider = dbProvider.SqlCompilerProvider;
-            BaseDal.DbProvider = _dbProvider = dbProvider;
             dbProvider.Initialize();
+            DbProvider = dbProvider;
         }
 
         public  T ExecuteScalar<T>(string sql, object param = null,
@@ -94,7 +94,7 @@ namespace Dakata
 
         public  T Execute<T>(Func<IDbConnection, T> func)
         {
-            using (var conn = _dbProvider.CreateConnection(_connectionString))
+            using (var conn = DbProvider.CreateConnection(_connectionString))
             {
                 return func(conn);
             }
