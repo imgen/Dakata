@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Dapper.Contrib.Extensions;
+using System;
 
 namespace Dakata.Example.Models
 {
+    [Table("Purchasing.PurchaseOrders")]
     public class PurchaseOrder
     {
+        [Key]
         public int PurchaseOrderID { get; set; }
         public int SupplierID { get; set; }
         public DateTime OrderDate { get; set; }

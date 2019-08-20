@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dakata.SqlServer\Dakata.SqlServer.csproj" />
     <ProjectReference Include="..\Dakata\Dakata.csproj" />
   </ItemGroup>
   <ItemGroup>
