@@ -17,8 +17,8 @@ namespace Dakata.Example
         {
             var purchaseOrderDal = new PurchaseOrderDal(connection);
 
-            var top30PurchaseOrders = purchaseOrderDal.GetAll(100);
-            foreach (var po in top30PurchaseOrders)
+            var top100PurchaseOrders = purchaseOrderDal.GetAll(100);
+            foreach (var po in top100PurchaseOrders)
             {
                 Console.WriteLine($"PO's ID is {po.PurchaseOrderID}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
             }
