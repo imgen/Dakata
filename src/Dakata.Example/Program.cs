@@ -10,10 +10,15 @@ namespace Dakata.Example
         static void Main(string[] args)
         {
             var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
+            GetAllExample(connection);
+        }
+
+        private static void GetAllExample(DapperConnection connection)
+        {
             var purchaseOrderDal = new PurchaseOrderDal(connection);
 
             var top30PurchaseOrders = purchaseOrderDal.GetAll(100);
-            foreach(var po in top30PurchaseOrders)
+            foreach (var po in top30PurchaseOrders)
             {
                 Console.WriteLine($"PO's ID is {po.PurchaseOrderID}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
             }
