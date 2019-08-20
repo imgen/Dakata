@@ -1,21 +1,10 @@
 ﻿using Dakata.Example.Dal;
 using System;
-using System.Linq;
 
 namespace Dakata.Example
 {
-    public class Program
+    public partial class Examples
     {
-        private const string ConnectionString = "Data Source=(local);Initial Catalog=WorldWideImporters;Integrated Security=True;MultipleActiveResultSets=True";
-
-        static void Main(string[] args)
-        {
-            var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
-            GetAllExample(connection);
-
-            GetMaxValueOfColumnExample(connection);
-        }
-
         private static void GetAllExample(DapperConnection connection)
         {
             var purchaseOrderDal = new PurchaseOrderDal(connection);
@@ -27,7 +16,7 @@ namespace Dakata.Example
             }
 
             // If limit parameter not provided, or is 0, will retrieve all records
-            var allPurchaseOrders = purchaseOrderDal.GetAll().ToArray(); 
+            var allPurchaseOrders = purchaseOrderDal.GetAll().ToArray();
             Console.WriteLine($"There are {allPurchaseOrders.Length} purchase orders");
         }
 
@@ -37,6 +26,14 @@ namespace Dakata.Example
 
             var latestExpectedDeliveryDate = purchaseOrderDal.GetLatestExpectedDeliveryDate();
             Console.WriteLine($"The latest expected delivery date is {latestExpectedDeliveryDate}");
+        }
+
+        private static void GetMinValueOfColumnExample(DapperConnection connection)
+        {
+            var purchaseOrderDal = new PurchaseOrderDal(connection);
+
+            var earliestExpectedDeliveryDate = purchaseOrderDal.GetEarliestExpectedDeliveryDate();
+            Console.WriteLine($"The earliest expected delivery date is {earliestExpectedDeliveryDate}");
         }
     }
 }

@@ -9,5 +9,8 @@ namespace Dakata.Example.Dal
 
         public DateTime GetLatestExpectedDeliveryDate() => 
             GetMaxValueOfColumn<DateTime>(nameof(Entity.ExpectedDeliveryDate));
+
+        public DateTime GetEarliestExpectedDeliveryDate() =>
+            GetMinValueOfColumn<DateTime>(nameof(Entity.ExpectedDeliveryDate));
     }
 }

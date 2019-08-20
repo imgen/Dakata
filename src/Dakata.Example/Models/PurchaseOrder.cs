@@ -6,7 +6,7 @@ namespace Dakata.Example.Models
     [Table("Purchasing.PurchaseOrders")]
     public class PurchaseOrder
     {
-        [Key]
+        [Key, AutoIncrement]
         public int PurchaseOrderID { get; set; }
         public int SupplierID { get; set; }
         public DateTime OrderDate { get; set; }
