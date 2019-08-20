@@ -60,9 +60,17 @@ namespace Dakata
             return ExecuteScalar<TCount>(query.AsCount());
         }
 
-        public Query OrderBy(Query query, bool asc, params string[] sortColumns)
+        public Query OrderBy(Query query, bool ascending, params string[] sortColumns)
         {
-            return asc ? query.OrderBy(sortColumns) : query.OrderByDesc(sortColumns);
+            return ascending ? query.OrderBy(sortColumns) : query.OrderByDesc(sortColumns);
+        }
+
+        public Query OrderBy(Query query, params (string column, bool ascending)[] orders)
+        {
+            return orders.Aggregate(
+                query, 
+                (q, order) => OrderBy(q, order.ascending, order.column)
+            );
         }
     }
 
@@ -106,7 +114,7 @@ namespace Dakata
             return DapperConnection.Query<TEntity>(sql, parameter);
         }
 
-        protected virtual IEnumerable<TEntity> Query(Query query)
+        public virtual IEnumerable<TEntity> Query(Query query)
         {
             return DapperConnection.Query<TEntity>(query);
         }

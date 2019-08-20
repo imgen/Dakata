@@ -8,7 +8,7 @@ features / APIs such as `InsertAll`, `UpdateAll` will only work with `SQL Server
 I only created `IDbProvider` implementation for `SQL Server` and `MySQL`. It's very easy to implement for other databases that `SqlKata` supports. 
 
 ## Example project
-The example project uses `SQL Server`'s sample database `WorldWideImporters`. You can import the database by downloading the .bak file from below link
+The example project uses `SQL Server` sample database `WorldWideImporters`. You can import the database by downloading the `.bak` file from below link
 
 [WorldWideImporters Sample DB](https://github.com/microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0)
 

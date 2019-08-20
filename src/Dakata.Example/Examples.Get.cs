@@ -1,4 +1,6 @@
 ﻿using Dakata.Example.Dal;
+using Dakata.Example.Models;
+using SqlKata;
 using System;
 using System.Linq;
 using static System.Console;
@@ -13,6 +15,7 @@ namespace Dakata.Example
             GetMaxValueOfColumnExample(connection);
             GetMinValueOfColumnExample(connection);
             GetCountExample(connection);
+            OrderByExample(connection);
         }
 
         private static void GetAllExample(DapperConnection connection)
@@ -55,6 +58,39 @@ namespace Dakata.Example
 
             var countOfPurchaseOrdersSinceJanuary31st = purchaseOrderDal.GetCountOfPurchaseOrdersSince(DateTime.Parse("2016-01-31"));
             WriteLine($"There are {countOfPurchaseOrdersSinceJanuary31st} purchase orders since 2016-01-31");
+        }
+
+        private static void OrderByExample(DapperConnection connection)
+        {
+            var purchaseOrderDal = new PurchaseOrderDal(connection);
+
+            Func<Query> top10PurchaseOrderQuery = () => purchaseOrderDal.NewQuery().Limit(10);
+
+            // Below two statements shows two different ways of doing ordering
+            // If multiple columns have different directions of ordering 
+            // (ascending / descending), use the second way
+            var top10LatestPurchaseOrdersQuery = purchaseOrderDal
+                .OrderBy(
+                    top10PurchaseOrderQuery(), 
+                    ascending: false,
+                    nameof(PurchaseOrder.OrderDate),
+                    nameof(PurchaseOrder.ExpectedDeliveryDate)
+                );
+
+            top10LatestPurchaseOrdersQuery = purchaseOrderDal
+                .OrderBy(
+                    top10PurchaseOrderQuery(),
+                    (
+                        column: nameof(PurchaseOrder.OrderDate),
+                        ascending: false
+                    ),
+                    (
+                        column: nameof(PurchaseOrder.ExpectedDeliveryDate),
+                        ascending: true
+                    )
+                );
+            var top10LatestPurchaseOrders = purchaseOrderDal.Query(top10LatestPurchaseOrdersQuery).ToList();
+            WriteLine($"The top 10 latest purchase orders are retrieved");
         }
     }
 }
