@@ -15,17 +15,45 @@ namespace Dakata
 
         protected virtual IEnumerable<dynamic> QueryDynamic(Query query) => DapperConnection.Query<dynamic>(query);
 
-        protected virtual TMaxColumn GetMaxValueOfColumn<TMaxColumn>(string columnName)
+        /// <summary>
+        /// Gets maximum value of certain column
+        /// </summary>
+        /// <typeparam name="TColumn">The type of the column</typeparam>
+        /// <param name="columnName">The name of the column</param>
+        /// <returns>The maximum value of the specified column</returns>
+        protected virtual TColumn GetMaxValueOfColumn<TColumn>(string columnName)
         {
             var query = NewQuery().AsMax(columnName);
-            return ExecuteScalar<TMaxColumn>(query);
+            return ExecuteScalar<TColumn>(query);
+        }
+        
+        /// <summary>
+        /// Gets minimum value of certain column
+        /// </summary>
+        /// <typeparam name="TColumn">The type of the column</typeparam>
+        /// <param name="columnName">The name of the column</param>
+        /// <returns>The minimum value of the specified column</returns>
+        protected virtual TColumn GetMinValueOfColumn<TColumn>(string columnName)
+        {
+            var query = NewQuery().AsMin(columnName);
+            return ExecuteScalar<TColumn>(query);
         }
 
+        /// <summary>
+        /// Gets the count of a table
+        /// </summary>
+        /// <typeparam name="TCount">The type of the count, usually int or long</typeparam>
+        /// <returns>The count</returns>
         public TCount GetCount<TCount>()
         {
             return ExecuteScalar<TCount>(NewQuery().AsCount());
         }
 
+        /// <summary>
+        /// Gets the count of a specific query, can be as simple as a GetAll query or as complex as multiple joins with sub queries.
+        /// </summary>
+        /// <param name="query">The SqlKata query.</param>
+        /// <returns>The count of that query</returns>
         public int GetCount(Query query)
         {
             return ExecuteScalar<int>(query.AsCount());

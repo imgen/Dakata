@@ -130,6 +130,11 @@ namespace Dakata
         protected string AddTablePrefix(string columnName, string tableName = null) =>
                     $"{tableName ?? TableName}.{columnName}";
 
+        /// <summary>
+        /// Creates a new SqlKata query. If no more changes made to that query, it will simply get all the records of the table
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
         protected Query NewQuery(string tableName = null) => new Query(tableName ?? TableName);
 
         protected static string GetColumnName(PropertyInfo property)
