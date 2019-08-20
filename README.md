@@ -12,4 +12,4 @@ The example project uses `SQL Server`'s sample database `WorldWideImporters`. Yo
 
 [WorldWideImporters](https://github.com/microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0)
 
-You probably need to change the connection string if you install `SQL Server` on a different machine or don't use `Windows Authentication`
+You probably need to change the connection string if you install `SQL Server` on a different machine or don't use `Windows Authentication` for authentication
