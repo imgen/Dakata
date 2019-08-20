@@ -133,9 +133,9 @@ namespace Dakata
         /// <summary>
         /// Creates a new SqlKata query. If no more changes made to that query, it will simply get all the records of the table
         /// </summary>
-        /// <param name="tableName"></param>
-        /// <returns></returns>
-        protected Query NewQuery(string tableName = null) => new Query(tableName ?? TableName);
+        /// <param name="tableName">The table name. If omitted, will use the table name from calculator</param>
+        /// <returns>The basic query of the table</returns>
+        public Query NewQuery(string tableName = null) => new Query(tableName ?? TableName);
 
         protected static string GetColumnName(PropertyInfo property)
         {
