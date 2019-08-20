@@ -52,11 +52,12 @@ namespace Dakata
         /// <summary>
         /// Gets the count of a specific query, can be as simple as a GetAll query or as complex as multiple joins with sub queries.
         /// </summary>
+        /// <typeparam name="TCount">The type of the count, usually int or long</typeparam>
         /// <param name="query">The SqlKata query.</param>
         /// <returns>The count of that query</returns>
-        public int GetCount(Query query)
+        public TCount GetCount<TCount>(Query query)
         {
-            return ExecuteScalar<int>(query.AsCount());
+            return ExecuteScalar<TCount>(query.AsCount());
         }
 
         public Query OrderBy(Query query, bool asc, params string[] sortColumns)

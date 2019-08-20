@@ -10,12 +10,5 @@
 
             GetExamples(connection);
         }
-
-        private static void GetExamples(DapperConnection connection)
-        {
-            GetAllExample(connection);
-            GetMaxValueOfColumnExample(connection);
-            GetMinValueOfColumnExample(connection);
-        }
     }
 }

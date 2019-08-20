@@ -12,5 +12,8 @@ namespace Dakata.Example.Dal
 
         public DateTime GetEarliestExpectedDeliveryDate() =>
             GetMinValueOfColumn<DateTime>(nameof(Entity.ExpectedDeliveryDate));
+
+        public int GetCountOfPurchaseOrdersSince(DateTime date) => 
+            GetCount<int>(NewQuery().WhereDate(nameof(Entity.OrderDate), ">=", date));
     }
 }
