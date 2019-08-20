@@ -10,6 +10,6 @@ I only created `IDbProvider` implementation for `SQL Server` and `MySQL`. It's v
 ## Example project
 The example project uses `SQL Server`'s sample database `WorldWideImporters`. You can import the database by downloading the .bak file from below link
 
-[WorldWideImporters](https://github.com/microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0)
+[WorldWideImporters Sample DB](https://github.com/microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0)
 
 You probably need to change the connection string if you install `SQL Server` on a different machine or don't use `Windows Authentication` for authentication
