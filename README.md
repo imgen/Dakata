@@ -6,3 +6,8 @@ features / APIs such as `InsertAll`, `UpdateAll` will only work with `SQL Server
 `IDbProvider` interface is a simple abstraction of a database's behavior such as creating the connection, maximum parameter count, when insert, how to retrieve the inserted id, etc. The `UtcNowExpression` is used for columns that its value is an `SQL` expression instead of an value passed by the caller, such as `TimeCreated`, `TimeUpdated`, etc. Please see [`SqlServerDbProvider`](https://github.com/imgen/Dakata/blob/master/src/Dakata.SqlServer/SqlServerDbProvider.cs) file for reference implementation. 
 
 I only created `IDbProvider` implementation for `SQL Server` and `MySQL`. It's very easy to implement for other databases that `SqlKata` supports. 
+
+## Example project
+The example project uses `SQL Server`'s sample database `WorldWideImporters`. You can import the database by downloading the .bak file from below link
+[WorldWideImporters](https://github.com/microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0)
+You probably need to change the connection string if you install `SQL Server` on a different machine or don't use `Windows Authentication`
