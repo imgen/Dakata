@@ -22,8 +22,8 @@ namespace Dakata.MySql
 
         public long Insert(string sql, object parameters, IDbConnection connection)
         {
-            connection.ExecuteScalar<long>(sql, parameters);
-            var results = connection.Query<dynamic>("Select LAST_INSERT_ID() id");
+            sql += ";select LAST_INSERT_ID() id";
+            var results = connection.Query<dynamic>(sql, parameters);
             dynamic first = results.FirstOrDefault();
             if (first == null)
             {
