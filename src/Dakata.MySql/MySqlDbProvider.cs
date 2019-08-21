@@ -17,7 +17,6 @@ namespace Dakata.MySql
         }
 
         public Func<Compiler> SqlCompilerProvider => () => new MySqlCompiler();
-        public string DbConnectionName { get; } = "MySqlConnection";
         public string UtcNowExpression { get; } = "NOW()";
 
         public long Insert(string sql, object parameters, IDbConnection connection)
