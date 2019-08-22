@@ -10,7 +10,7 @@ namespace Dakata
         IDbConnection CreateConnection(string connectionString);
         Func<Compiler> SqlCompilerProvider { get; }
         string UtcNowExpression { get; }
-        long Insert(string sql, object parameters, IDbConnection connection);
+        long Insert(string sql, object parameters, IDbConnection connection, string sequenceName);
         int MaxParameterCount { get; }
     }
 }

@@ -9,6 +9,8 @@
             var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
 
             GetExamples(connection);
+
+            InsertExamples(connection);
         }
     }
 }

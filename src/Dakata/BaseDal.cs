@@ -26,6 +26,8 @@ namespace Dakata
 
         protected string ParameterPrefix => IsOracle ? ":" : "@";
 
+        public string UtcNowExpression => DbProvider.UtcNowExpression;
+
         protected Type EntityType;
 
         public int MaxParameterCount => DbProvider.MaxParameterCount;

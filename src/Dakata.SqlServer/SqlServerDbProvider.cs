@@ -19,9 +19,11 @@ namespace Dakata.Example
 
         public IDbConnection CreateConnection(string connectionString) => new SqlConnection(connectionString);
 
-        public long Insert(string sql, object parameters, IDbConnection connection)
+        public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName)
         {
-            sql += ";select SCOPE_IDENTITY() id";
+            sql += string.IsNullOrEmpty(sequenceName)?
+                ";select SCOPE_IDENTITY() id":
+                $";select current_value AS id from sys.sequences where name = '{sequenceName}'";
             var results = connection.Query<dynamic>(sql, parameters);
             dynamic first = results.FirstOrDefault();
             if (first == null)

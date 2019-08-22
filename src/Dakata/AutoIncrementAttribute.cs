@@ -8,5 +8,6 @@ namespace Dakata
     [AttributeUsage(AttributeTargets.Property)]
     public class AutoIncrementAttribute : Attribute
     {
+        public string SequenceName { get;set; }
     }
 }

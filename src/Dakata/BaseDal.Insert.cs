@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dakata
 {
@@ -77,11 +79,16 @@ namespace Dakata
                 }
                 valueClause.Add(columnValue);
             }
-
-            var sql = $"INSERT INTO {TableName} ({columns.JoinString(",")}) VALUES ({valueClause.JoinString(",")})";
-            long identity = DapperConnection.Execute(connection => DbProvider.Insert(sql, parameters, connection));
             var autoIncrementAttributeProperty =
                 EntityType.GetPropertiesWithAttribute<AutoIncrementAttribute>().FirstOrDefault();
+            var autoIncrementAttribute = autoIncrementAttributeProperty?.
+                    GetCustomAttributes(true)?.
+                    Cast<Attribute>()?.
+                    FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
+            var sql = $"INSERT INTO {TableName} ({columns.JoinString(",")}) VALUES ({valueClause.JoinString(",")})";
+            long identity = DapperConnection.Execute(connection => DbProvider.Insert(
+                sql, parameters, connection, autoIncrementAttribute?.SequenceName));
+            
             if (autoIncrementAttributeProperty != null)
             {
                 var propertyType = autoIncrementAttributeProperty.PropertyType;

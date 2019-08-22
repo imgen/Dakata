@@ -6,14 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="BaseDal.Insert.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="BaseDal.Insert.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Dapper.ColumnMapper" Version="1.2.0" />
       <PackageReference Include="Dapper.Contrib" Version="1.60.1" />
       <PackageReference Include="Slapper.AutoMapper" Version="2.0.0.9-beta" />
