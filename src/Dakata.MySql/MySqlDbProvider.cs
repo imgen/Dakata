@@ -19,9 +19,10 @@ namespace Dakata.MySql
         public Func<Compiler> SqlCompilerProvider => () => new MySqlCompiler();
         public string UtcNowExpression { get; } = "NOW()";
 
-        public long Insert(string sql, object parameters, IDbConnection connection)
+        public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName)
         {
-            sql += ";select LAST_INSERT_ID() id";
+            // Sequence name will be ignored since MySQL doesn't support that
+            sql += ";select LAST_INSERT_ID() id"; 
             var results = connection.Query<dynamic>(sql, parameters);
             dynamic first = results.FirstOrDefault();
             if (first == null)
