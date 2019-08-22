@@ -61,9 +61,11 @@ namespace Dakata
             Execute(sql, parameters);
         }
 
-        public long InsertByRawSql(object entity, Func<string, string> columnValueProvider)
+        public long InsertByRawSql(object entity, Func<string, string> columnValueProvider, params string[] columns)
         {
-            var columns = GetTableColumns(ignoreAutoIncrementColumns: true, ignoreKeyProperty: false);
+            columns = columns.IsNullOrEmpty()? 
+                GetTableColumns(ignoreAutoIncrementColumns: true, ignoreKeyProperty: false) : 
+                columns;
             var parameters = new DynamicParameters();
             var valueClause = new List<string>(columns.Length);
             var parameterPrefix = ParameterPrefix;
@@ -113,9 +115,10 @@ namespace Dakata
             return base.InsertAll(entities, batchSize, parallel, columnValueProvider, columns);
         }
 
-        public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider = null)
+        public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider = null,
+            params string[] columns)
         {
-            return InsertByRawSql(entity, columnValueProvider);
+            return InsertByRawSql(entity, columnValueProvider, columns);
         }
     }
 }
