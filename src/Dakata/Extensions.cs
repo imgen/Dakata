@@ -1,3 +1,4 @@
+using Dapper;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
+using static Dapper.SqlMapper;
 
 namespace Dakata
 {
@@ -481,18 +483,53 @@ namespace Dakata
             return someObject;
         }
 
-        public static Dictionary<string, object> AsDictionary(this object source, 
-            BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+        public static IDictionary<string, object> AsDictionary(this object source)
         {
-            if (source is Dictionary<string, object> dictionary)
+            switch (source)
             {
-                return dictionary;
+                case null:
+                    return null;
+                case IReadOnlyDictionary<string, object> readOnlyDictionary:
+                    return readOnlyDictionary.ToDictionary(x => x.Key, x => x.Value);
+                case IDictionary<string, object> dictionary:
+                    return dictionary.ToDictionary(x => x.Key, x => x.Value);
+                case DynamicParameters dynamicParameters:
+                    var dictionary2 = new Dictionary<string, object>();
+                    var parameterLookup = dynamicParameters as IParameterLookup;
+                    foreach(var name in dynamicParameters.ParameterNames)
+                    {
+                        dictionary2[name] = parameterLookup[name];
+                    }
+                    break;
             }
-            return source.GetType().GetProperties(bindingAttr).ToDictionary
-            (
-                propInfo => propInfo.Name,
-                propInfo => propInfo.GetValue(source, null)
-            );
+
+            var type = source.GetType();
+            if (type.IsGenericType)
+            {
+                const string DICTIONARY_INTERFACE_NAME = "System.Collections.Generic.IDictionary`2",
+                    READONLY_DICTIONARY_INTERFACE_NAME = "System.Collections.Generic.IReadOnlyDictionary`2";
+                var dictionaryInterface = type.GetInterface(DICTIONARY_INTERFACE_NAME) ??
+                    type.GetInterface(READONLY_DICTIONARY_INTERFACE_NAME);
+                if (dictionaryInterface != null &&
+                    dictionaryInterface.GetGenericArguments()[0] == typeof(string))
+                {
+                    dynamic stringDict = source;
+                    ICollection<string> keys = stringDict.Keys;
+                    return keys.ToDictionary(x => x, x => stringDict[x]);
+                }
+            }
+
+            const BindingFlags BINDING_ATTR = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty;
+            // Exclude indexers when get the properties
+            var properties = type.GetProperties(BINDING_ATTR)
+                .Where(x => !x.GetIndexParameters().Any())
+                .ToArray();
+            var dict = properties.ToDictionary(
+                property => property.Name,
+                property => property.GetValue(source)
+                );
+
+            return dict;
         }
     }
 }

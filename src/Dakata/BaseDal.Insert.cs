@@ -88,6 +88,7 @@ namespace Dakata
                     Cast<Attribute>()?.
                     FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
             var sql = $"INSERT INTO {TableName} ({columns.JoinString(",")}) VALUES ({valueClause.JoinString(",")})";
+            Logger(sql, parameters.AsDictionary());
             long identity = DapperConnection.Execute(connection => DbProvider.Insert(
                 sql, parameters, connection, autoIncrementAttribute?.SequenceName));
             

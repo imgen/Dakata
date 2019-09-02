@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using static Dakata.DbUtils;
 
 namespace Dakata
@@ -10,11 +11,16 @@ namespace Dakata
         public const int DefaultBatchSize = 100;
         public virtual string TableName { get; }
 
-        public BaseDal(string tableName, DapperConnection dapperConnection)
+        public Action<string, IDictionary<string, object>> Logger { get; set; } = (sql, parameter) => { };
+
+        public BaseDal(string tableName, DapperConnection dapperConnection, 
+            Action<string, IDictionary<string, object>> logger = null)
         {
             TableName = tableName;
             DapperConnection = dapperConnection;
             DbProvider = dapperConnection.DbProvider;
+            Logger = logger?? Logger;
+            dapperConnection.Logger = Logger;
         }
 
         public IDbProvider DbProvider;
@@ -38,13 +44,15 @@ namespace Dakata
     {
         protected static readonly TEntity Entity = default; // To be used with nameof such as nameof(Entity.PropName), etc
         
-        public BaseDal(string tableName, DapperConnection dapperConnection): base(tableName, dapperConnection)
+        public BaseDal(string tableName, 
+            DapperConnection dapperConnection, 
+            Action<string, object> logger = null): base(tableName, dapperConnection, logger)
         {
             EntityType = typeof(TEntity);
         }
 
-        protected BaseDal(DapperConnection dapperConnection) :
-            this(GetTableName<TEntity>(), dapperConnection)
+        protected BaseDal(DapperConnection dapperConnection, Action<string, object> logger = null) :
+            this(GetTableName<TEntity>(), dapperConnection, logger)
         {
         }
     }

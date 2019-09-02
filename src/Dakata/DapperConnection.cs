@@ -15,6 +15,8 @@ namespace Dakata
         private readonly string _connectionString;
         public IDbProvider DbProvider { get; }
 
+        public Action<string, IDictionary<string, object>> Logger { get; set; } = (sql, parameter) => { };
+
         public DapperConnection(string connectionString, IDbProvider dbProvider)
         {
             SqlMapper.AddTypeHandler(new DateTimeDapperTypeHandler());
@@ -24,9 +26,15 @@ namespace Dakata
             DbProvider = dbProvider;
         }
 
+        private static void Log(string sql, object param)
+        {
+
+        }
+
         public  T ExecuteScalar<T>(string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            Log(sql, param);
             return Execute(conn => conn.ExecuteScalar<T>(sql, param, transaction, commandTimeout));
         }
 
@@ -38,6 +46,7 @@ namespace Dakata
         public  int Execute(string sql, object param = null,
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
         {
+            Log(sql, param);
             return Execute(conn => conn.Execute(sql, param, transaction, commandTimeout));
         }
 
@@ -48,6 +57,7 @@ namespace Dakata
 
         public  IEnumerable<T> Query<T>(string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
         {
+            Log(sql, param);
             return Execute(conn => conn.Query<T>(sql, param, transaction, buffered, commandTimeout, commandType));
         }
 
@@ -58,18 +68,21 @@ namespace Dakata
 
         public  IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(string sql, Func<TFirst, TSecond, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
         {
+            Log(sql, param);
             return Execute(conn => conn.Query(sql, map, param, transaction, buffered, splitOn,
                     commandTimeout, commandType));
         }
 
         public  IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TReturn>(string sql, Func<TFirst, TSecond, TThird, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
         {
+            Log(sql, param);
             return Execute(conn => conn.Query(sql, map, param, transaction, buffered, splitOn,
                     commandTimeout, commandType));
         }
 
         public  IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TFourth, TReturn>(string sql, Func<TFirst, TSecond, TThird, TFourth, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
         {
+            Log(sql, param);
             return Execute(conn => conn.Query(sql, map, param, transaction, buffered, splitOn,
                     commandTimeout, commandType));
         }
