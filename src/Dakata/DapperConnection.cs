@@ -15,7 +15,7 @@ namespace Dakata
         private readonly string _connectionString;
         public IDbProvider DbProvider { get; }
 
-        public Action<SqlInfo> Logger { get; set; } = _ => { };
+        internal Action<SqlInfo> Logger { get; set; } = _ => { };
 
         public DapperConnection(string connectionString, IDbProvider dbProvider)
         {
