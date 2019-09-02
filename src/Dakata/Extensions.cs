@@ -488,7 +488,7 @@ namespace Dakata
             switch (source)
             {
                 case null:
-                    return null;
+                    return new Dictionary<string, object>();
                 case IReadOnlyDictionary<string, object> readOnlyDictionary:
                     return readOnlyDictionary.ToDictionary(x => x.Key, x => x.Value);
                 case IDictionary<string, object> dictionary:

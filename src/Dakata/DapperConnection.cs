@@ -15,7 +15,7 @@ namespace Dakata
         private readonly string _connectionString;
         public IDbProvider DbProvider { get; }
 
-        public Action<string, IDictionary<string, object>> Logger { get; set; } = (sql, parameter) => { };
+        public Action<SqlInfo> Logger { get; set; } = _ => { };
 
         public DapperConnection(string connectionString, IDbProvider dbProvider)
         {
@@ -26,9 +26,9 @@ namespace Dakata
             DbProvider = dbProvider;
         }
 
-        private static void Log(string sql, object param)
+        private void Log(string sql, object param)
         {
-
+            Logger(new SqlInfo(sql, param.AsDictionary()));
         }
 
         public  T ExecuteScalar<T>(string sql, object param = null,

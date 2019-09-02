@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using static Dakata.DbUtils;
 
 namespace Dakata
@@ -11,10 +10,10 @@ namespace Dakata
         public const int DefaultBatchSize = 100;
         public virtual string TableName { get; }
 
-        public Action<string, IDictionary<string, object>> Logger { get; set; } = (sql, parameter) => { };
+        public Action<SqlInfo> Logger { get; set; } = _ => { };
 
         public BaseDal(string tableName, DapperConnection dapperConnection, 
-            Action<string, IDictionary<string, object>> logger = null)
+            Action<SqlInfo> logger = null)
         {
             TableName = tableName;
             DapperConnection = dapperConnection;
@@ -46,12 +45,12 @@ namespace Dakata
         
         public BaseDal(string tableName, 
             DapperConnection dapperConnection, 
-            Action<string, object> logger = null): base(tableName, dapperConnection, logger)
+            Action<SqlInfo> logger = null): base(tableName, dapperConnection, logger)
         {
             EntityType = typeof(TEntity);
         }
 
-        protected BaseDal(DapperConnection dapperConnection, Action<string, object> logger = null) :
+        protected BaseDal(DapperConnection dapperConnection, Action<SqlInfo> logger = null) :
             this(GetTableName<TEntity>(), dapperConnection, logger)
         {
         }
