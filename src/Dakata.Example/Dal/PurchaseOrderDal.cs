@@ -5,7 +5,7 @@ namespace Dakata.Example.Dal
 {
     public class PurchaseOrderDal : BaseDal<PurchaseOrder>
     {
-        public PurchaseOrderDal(DapperConnection connection): base(connection) { }
+        public PurchaseOrderDal(DapperConnection connection, Action<SqlInfo> logger = null): base(connection, logger) { }
 
         public DateTime GetLatestExpectedDeliveryDate() => 
             GetMaxValueOfColumn<DateTime>(nameof(Entity.ExpectedDeliveryDate));

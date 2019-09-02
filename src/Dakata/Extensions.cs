@@ -500,7 +500,7 @@ namespace Dakata
                     {
                         dictionary2[name] = parameterLookup[name];
                     }
-                    break;
+                    return dictionary2;
             }
 
             var type = source.GetType();

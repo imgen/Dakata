@@ -8,6 +8,8 @@
         {
             var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
 
+            LoggingExamples(connection);
+
             GetExamples(connection);
 
             InsertExamples(connection);
