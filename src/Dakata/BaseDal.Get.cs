@@ -160,13 +160,13 @@ namespace Dakata
 
         protected virtual TEntity GetWithParameters(object parameters)
         {
-            var query = NewQuery().Where(parameters.AsDictionary()).Limit(1);
+            var query = NewQuery().Where(parameters.AsDictionary());
             return Get(query);
         }
 
         protected virtual async Task<TEntity> GetWithParametersAsync(object parameters)
         {
-            var query = NewQuery().Where(parameters.AsDictionary()).Limit(1);
+            var query = NewQuery().Where(parameters.AsDictionary());
             return await GetAsync(query);
         }
 
@@ -182,12 +182,12 @@ namespace Dakata
 
         public virtual TEntity GetFirst()
         {
-            return Get(NewQuery().Limit(1));
+            return Get(NewQuery());
         }
 
         public virtual async Task<TEntity> GetFirstAsync()
         {
-            return await GetAsync(NewQuery().Limit(1));
+            return await GetAsync(NewQuery());
         }
 
         private Query BuildEntityKeysQuery(TEntity keyEntity)
@@ -240,13 +240,13 @@ namespace Dakata
 
         public virtual TEntity GetByEntityKeys(TEntity keyEntity)
         {
-            var query = BuildEntityKeysQuery(keyEntity).Limit(1);
+            var query = BuildEntityKeysQuery(keyEntity);
             return Get(query);
         }
 
         public virtual async Task<TEntity> GetByEntityKeysAsync(TEntity keyEntity)
         {
-            var query = BuildEntityKeysQuery(keyEntity).Limit(1);
+            var query = BuildEntityKeysQuery(keyEntity);
             return await GetAsync(query);
         }
 
@@ -292,13 +292,13 @@ namespace Dakata
 
         protected TEntity GetRecordWithMaxValueOfColumn(string column)
         {
-            var query = BuildRecordsWithMaxValueOfColumnQuery(column).Limit(1);
+            var query = BuildRecordsWithMaxValueOfColumnQuery(column);
             return Get(query);
         }
 
         protected async Task<TEntity> GetRecordWithMaxValueOfColumnAsync(string column)
         {
-            var query = BuildRecordsWithMaxValueOfColumnQuery(column).Limit(1);
+            var query = BuildRecordsWithMaxValueOfColumnQuery(column);
             return await GetAsync(query);
         }
 
