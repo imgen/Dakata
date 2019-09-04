@@ -26,7 +26,7 @@ namespace Dakata.Example
                 LastEditedBy = 1001
             };
 
-            var purchaseOrderId = purchaseOrderDal.Insert(po,
+            var purchaseOrderId = await purchaseOrderDal.InsertAsync(po,
                 columnName =>
                 {
                     if (columnName == nameof(PurchaseOrder.OrderDate))

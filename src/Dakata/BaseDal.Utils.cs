@@ -5,13 +5,14 @@ using SqlKata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using static Dakata.DbUtils;
 
 namespace Dakata
 {
     public partial class BaseDal
-    {
+    {     
         public int GetMaxBatchSize(int parameterCountOfOneRecord) =>
             MaxParameterCount / parameterCountOfOneRecord;
 
@@ -275,6 +276,14 @@ namespace Dakata
                 value = Convert.ChangeType(value, propertyType);
                 property.SetValue(entity, value);
             }
+        }
+    }
+
+    public partial class BaseDal<TEntity>
+    {
+        public string GetColumnName<TProperty>(Expression<Func<TEntity, TProperty>> propExpr)
+        {
+            return GetColumnName(propExpr.GetFullPropertyName());
         }
     }
 }
