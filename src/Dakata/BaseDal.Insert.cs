@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dakata
@@ -16,29 +17,60 @@ namespace Dakata
         {
             columns = !columns.IsNullOrEmpty() ?
                 columns : GetTableColumns(ignoreAutoIncrementColumns: true, ignoreKeyProperty: false);
-            var isOracle = IsOracle;
             var joinedColumns = columns.JoinString(",");
-
             batchSize = CalculateBatchSize(batchSize, columns.Length);
+            var batches = entities.Batch(batchSize);
             if (parallel)
             {
-                Parallel.ForEach(entities.Batch(batchSize), batch =>
+                Parallel.ForEach(batches, batch =>
                 {
-                    InsertAll(columns, isOracle, joinedColumns, batch, columnValueProvider);
+                    InsertAll(columns, IsOracle, joinedColumns, batch, columnValueProvider);
                 });
             }
             else
             {
-                entities.Batch(batchSize).ForEach(batch =>
+                batches.ForEach(batch =>
                 {
-                    InsertAll(columns, isOracle, joinedColumns, batch, columnValueProvider);
+                    InsertAll(columns, IsOracle, joinedColumns, batch, columnValueProvider);
                 });
             }
 
             return batchSize;
         }
 
-        private void InsertAll(string[] columns,
+        protected virtual async Task<int> InsertAllAsync(IEnumerable<object> entities,
+            int batchSize = DefaultBatchSize,
+            bool parallel = false,
+            Func<string, string> columnValueProvider = null,
+            params string[] columns)
+        {
+            columns = !columns.IsNullOrEmpty() ?
+                columns : GetTableColumns(ignoreAutoIncrementColumns: true, ignoreKeyProperty: false);
+            var joinedColumns = columns.JoinString(",");
+            batchSize = CalculateBatchSize(batchSize, columns.Length);
+            var batches = entities.Batch(batchSize);
+            if (parallel)
+            {
+                var insertAllTasks = batches
+                    .Select(
+                        batch => 
+                            InsertAllAsync(columns, IsOracle, joinedColumns, batch, columnValueProvider))
+                    .ToArray();
+
+                await Task.WhenAll(insertAllTasks);
+            }
+            else
+            {
+                foreach(var batch in batches)
+                {
+                    await InsertAllAsync(columns, IsOracle, joinedColumns, batch, columnValueProvider);
+                }
+            }
+
+            return batchSize;
+        }
+
+        private (string sql, DynamicParameters parameters) BuildInsertAllQuery(string[] columns, 
             bool isOracle,
             string joinedColumns,
             IEnumerable<object> batch,
@@ -58,14 +90,91 @@ namespace Dakata
                 sql += valueClauses.JoinString(",");
             }
 
+            return (sql, parameters);
+        }
+
+        private void InsertAll(string[] columns,
+            bool isOracle,
+            string joinedColumns,
+            IEnumerable<object> batch,
+            Func<string, string> columnValueProvider)
+        {
+            var (sql, parameters) = BuildInsertAllQuery(columns, isOracle, joinedColumns, batch, columnValueProvider);
             Execute(sql, parameters);
         }
 
-        public long InsertByRawSql(object entity, Func<string, string> columnValueProvider, params string[] columns)
+        private async Task InsertAllAsync(string[] columns,
+            bool isOracle,
+            string joinedColumns,
+            IEnumerable<object> batch,
+            Func<string, string> columnValueProvider)
         {
-            columns = columns.IsNullOrEmpty()? 
-                GetTableColumns(ignoreAutoIncrementColumns: true, ignoreKeyProperty: false) : 
-                columns;
+            var (sql, parameters) = BuildInsertAllQuery(columns, isOracle, joinedColumns, batch, columnValueProvider);
+            await ExecuteAsync(sql, parameters);
+        }
+
+        public long InsertByRawSql(object entity, 
+            Func<string, string> columnValueProvider, 
+            params string[] columns)
+        {
+            var (sql, parameters, autoIncrementAttribute, autoIncrementAttributeProperty) =
+                PrepareInsertByRawSqlParameters(entity,
+                    columnValueProvider,
+                    columns);
+            long identity = Execute(connection =>
+                                        DbProvider.Insert(sql,
+                                            parameters,
+                                            connection,
+                                            autoIncrementAttribute?.SequenceName)
+                                 );
+            RefreshEntity(entity, autoIncrementAttributeProperty, identity);
+
+            return identity;
+        }
+
+        public async Task<long> InsertByRawSqlAsync(object entity,
+            Func<string, string> columnValueProvider,
+            params string[] columns)
+        {
+            var (sql, parameters, autoIncrementAttribute, autoIncrementAttributeProperty) =
+                PrepareInsertByRawSqlParameters(entity,
+                    columnValueProvider,
+                    columns);
+            long identity = await ExecuteAsync(async connection =>
+                                            await DbProvider.InsertAsync(sql,
+                                            parameters,
+                                            connection,
+                                            autoIncrementAttribute?.SequenceName)
+                                 );
+            RefreshEntity(entity, autoIncrementAttributeProperty, identity);
+
+            return identity;
+        }
+
+        private void RefreshEntity(object entity, PropertyInfo autoIncrementAttributeProperty, long identity)
+        {
+            if (autoIncrementAttributeProperty != null)
+            {
+                var propertyType = autoIncrementAttributeProperty.PropertyType;
+                autoIncrementAttributeProperty.SetValue(entity,
+                    Convert.ChangeType(identity, propertyType));
+            }
+
+            RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
+        }
+
+        private (string sql,
+            DynamicParameters parameters,
+            AutoIncrementAttribute autoIncrementAttribute,
+            PropertyInfo autoIncrementAttributeProperty
+            ) PrepareInsertByRawSqlParameters(
+            object entity, 
+            Func<string, string> columnValueProvider, 
+            string[] columns)
+        {
+            columns = columns.IsNullOrEmpty() ?
+                            GetTableColumns(ignoreAutoIncrementColumns: true, ignoreKeyProperty: false) :
+                            columns;
             var parameters = new DynamicParameters();
             var valueClause = new List<string>(columns.Length);
             var parameterPrefix = ParameterPrefix;
@@ -81,31 +190,14 @@ namespace Dakata
                 }
                 valueClause.Add(columnValue);
             }
-            var autoIncrementAttributeProperty =
-                EntityType.GetPropertiesWithAttribute<AutoIncrementAttribute>().FirstOrDefault();
+            var autoIncrementAttributeProperty = EntityType.GetPropertiesWithAttribute<AutoIncrementAttribute>().FirstOrDefault();
             var autoIncrementAttribute = autoIncrementAttributeProperty?.
-                    GetCustomAttributes(true)?.
-                    Cast<Attribute>()?.
-                    FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
+GetCustomAttributes(true)?.
+Cast<Attribute>()?.
+FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
             var sql = $"INSERT INTO {TableName} ({columns.JoinString(",")}) VALUES ({valueClause.JoinString(",")})";
             Logger(new SqlInfo(sql, parameters.AsDictionary()));
-            long identity = Execute(connection => 
-                                        DbProvider.Insert(sql, 
-                                            parameters, 
-                                            connection, 
-                                            autoIncrementAttribute?.SequenceName)       
-                                 );
-            
-            if (autoIncrementAttributeProperty != null)
-            {
-                var propertyType = autoIncrementAttributeProperty.PropertyType;
-                autoIncrementAttributeProperty.SetValue(entity,
-                    Convert.ChangeType(identity, propertyType));
-            }
-
-            RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
-
-            return identity;
+            return (sql, parameters, autoIncrementAttribute, autoIncrementAttributeProperty);
         }
     }
 
@@ -120,10 +212,25 @@ namespace Dakata
             return base.InsertAll(entities, batchSize, parallel, columnValueProvider, columns);
         }
 
+        public virtual async Task<int> InsertAllAsync(IEnumerable<TEntity> entities,
+            int batchSize = DefaultBatchSize,
+            bool parallel = false,
+            Func<string, string> columnValueProvider = null,
+            params string[] columns)
+        {
+            return await base.InsertAllAsync(entities, batchSize, parallel, columnValueProvider, columns);
+        }
+
         public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider = null,
             params string[] columns)
         {
             return InsertByRawSql(entity, columnValueProvider, columns);
+        }
+
+        public virtual async Task<long> InsertAsync(TEntity entity, Func<string, string> columnValueProvider = null,
+           params string[] columns)
+        {
+            return await InsertByRawSqlAsync(entity, columnValueProvider, columns);
         }
     }
 }

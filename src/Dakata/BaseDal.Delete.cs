@@ -91,10 +91,10 @@ namespace Dakata
             await ExecuteAsync(TruncateStatement);
         }
 
-        private (string[] criteriaColumns, 
+        private (string[] columns,
                 int batchSize, 
-                string tempTableName, 
-                IEnumerable<IEnumerable<object>> batches) 
+                IEnumerable<IEnumerable<object>> batches,
+                string tempTableName) 
             PrepareParametersForDeleteAll(
                 IEnumerable<object> entities,
                 int batchSize = DefaultBatchSize,
@@ -109,14 +109,14 @@ namespace Dakata
                 criteriaColumns : GetKeyColumns();
             if (!criteriaColumns.Any())
             {
-                throw new ArgumentException("criteriaColumns is empty and also no key columns");
+                throw new ArgumentException($"{nameof(criteriaColumns)} is empty and also no key columns");
             }
 
             batchSize = CalculateBatchSize(batchSize, criteriaColumns.Length);
             var tempTableName = $"{TableName}_Values";
             var batches = entities.Batch(batchSize);
 
-            return (criteriaColumns, batchSize, tempTableName, batches);
+            return (criteriaColumns, batchSize, batches, tempTableName);
         }
 
         // Based on SO answer https://stackoverflow.com/a/36257723/915147
@@ -126,7 +126,7 @@ namespace Dakata
             Func<string, string> columnValueProvider = null,
             params string[] criteriaColumns)
         {
-            var (newCriteriaColumns, newBatchSize, tempTableName, batches) = 
+            var (newCriteriaColumns, newBatchSize, batches, tempTableName) = 
                 PrepareParametersForDeleteAll(entities, batchSize, criteriaColumns);
             if (parallel)
             {
@@ -153,7 +153,7 @@ namespace Dakata
             Func<string, string> columnValueProvider = null,
             params string[] criteriaColumns)
         {
-            var (newCriteriaColumns, newBatchSize, tempTableName, batches) =
+            var (newCriteriaColumns, newBatchSize, batches, tempTableName) =
                 PrepareParametersForDeleteAll(entities, batchSize, criteriaColumns);
             if (parallel)
             {
@@ -209,7 +209,7 @@ namespace Dakata
             await ExecuteAsync(sql, parameters);
         }
 
-        private (string sql, DynamicParameters parameters) GetDeleteAllQuery(string[] criteriaColumns, IEnumerable<object> batch, string tempTableName,
+        private (string sql, DynamicParameters parameters) BuildDeleteAllQuery(string[] criteriaColumns, IEnumerable<object> batch, string tempTableName,
             Func<string, string> columnValueProvider)
         {
             var sql = $@"DELETE {TableName} FROM {TableName} INNER JOIN (VALUES ";
@@ -226,14 +226,14 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
             string tempTableName,
             Func<string, string> columnValueProvider)
         {
-            var (sql, parameters) = GetDeleteAllQuery(criteriaColumns, batch, tempTableName, columnValueProvider);
+            var (sql, parameters) = BuildDeleteAllQuery(criteriaColumns, batch, tempTableName, columnValueProvider);
             Execute(sql, parameters);
         }
 
         private async Task DeleteAllAsync(string[] criteriaColumns, IEnumerable<object> batch, string tempTableName,
             Func<string, string> columnValueProvider)
         {
-            var (sql, parameters) = GetDeleteAllQuery(criteriaColumns, batch, tempTableName, columnValueProvider);
+            var (sql, parameters) = BuildDeleteAllQuery(criteriaColumns, batch, tempTableName, columnValueProvider);
             await ExecuteAsync(sql, parameters);
         }
     }

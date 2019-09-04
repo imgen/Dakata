@@ -483,7 +483,7 @@ namespace Dakata
             return someObject;
         }
 
-        public static IDictionary<string, object> AsDictionary(this object source)
+        public static Dictionary<string, object> AsDictionary(this object source)
         {
             switch (source)
             {
