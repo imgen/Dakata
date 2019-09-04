@@ -250,7 +250,7 @@ namespace Dakata
             var whereClause = keyColumns.Select(column => ProcessColumn(column, null, parameters, entity))
                 .JoinString(" AND ");
             var sql = $"SELECT * FROM {TableName} WHERE {whereClause}";
-            var results = DapperConnection.Query<dynamic>(sql, parameters);
+            var results = QueryDynamic(sql, parameters);
             if (!(results.FirstOrDefault() is IDictionary<string, object> row))
             {
                 return;
