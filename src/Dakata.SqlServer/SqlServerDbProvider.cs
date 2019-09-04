@@ -4,6 +4,8 @@ using SqlKata.Compilers;
 using System.Data.SqlClient;
 using Dapper;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Dakata.Example
 {
@@ -21,10 +23,29 @@ namespace Dakata.Example
 
         public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName)
         {
-            sql += string.IsNullOrEmpty(sequenceName)?
-                ";select SCOPE_IDENTITY() id":
-                $";select current_value AS id from sys.sequences where name = '{sequenceName}'";
+            sql = AddSelectIdStatement(sql, sequenceName);
             var results = connection.Query<dynamic>(sql, parameters);
+            return GetId(results);
+        }
+
+        public async Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName)
+        {
+            sql = AddSelectIdStatement(sql, sequenceName);
+            var results = await connection.QueryAsync<dynamic>(sql, parameters);
+            return GetId(results);
+        }
+
+        private string AddSelectIdStatement(string sql, string sequenceName)
+        {
+            return sql + (
+                string.IsNullOrEmpty(sequenceName) ?
+                ";select SCOPE_IDENTITY() id" :
+                $";select current_value AS id from sys.sequences where name = '{sequenceName}'"
+            );
+        }
+
+        private static long GetId(IEnumerable<dynamic> results)
+        {
             dynamic first = results.FirstOrDefault();
             if (first == null)
             {

@@ -1,10 +1,12 @@
-﻿namespace Dakata.Example
+﻿using System.Threading.Tasks;
+
+namespace Dakata.Example
 {
     public partial class Examples
     {
         private const string ConnectionString = "Data Source=(local);Initial Catalog=WorldWideImporters;Integrated Security=True;MultipleActiveResultSets=True";
 
-        static void Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
 
@@ -13,6 +15,8 @@
             GetExamples(connection);
 
             InsertExamples(connection);
+
+            return 0;
         }
     }
 }
