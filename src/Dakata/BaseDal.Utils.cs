@@ -12,6 +12,9 @@ namespace Dakata
 {
     public partial class BaseDal
     {
+        public int GetMaxBatchSize(int parameterCountOfOneRecord) =>
+            MaxParameterCount / parameterCountOfOneRecord;
+
         public IEnumerable<string> GetColumnSelections(
             string prefix = "", string tableName = null, Type entityType = null)
         {

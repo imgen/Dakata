@@ -1,4 +1,5 @@
 ﻿using SqlKata;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Dakata
@@ -15,5 +16,30 @@ namespace Dakata
 
         protected virtual void Execute(string sql, object parameters = null) => DapperConnection.Execute(sql, parameters);
         protected virtual async Task ExecuteAsync(string sql, object parameters = null) => await DapperConnection.ExecuteAsync(sql, parameters);
+
+        protected virtual IEnumerable<dynamic> QueryDynamic(Query query) => DapperConnection.Query<dynamic>(query);
+    }
+
+    public partial class BaseDal<TEntity>
+    {
+        public virtual IEnumerable<TEntity> Query(string sql, object parameter)
+        {
+            return DapperConnection.Query<TEntity>(sql, parameter);
+        }
+
+        public virtual async Task<IEnumerable<TEntity>> QueryAsync(string sql, object parameter)
+        {
+            return await DapperConnection.QueryAsync<TEntity>(sql, parameter);
+        }
+
+        public virtual IEnumerable<TEntity> Query(Query query)
+        {
+            return DapperConnection.Query<TEntity>(query);
+        }
+
+        public virtual async Task<IEnumerable<TEntity>> QueryAsync(Query query)
+        {
+            return await DapperConnection.QueryAsync<TEntity>(query);
+        }
     }
 }

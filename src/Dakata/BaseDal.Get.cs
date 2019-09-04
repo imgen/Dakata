@@ -11,11 +11,6 @@ namespace Dakata
 {
     public partial class BaseDal
     {
-        public int GetMaxBatchSize(int parameterCountOfOneRecord) =>
-            MaxParameterCount / parameterCountOfOneRecord;
-
-        protected virtual IEnumerable<dynamic> QueryDynamic(Query query) => DapperConnection.Query<dynamic>(query);
-
         /// <summary>
         /// Gets maximum value of certain column
         /// </summary>
@@ -120,21 +115,6 @@ namespace Dakata
         public virtual TEntity GetFirst()
         {
             return GetAll().First();
-        }
-
-        public virtual IEnumerable<TEntity> Query(string sql, object parameter)
-        {
-            return DapperConnection.Query<TEntity>(sql, parameter);
-        }
-
-        public virtual IEnumerable<TEntity> Query(Query query)
-        {
-            return DapperConnection.Query<TEntity>(query);
-        }
-
-        public virtual async Task<IEnumerable<TEntity>> QueryAsync(Query query)
-        {
-            return await DapperConnection.QueryAsync<TEntity>(query);
         }
 
         protected virtual IEnumerable<TEntity> QueryByEntityKeys(TEntity keyEntity)
