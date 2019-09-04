@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dapper;
 using SqlKata;
 using SqlKata.Compilers;
@@ -42,6 +43,12 @@ namespace Dakata
             return func(result.Sql, result.GetParametersObject());
         }
 
+        public static async Task<T> ExecuteWithSqlKataQueryAsync<T>(this Query query, Func<string, object, Task<T>> func)
+        {
+            var result = query.CompileResult();
+            return await func(result.Sql, result.GetParametersObject());
+        }
+
         public static void ExecuteWithSqlKataQuery(this Query query, Action<string, object> action)
         {
             query.ExecuteWithSqlKataQuery<object>((sql, parameter) =>
@@ -49,6 +56,16 @@ namespace Dakata
                 action(sql, parameter);
                 return null;
             });
+        }
+
+        public static async Task ExecuteWithSqlKataQueryAsync(this Query query, Func<string, object, Task> action)
+        {
+            await query.ExecuteWithSqlKataQueryAsync<object>(
+                async (sql, parameter) =>
+                {
+                    await action(sql, parameter);
+                    return null;
+                });
         }
     }
 }

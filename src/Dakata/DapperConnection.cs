@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using Dapper;
 using Dapper.Contrib.Extensions;
 using Slapper;
@@ -31,11 +32,24 @@ namespace Dakata
             Logger(new SqlInfo(sql, param.AsDictionary()));
         }
 
-        public  T ExecuteScalar<T>(string sql, object param = null,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public  T ExecuteScalar<T>(string sql,
+            object param = null,
+            IDbTransaction transaction = null, 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
         {
             Log(sql, param);
-            return Execute(conn => conn.ExecuteScalar<T>(sql, param, transaction, commandTimeout));
+            return Execute(conn => conn.ExecuteScalar<T>(sql, param, transaction, commandTimeout, commandType));
+        }
+
+        public async Task<T> ExecuteScalarAsync<T>(string sql, 
+            object param = null,
+            IDbTransaction transaction = null, 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
+        {
+            Log(sql, param);
+            return await ExecuteAsync(async conn => await conn.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType));
         }
 
         public  T ExecuteScalar<T>(Query query)
@@ -43,11 +57,29 @@ namespace Dakata
             return query.ExecuteWithSqlKataQuery((sql, parameter) => ExecuteScalar<T>(sql, parameter));
         }
 
-        public  int Execute(string sql, object param = null,
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task<T> ExecuteScalarAsync<T>(Query query)
+        {
+            return await query.ExecuteWithSqlKataQuery(async (sql, parameter) => await ExecuteScalarAsync<T>(sql, parameter));
+        }
+
+        public  int Execute(string sql, 
+            object param = null,
+            IDbTransaction transaction = null, 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
         {
             Log(sql, param);
-            return Execute(conn => conn.Execute(sql, param, transaction, commandTimeout));
+            return Execute(conn => conn.Execute(sql, param, transaction, commandTimeout, commandType));
+        }
+
+        public async Task<int> ExecuteAsync(string sql,
+            object param = null,
+            IDbTransaction transaction = null,
+            int? commandTimeout = null,
+            CommandType? commandType = null)
+        {
+            Log(sql, param);
+            return await ExecuteAsync(async conn => await conn.ExecuteAsync(sql, param, transaction, commandTimeout, commandType));
         }
 
         public  void Execute(Query query)
@@ -55,21 +87,72 @@ namespace Dakata
             query.ExecuteWithSqlKataQuery((sql, parameter) => Execute(sql, parameter));
         }
 
-        public  IEnumerable<T> Query<T>(string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
+        public async Task ExecuteAsync(Query query)
+        {
+            await query.ExecuteWithSqlKataQueryAsync(async (sql, parameter) => await ExecuteAsync(sql, parameter));
+        }
+
+        public  IEnumerable<T> Query<T>(string sql, 
+            object param = null, 
+            IDbTransaction transaction = null, 
+            bool buffered = true, 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
         {
             Log(sql, param);
             return Execute(conn => conn.Query<T>(sql, param, transaction, buffered, commandTimeout, commandType));
         }
 
-        public  IEnumerable<T> Query<T>(Query query)
+        public async Task<IEnumerable<T>> QueryAsync<T>(string sql, 
+            object param = null, 
+            IDbTransaction transaction = null, 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
         {
-            return query.ExecuteWithSqlKataQuery((sql, parameter) => Query<T>(sql, parameter));
+            Log(sql, param);
+            return await ExecuteAsync(
+                async conn => await conn.QueryAsync<T>(
+                    sql, param, transaction, commandTimeout, commandType));
         }
 
-        public  IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(string sql, Func<TFirst, TSecond, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
+        public  IEnumerable<T> Query<T>(Query query)
+        {
+            return query.ExecuteWithSqlKataQuery(
+                (sql, parameter) => Query<T>(sql, parameter));
+        }
+
+        public async Task<IEnumerable<T>> QueryAsync<T>(Query query)
+        {
+            return await query.ExecuteWithSqlKataQueryAsync(
+                async (sql, parameter) => await QueryAsync<T>(sql, parameter));
+        }
+
+        public  IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(string sql, 
+            Func<TFirst, TSecond, TReturn> map, 
+            object param = null, 
+            IDbTransaction transaction = null, 
+            bool buffered = true, 
+            string splitOn = "Id", 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
         {
             Log(sql, param);
             return Execute(conn => conn.Query(sql, map, param, transaction, buffered, splitOn,
+                    commandTimeout, commandType));
+        }
+
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TReturn>(
+            string sql, 
+            Func<TFirst, TSecond, TReturn> map, 
+            object param = null, 
+            IDbTransaction transaction = null, 
+            bool buffered = true, 
+            string splitOn = "Id", 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
+        {
+            Log(sql, param);
+            return await ExecuteAsync(async conn => await conn.QueryAsync(sql, map, param, transaction, buffered, splitOn,
                     commandTimeout, commandType));
         }
 
@@ -80,10 +163,32 @@ namespace Dakata
                     commandTimeout, commandType));
         }
 
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TReturn>(
+            string sql, 
+            Func<TFirst, TSecond, TThird, TReturn> map, 
+            object param = null, 
+            IDbTransaction transaction = null, 
+            bool buffered = true, 
+            string splitOn = "Id", 
+            int? commandTimeout = null, 
+            CommandType? commandType = null)
+        {
+            Log(sql, param);
+            return await ExecuteAsync(async conn => await conn.QueryAsync(sql, map, param, transaction, buffered, splitOn,
+                    commandTimeout, commandType));
+        }
+
         public  IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TFourth, TReturn>(string sql, Func<TFirst, TSecond, TThird, TFourth, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
         {
             Log(sql, param);
             return Execute(conn => conn.Query(sql, map, param, transaction, buffered, splitOn,
+                    commandTimeout, commandType));
+        }
+
+        public async Task<IEnumerable<TReturn>> QueryAsync<TFirst, TSecond, TThird, TFourth, TReturn>(string sql, Func<TFirst, TSecond, TThird, TFourth, TReturn> map, object param = null, IDbTransaction transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
+        {
+            Log(sql, param);
+            return await ExecuteAsync(async conn => await conn.QueryAsync(sql, map, param, transaction, buffered, splitOn,
                     commandTimeout, commandType));
         }
 
@@ -92,10 +197,23 @@ namespace Dakata
             return Execute(conn => conn.Get<T>(id, transaction, commandTimeout));
         }
 
+        public async Task<T> GetAsync<T>(object id, IDbTransaction transaction = null, int? commandTimeout = null) where T : class
+        {
+            return await ExecuteAsync(async conn => await conn.GetAsync<T>(id, transaction, commandTimeout));
+        }
+
         public  IEnumerable<T> GetAll<T>(IDbTransaction transaction = null, int? commandTimeout = null)
             where T : class
         {
             return Execute(conn => conn.GetAll<T>(transaction, commandTimeout));
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync<T>(
+            IDbTransaction transaction = null, 
+            int? commandTimeout = null)
+            where T : class
+        {
+            return await ExecuteAsync(async conn => await conn.GetAllAsync<T>(transaction, commandTimeout));
         }
 
         public  bool Delete<T>(T entityToDelete, IDbTransaction transaction = null,
@@ -104,11 +222,25 @@ namespace Dakata
             return Execute(conn => conn.Delete(entityToDelete, transaction, commandTimeout));
         }
 
+        public async Task<bool> DeleteAsync<T>(T entityToDelete, IDbTransaction transaction = null,
+            int? commandTimeout = null) where T : class
+        {
+            return await ExecuteAsync(async conn => await conn.DeleteAsync(entityToDelete, transaction, commandTimeout));
+        }
+
         public  T Execute<T>(Func<IDbConnection, T> func)
         {
             using (var conn = DbProvider.CreateConnection(_connectionString))
             {
                 return func(conn);
+            }
+        }
+
+        public async Task<T> ExecuteAsync<T>(Func<IDbConnection, Task<T>> func)
+        {
+            using (var conn = DbProvider.CreateConnection(_connectionString))
+            {
+                return await func(conn);
             }
         }
     }
