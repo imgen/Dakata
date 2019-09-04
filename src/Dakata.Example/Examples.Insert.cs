@@ -34,6 +34,7 @@ namespace Dakata.Example
                     {
                         if (columnName == nameof(PurchaseOrder.OrderDate))
                         {
+                            // Only the date part
                             return "CONVERT (date, SYSUTCDATETIME())";
                         }
                         if (columnName == nameof(PurchaseOrder.LastEditedWhen))

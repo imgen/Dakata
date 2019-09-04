@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Dakata
 {
@@ -76,11 +77,23 @@ namespace Dakata
 
     public partial class BaseDal<TEntity>
     {
-        public virtual TEntity Get<TKey>(TKey key)
+        private Query BuildGetByIdQuery<TKey>(TKey key)
         {
             var keyColumnName = GetKeyColumnName();
-            var query = NewQuery().Where(keyColumnName, key);
+            return NewQuery().Where(keyColumnName, key);
+        }
+
+        public virtual TEntity Get<TKey>(TKey key)
+        {
+            var query = BuildGetByIdQuery(key);
             return Query(query).FirstOrDefault();
+        }
+
+        public virtual async Task<TEntity> GetAsync<TKey>(TKey key)
+        {
+            var query = BuildGetByIdQuery(key);
+            var results = await QueryAsync(query);
+            return results.FirstOrDefault();
         }
 
         protected virtual TEntity Get(Query query)
@@ -117,6 +130,11 @@ namespace Dakata
         public virtual IEnumerable<TEntity> Query(Query query)
         {
             return DapperConnection.Query<TEntity>(query);
+        }
+
+        public virtual async Task<IEnumerable<TEntity>> QueryAsync(Query query)
+        {
+            return await DapperConnection.QueryAsync<TEntity>(query);
         }
 
         protected virtual IEnumerable<TEntity> QueryByEntityKeys(TEntity keyEntity)

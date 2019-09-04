@@ -16,6 +16,8 @@ namespace Dakata.Example
 
             InsertExamples(connection);
 
+            await DeleteAsyncExamples(connection);
+
             return 0;
         }
     }
