@@ -18,6 +18,7 @@ namespace Dakata
         protected virtual async Task ExecuteAsync(string sql, object parameters = null) => await DapperConnection.ExecuteAsync(sql, parameters);
 
         protected virtual IEnumerable<dynamic> QueryDynamic(Query query) => DapperConnection.Query<dynamic>(query);
+        protected virtual async Task<IEnumerable<dynamic>> QueryDynamicAsync(Query query) => await DapperConnection.QueryAsync<dynamic>(query);
     }
 
     public partial class BaseDal<TEntity>
