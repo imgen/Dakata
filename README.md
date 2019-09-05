@@ -1,5 +1,5 @@
 # Dakata
-A DAL layer implemented using [`Dapper`](https://github.com/StackExchange/Dapper) + [`SqlKata`](https://sqlkata.com/) + [`Slapper.AutoMapper`](https://github.com/SlapperAutoMapper/Slapper.AutoMapper). Most features will work with any database `SqlKata` supports. But certain 
+A DAL layer implemented using [`Dapper`](https://github.com/StackExchange/Dapper) + [`SqlKata`](https://sqlkata.com/) + [`Slapper.AutoMapper`](https://github.com/SlapperAutoMapper/Slapper.AutoMapper) + [`Dapper.ColumnMapper`](https://github.com/dturkenk/Dapper.ColumnMapper). Most features will work with any database `SqlKata` supports. But certain 
 features / APIs such as `InsertAll`, `UpdateAll` will only work with `SQL Server` and `MySQL` since that's what I used in my own code. If someone can add suport for other databases such as `Postgres` or `Oracle`, please make a PR. 
 
 ## `IDbProvider` interface
