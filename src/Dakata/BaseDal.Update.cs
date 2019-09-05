@@ -31,24 +31,31 @@ namespace Dakata
             await ExecuteAsync(query);
         }
 
-        protected virtual void UpdateByRawSql(object entity, Func<string, string> columnValueProvider = null)
+        protected virtual void UpdateByRawSql(object entity,
+            Func<string, string> columnValueProvider = null,
+            params string[] columnsToUpdate)
         {
-            var (sql, parameters) = BuildUpdateQuery(entity, columnValueProvider);
+            var (sql, parameters) = BuildUpdateQuery(entity, columnValueProvider, columnsToUpdate);
             Execute(sql, parameters);
             RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
         }
 
-        protected virtual async Task UpdateByRawSqlAsync(object entity, Func<string, string> columnValueProvider = null)
+        protected virtual async Task UpdateByRawSqlAsync(object entity, 
+            Func<string, string> columnValueProvider = null,
+            params string[] columnsToUpdate)
         {
-            var (sql, parameters) = BuildUpdateQuery(entity, columnValueProvider);
+            var (sql, parameters) = BuildUpdateQuery(entity, columnValueProvider, columnsToUpdate);
             await ExecuteAsync(sql, parameters);
             RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
         }
 
-        private (string sql, DynamicParameters parameters) BuildUpdateQuery(object entity, Func<string, string> columnValueProvider)
+        private (string sql, DynamicParameters parameters) BuildUpdateQuery(
+            object entity, 
+            Func<string, string> columnValueProvider = null,
+            params string[] columnsToUpdate)
         {
-            var columnsToUpdate = GetTableColumns(ignoreAutoIncrementColumns: true,
-                            ignoreKeyProperty: true);
+            columnsToUpdate = columnsToUpdate.IsNullOrEmpty()? GetTableColumns(ignoreAutoIncrementColumns: true,
+                            ignoreKeyProperty: true) : columnsToUpdate;
             var keyColumns = GetKeyColumns();
 
             var parameters = new DynamicParameters();
@@ -231,12 +238,16 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
 
     public partial class BaseDal<TEntity>
     {
-        public virtual void Update(TEntity entity, Func<string, string> columnValueProvider = null)
+        public virtual void Update(TEntity entity,
+            Func<string, string> columnValueProvider = null,
+            params string[] columsToUpdate)
         {
-            UpdateByRawSql(entity, columnValueProvider);
+            UpdateByRawSql(entity, columnValueProvider, columnsToUpdate:);
         }
 
-        public virtual async Task UpdateAsync(TEntity entity, Func<string, string> columnValueProvider = null)
+        public virtual async Task UpdateAsync(TEntity entity, 
+            Func<string, string> columnValueProvider = null, 
+            params string[] columsToUpdate)
         {
             await UpdateByRawSqlAsync(entity, columnValueProvider);
         }

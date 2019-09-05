@@ -82,7 +82,9 @@ namespace Dakata.Example.Dal
                 po.SupplierID = newSupplierID;
             }
 
-            await UpdateAllAsync(purchaseOrders);
+            await UpdateAllAsync(purchaseOrders, 
+                columnsToUpdate: GetColumnName(x => x.SupplierID)
+            );
         }
     }
 }
