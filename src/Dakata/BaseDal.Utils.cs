@@ -92,9 +92,10 @@ namespace Dakata
             return GetProperty(columnName).Name;
         }
 
-        public PropertyInfo GetKeyProperty()
+        public PropertyInfo GetKeyProperty() => GetKeyProperty(EntityType);
+
+        public static PropertyInfo GetKeyProperty(Type entityType)
         {
-            var entityType = EntityType;
             var keyProperty =
                 entityType.GetPropertiesWithAttribute<KeyAttribute>().SingleOrDefault() ??
                 entityType.GetPropertiesWithAttribute<ExplicitKeyAttribute>().SingleOrDefault();
@@ -179,11 +180,13 @@ namespace Dakata
         }
 
         public virtual IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
+            bool ignoreKeyProperty) => GetMappedProperties(ignoreAutoIncrementColumns, ignoreKeyProperty, EntityType);
+
+        public static IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
             bool ignoreKeyProperty,
-            Type entityType = null)
+            Type entityType)
         {
-            entityType = entityType ?? EntityType;
-            var keyProperties = GetKeyProperties().Select(x => x.Name).ToList();
+            var keyProperties = GetKeyProperties(entityType).Select(x => x.Name).ToList();
             return entityType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(prop => !Attribute.IsDefined(prop, typeof(ComputedAttribute)) &&
                                (!ignoreAutoIncrementColumns ||
