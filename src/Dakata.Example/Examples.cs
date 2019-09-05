@@ -10,7 +10,7 @@ namespace Dakata.Example
     {
         private const string ConnectionString = "Data Source=(local);Initial Catalog=WorldWideImporters;Integrated Security=True;MultipleActiveResultSets=True";
 
-        private static void RegisterColumnMappings()
+        private static void RegisterColumnMappingsAndSlapperIdentifiers()
         {
             var poType = typeof(PurchaseOrder);
             string nspace = typeof(PurchaseOrder).Namespace;
@@ -19,6 +19,7 @@ namespace Dakata.Example
                 .Where(t => t.IsClass && !t.IsAbstract && t.Namespace == nspace)
                 .ToArray();
             ColumnTypeMapper.RegisterForTypes(modelTypes);
+            SlapperUtils.RegisterIdentifiers(modelTypes);
         }
 
         private static void WriteError(string message)
@@ -30,7 +31,7 @@ namespace Dakata.Example
 
         static async Task<int> Main(string[] args)
         {
-            RegisterColumnMappings();
+            RegisterColumnMappingsAndSlapperIdentifiers();
             var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
 
             //LoggingExamples(connection);

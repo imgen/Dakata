@@ -29,7 +29,7 @@ namespace Dakata.Example.Dal
             var purchaseOrderSelections = GetColumnSelections();
             
             var purchaseOrderLineSelections = GetColumnSelectionsFromEntity<PurchaseOrderLine>
-                (nameof(PurchaseOrder.PurchaseOrderLines) + "_");
+                (nameof(PurchaseOrder.PurchaseOrderLines));
             var allSelections = purchaseOrderSelections.Concat(purchaseOrderLineSelections).ToArray();
             query = query.Select(allSelections);
 

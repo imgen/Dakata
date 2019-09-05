@@ -108,9 +108,10 @@ namespace Dakata
             return GetColumnName(keyProperty);
         }
 
-        protected PropertyInfo[] GetKeyProperties()
+        protected PropertyInfo[] GetKeyProperties() => GetKeyProperties(EntityType);
+
+        public static PropertyInfo[] GetKeyProperties(Type entityType)
         {
-            var entityType = EntityType;
             var keyProperties =
                 entityType.GetPropertiesWithAttribute<KeyAttribute>();
             var explicitKeyProperties = entityType.GetPropertiesWithAttribute<ExplicitKeyAttribute>();
