@@ -25,7 +25,7 @@ namespace Dakata.Example
             var top100PurchaseOrders = purchaseOrderDal.GetAll(100);
             foreach (var po in top100PurchaseOrders)
             {
-                WriteLine($"PO's ID is {po.PurchaseOrderID}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
+                WriteLine($"PO's ID is {po.ID}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
             }
 
             // If limit parameter not provided, or is 0, will retrieve all records

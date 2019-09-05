@@ -1,4 +1,5 @@
-﻿using Dapper.Contrib.Extensions;
+﻿using Dapper.ColumnMapper;
+using Dapper.Contrib.Extensions;
 using System;
 
 namespace Dakata.Example.Models
@@ -6,8 +7,8 @@ namespace Dakata.Example.Models
     [Table("Purchasing.PurchaseOrderLines")]
     public class PurchaseOrderLine
     {
-        [Key, AutoIncrement(SequenceName = "PurchaseOrderLineID")]
-        public int PurchaseOrderLineID { get; set; }
+        [Key, AutoIncrement(SequenceName = "PurchaseOrderLineID"), ColumnMapping("PurchaseOrderLineID")]
+        public int ID { get; set; }
         public int PurchaseOrderID { get; set; }
         public int StockItemID { get; set; }
         public int OrderedOuters { get; set; }
@@ -19,5 +20,7 @@ namespace Dakata.Example.Models
         public bool IsOrderLineFinalized { get; set; }
         public int LastEditedBy { get; set; }
         public DateTime LastEditedWhen { get; set; }
+        [Computed]
+        public PurchaseOrder PurchaseOrder { get; set; }
     }
 }

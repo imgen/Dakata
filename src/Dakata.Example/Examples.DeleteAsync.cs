@@ -42,22 +42,29 @@ namespace Dakata.Example
                 }
             );
             Console.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
-
+            
             var orderDate = po.OrderDate;
             Console.WriteLine($"The order date of just inserted PurchaseOrder is {orderDate}");
             var lastEditWhen = po.LastEditedWhen;
             Console.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
 
-            /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
-            await purchaseOrderDal.DeleteByIdAsync(po.PurchaseOrderID);
+            po = await purchaseOrderDal.GetAsync(po.ID);
 
-            po = await purchaseOrderDal.GetAsync(po.PurchaseOrderID);
+            if (po == null)
+            {
+                WriteError("Oops, GetAsync didn't work as expected");
+            }
+
+            /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
+            await purchaseOrderDal.DeleteByIdAsync(po.ID);
+
+            po = await purchaseOrderDal.GetAsync(po.ID);
             if (po != null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine("ERROR: Oops, DeleteByIdAsync didn't work as expected");
-                Console.ResetColor();
+                WriteError("Oops, DeleteByIdAsync didn't work as expected");
             }
         }
+
+
     }
 }
