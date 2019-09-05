@@ -18,6 +18,7 @@ namespace Dakata.Example
             var modelTypes = poType.Assembly.GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract && t.Namespace == nspace)
                 .ToArray();
+            // If ColumnMapping attribute is present, will be processed and configured with Dapper
             ColumnTypeMapper.RegisterForTypes(modelTypes);
 
             // Another alternative is to use Slapper.AutoMapper.Id attribute, please see
