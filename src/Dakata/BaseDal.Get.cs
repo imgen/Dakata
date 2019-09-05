@@ -117,7 +117,7 @@ namespace Dakata
 
     public partial class BaseDal<TEntity>
     {
-        private Query BuildGetByIdQuery<TKey>(TKey key)
+        protected Query BuildGetByIdQuery<TKey>(TKey key)
         {
             var keyColumnName = GetKeyColumnName();
             return NewQuery().Where(keyColumnName, key);

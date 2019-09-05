@@ -29,6 +29,12 @@ namespace Dakata
                 .Select(mapping => $"{AddTablePrefix(mapping.column, tableName)} AS {prefix}{mapping.property}");
         }
 
+        protected IEnumerable<string> GetColumnSelectionsFromEntity<TEntity>(
+            string prefix = "")
+        {
+            return GetColumnSelections(prefix, entityType: typeof(TEntity));
+        }
+
         public Func<string, string> ProvideUtcNowForColumn(string columnName)
         {
             return column => columnName.Equals(column, StringComparison.InvariantCultureIgnoreCase)
@@ -182,12 +188,6 @@ namespace Dakata
         protected string[] GetKeyColumns()
         {
             return GetKeyProperties().Select(GetColumnName).ToArray();
-        }
-
-        protected IEnumerable<string> GetColumnSelectionsFromEntity<TEntity>(
-            string prefix = "")
-        {
-            return GetColumnSelections(prefix, entityType: typeof(TEntity));
         }
 
         protected static Dictionary<string, object> PropertiesToDictionary(IEnumerable<PropertyInfo> properties, object entity)

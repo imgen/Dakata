@@ -39,6 +39,8 @@ namespace Dakata.Example
 
             //InsertExamples(connection);
 
+            await JoinExamples(connection);
+
             await DeleteAsyncExamples(connection);
 
             return 0;
