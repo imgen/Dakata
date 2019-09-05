@@ -31,7 +31,7 @@ namespace Dakata
             await ExecuteAsync(query);
         }
 
-        protected virtual void UpdateByRawSql(object entity,
+        public virtual void UpdateByRawSql(object entity,
             Func<string, string> columnValueProvider = null,
             params string[] columnsToUpdate)
         {
@@ -40,7 +40,7 @@ namespace Dakata
             RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
         }
 
-        protected virtual async Task UpdateByRawSqlAsync(object entity, 
+        public virtual async Task UpdateByRawSqlAsync(object entity, 
             Func<string, string> columnValueProvider = null,
             params string[] columnsToUpdate)
         {
@@ -108,7 +108,7 @@ namespace Dakata
         }
 
         // Based on SE/SO answer https://dba.stackexchange.com/a/186149 and https://stackoverflow.com/a/16932591
-        protected virtual int UpdateAll(
+        public virtual int UpdateAll(
             IEnumerable<object> entities, 
             int batchSize = DefaultBatchSize,
             bool parallel = false,
@@ -139,7 +139,7 @@ namespace Dakata
         }
 
         // Based on SE/SO answer https://dba.stackexchange.com/a/186149 and https://stackoverflow.com/a/16932591
-        protected virtual async Task<int> UpdateAllAsync(
+        public virtual async Task<int> UpdateAllAsync(
             IEnumerable<object> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,

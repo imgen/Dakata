@@ -17,7 +17,7 @@ namespace Dakata
         /// <typeparam name="TColumn">The type of the column</typeparam>
         /// <param name="columnName">The name of the column</param>
         /// <returns>The maximum value of the specified column</returns>
-        protected virtual TColumn GetMaxValueOfColumn<TColumn>(string columnName)
+        public virtual TColumn GetMaxValueOfColumn<TColumn>(string columnName)
         {
             var query = NewQuery().AsMax(columnName);
             return ExecuteScalar<TColumn>(query);
@@ -29,7 +29,7 @@ namespace Dakata
         /// <typeparam name="TColumn">The type of the column</typeparam>
         /// <param name="columnName">The name of the column</param>
         /// <returns>The maximum value of the specified column</returns>
-        protected virtual async Task<TColumn> GetMaxValueOfColumnAsync<TColumn>(string columnName)
+        public virtual async Task<TColumn> GetMaxValueOfColumnAsync<TColumn>(string columnName)
         {
             var query = NewQuery().AsMax(columnName);
             return await ExecuteScalarAsync<TColumn>(query);
@@ -41,7 +41,7 @@ namespace Dakata
         /// <typeparam name="TColumn">The type of the column</typeparam>
         /// <param name="columnName">The name of the column</param>
         /// <returns>The minimum value of the specified column</returns>
-        protected virtual TColumn GetMinValueOfColumn<TColumn>(string columnName)
+        public virtual TColumn GetMinValueOfColumn<TColumn>(string columnName)
         {
             var query = NewQuery().AsMin(columnName);
             return ExecuteScalar<TColumn>(query);
@@ -53,7 +53,7 @@ namespace Dakata
         /// <typeparam name="TColumn">The type of the column</typeparam>
         /// <param name="columnName">The name of the column</param>
         /// <returns>The minimum value of the specified column</returns>
-        protected virtual async Task<TColumn> GetMinValueOfColumnAsync<TColumn>(string columnName)
+        public virtual async Task<TColumn> GetMinValueOfColumnAsync<TColumn>(string columnName)
         {
             var query = NewQuery().AsMin(columnName);
             return await ExecuteScalarAsync<TColumn>(query);

@@ -120,7 +120,7 @@ namespace Dakata
         }
 
         // Based on SO answer https://stackoverflow.com/a/36257723/915147
-        protected virtual int DeleteAll(IEnumerable<object> entities,
+        public virtual int DeleteAll(IEnumerable<object> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
@@ -147,7 +147,7 @@ namespace Dakata
         }
 
         // Based on SO answer https://stackoverflow.com/a/36257723/915147
-        protected virtual async Task<int> DeleteAllAsync(IEnumerable<object> entities,
+        public virtual async Task<int> DeleteAllAsync(IEnumerable<object> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
@@ -197,13 +197,13 @@ namespace Dakata
                 ProcessColumn(column, columnValueProvider, parameters, entity);
         }
 
-        protected virtual void DeleteByRawSql(object entity, Func<string, string> columnValueProvider)
+        public virtual void DeleteByRawSql(object entity, Func<string, string> columnValueProvider)
         {
             var (sql, parameters) = GetDeleteSql(entity, columnValueProvider);
             Execute(sql, parameters);
         }
 
-        protected virtual async Task DeleteByRawSqlAsync(object entity, Func<string, string> columnValueProvider)
+        public virtual async Task DeleteByRawSqlAsync(object entity, Func<string, string> columnValueProvider)
         {
             var (sql, parameters) = GetDeleteSql(entity, columnValueProvider);
             await ExecuteAsync(sql, parameters);
@@ -268,11 +268,12 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
             return await base.DeleteAllAsync(entities, batchSize, parallel, columnValueProvider, criteriaColumns);
         }
 
-        protected virtual void DeleteByInClause<TMember>(Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
+        public virtual void DeleteByInClause<TMember>(Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
         {
             DeleteByInClause(GetColumnName(memberExpression), values);
         }
-        protected virtual async Task DeleteByInClauseAsync<TMember>(Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
+
+        public virtual async Task DeleteByInClauseAsync<TMember>(Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
         {
             await DeleteByInClauseAsync(GetColumnName(memberExpression), values);
         }

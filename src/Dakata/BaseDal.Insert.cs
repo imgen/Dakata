@@ -9,7 +9,7 @@ namespace Dakata
 {
     public partial class BaseDal
     {
-        protected virtual int InsertAll(IEnumerable<object> entities,
+        public virtual int InsertAll(IEnumerable<object> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
@@ -38,7 +38,7 @@ namespace Dakata
             return batchSize;
         }
 
-        protected virtual async Task<int> InsertAllAsync(IEnumerable<object> entities,
+        public virtual async Task<int> InsertAllAsync(IEnumerable<object> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,

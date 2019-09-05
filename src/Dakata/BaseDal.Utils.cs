@@ -29,7 +29,7 @@ namespace Dakata
                 .Select(mapping => $"{AddTablePrefix(mapping.column, tableName)} AS {prefix}{mapping.property}");
         }
 
-        protected IEnumerable<string> GetColumnSelectionsFromEntity<TEntity>(
+        public IEnumerable<string> GetColumnSelectionsFromEntity<TEntity>(
             string prefix = "")
         {
             return GetColumnSelections(prefix, entityType: typeof(TEntity));
@@ -42,12 +42,12 @@ namespace Dakata
                 : null;
         }
 
-        protected Query LeftJoinTable(Query query, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
+        public Query LeftJoinTable(Query query, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
         {
             return JoinTable(query, query.LeftJoin, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
         }
 
-        protected Query JoinTable(Query query, Func<string, Func<Join, Join>, Query> joiner, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
+        public Query JoinTable(Query query, Func<string, Func<Join, Join>, Query> joiner, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
         {
             baseTableName = baseTableName ?? TableName;
             baseTableColumnName = baseTableColumnName ?? joinTableName + joinTableColumnName;
@@ -56,7 +56,7 @@ namespace Dakata
             );
         }
 
-        protected Query InnerJoinTable(Query query, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
+        public Query InnerJoinTable(Query query, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
         {
             return JoinTable(query,
                 (joinTableName2, join) => query.Join(joinTableName, join),
@@ -66,33 +66,33 @@ namespace Dakata
                 baseTableName);
         }
 
-        protected Query LeftJoinTable<TJoinEntity>(Query query, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
+        public Query LeftJoinTable<TJoinEntity>(Query query, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
         {
             var joinTableName = GetTableName<TJoinEntity>();
             return LeftJoinTable(query, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
         }
 
-        protected Query InnerJoinTable<TJoinEntity>(Query query, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
+        public Query InnerJoinTable<TJoinEntity>(Query query, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
         {
             var joinTableName = GetTableName<TJoinEntity>();
             return InnerJoinTable(query, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
         }
 
-        protected string AddTablePrefix<TTableEntity>(string columnName) =>
+        public string AddTablePrefix<TTableEntity>(string columnName) =>
             AddTablePrefix(columnName, GetTableName<TTableEntity>());
 
-        protected virtual PropertyInfo GetProperty(string columnName)
+        public virtual PropertyInfo GetProperty(string columnName)
         {
             return GetMappedProperties(false, false).First(x => GetColumnName(x)
                 .Equals(columnName, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        protected virtual string GetPropertyName(string columnName)
+        public virtual string GetPropertyName(string columnName)
         {
             return GetProperty(columnName).Name;
         }
 
-        protected PropertyInfo GetKeyProperty()
+        public PropertyInfo GetKeyProperty()
         {
             var entityType = EntityType;
             var keyProperty =
@@ -102,13 +102,13 @@ namespace Dakata
             return keyProperty;
         }
 
-        protected string GetKeyColumnName()
+        public string GetKeyColumnName()
         {
             var keyProperty = GetKeyProperty();
             return GetColumnName(keyProperty);
         }
 
-        protected PropertyInfo[] GetKeyProperties() => GetKeyProperties(EntityType);
+        public PropertyInfo[] GetKeyProperties() => GetKeyProperties(EntityType);
 
         public static PropertyInfo[] GetKeyProperties(Type entityType)
         {
@@ -118,13 +118,13 @@ namespace Dakata
             return keyProperties.Concat(explicitKeyProperties).ToArray();
         }
 
-        protected Query BuildQueryByProperties(PropertyInfo[] properties, object entity)
+        public Query BuildQueryByProperties(PropertyInfo[] properties, object entity)
         {
             var whereDictionary = PropertiesToDictionary(properties, entity);
             return NewQuery().Where(whereDictionary);
         }
 
-        protected virtual Query AddWhereQueryWithPrefix(Query query, string columnName, object value, bool allowNull = false, string tableName = null)
+        public virtual Query AddWhereQueryWithPrefix(Query query, string columnName, object value, bool allowNull = false, string tableName = null)
         {
             if (value is string str && str.IsNullOrEmpty())
             {
@@ -133,12 +133,12 @@ namespace Dakata
             return value.IsNull() && !allowNull ? query : query.Where(AddTablePrefix(columnName, tableName), value);
         }
 
-        protected virtual Query AddWhereQueryWithPrefix<TEntity>(Query query, string columnName, object value, bool allowNull = false)
+        public virtual Query AddWhereQueryWithPrefix<TEntity>(Query query, string columnName, object value, bool allowNull = false)
         {
             return AddWhereQueryWithPrefix(query, columnName, value, allowNull, GetTableName<TEntity>());
         }
 
-        protected string AddTablePrefix(string columnName, string tableName = null) =>
+        public string AddTablePrefix(string columnName, string tableName = null) =>
                     $"{tableName ?? TableName}.{columnName}";
 
         /// <summary>
@@ -148,13 +148,13 @@ namespace Dakata
         /// <returns>The basic query of the table</returns>
         public Query NewQuery(string tableName = null) => new Query(tableName ?? TableName);
 
-        protected static string GetColumnName(PropertyInfo property)
+        public static string GetColumnName(PropertyInfo property)
         {
             var columnMappingAttr = property.GetCustomAttribute<ColumnMappingAttribute>();
             return columnMappingAttr == null ? property.Name : columnMappingAttr.ColumnName;
         }
 
-        protected virtual IEnumerable<(string property, string column)> GetPropertyColumnMapping(
+        public virtual IEnumerable<(string property, string column)> GetPropertyColumnMapping(
             bool ignoreAutoIncrementColumns = false,
             bool ignoreKeyProperty = false,
             Type entityType = null)
@@ -163,7 +163,7 @@ namespace Dakata
                 .Select(prop => (prop.Name, GetColumnName(prop)));
         }
 
-        protected virtual string GetColumnName(string propertyName)
+        public virtual string GetColumnName(string propertyName)
         {
             return GetColumnName(EntityType, propertyName);
         }
@@ -178,7 +178,7 @@ namespace Dakata
             return GetColumnName(typeof(TEntity), propExpr.GetFullPropertyName());
         }
 
-        protected virtual IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
+        public virtual IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
             bool ignoreKeyProperty,
             Type entityType = null)
         {
@@ -196,12 +196,12 @@ namespace Dakata
             return GetMappedProperties(ignoreAutoIncrementColumns, ignoreKeyProperty).Select(GetColumnName).ToArray();
         }
 
-        protected string[] GetKeyColumns()
+        public string[] GetKeyColumns()
         {
             return GetKeyProperties().Select(GetColumnName).ToArray();
         }
 
-        protected static Dictionary<string, object> PropertiesToDictionary(IEnumerable<PropertyInfo> properties, object entity)
+        public static Dictionary<string, object> PropertiesToDictionary(IEnumerable<PropertyInfo> properties, object entity)
         {
             return properties.ToDictionary(GetColumnName, x => x.GetValue(entity));
         }
