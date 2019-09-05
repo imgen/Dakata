@@ -19,6 +19,9 @@ namespace Dakata.Example
                 .Where(t => t.IsClass && !t.IsAbstract && t.Namespace == nspace)
                 .ToArray();
             ColumnTypeMapper.RegisterForTypes(modelTypes);
+
+            // Another alternative is to use Slapper.AutoMapper.Id attribute, please see
+            // https://github.com/SlapperAutoMapper/Slapper.AutoMapper
             SlapperUtils.RegisterIdentifiers(modelTypes);
         }
 
