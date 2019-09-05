@@ -22,5 +22,7 @@ namespace Dakata.Example.Models
         public DateTime LastEditedWhen { get; set; }
         [Computed]
         public PurchaseOrder PurchaseOrder { get; set; }
+        [Computed]
+        public PackageType PackageType { get; set; }
     }
 }

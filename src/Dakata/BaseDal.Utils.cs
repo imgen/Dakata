@@ -165,7 +165,17 @@ namespace Dakata
 
         protected virtual string GetColumnName(string propertyName)
         {
-            return GetColumnName(EntityType.GetProperty(propertyName));
+            return GetColumnName(EntityType, propertyName);
+        }
+
+        public static string GetColumnName(Type entityType, string propertyName)
+        {
+            return GetColumnName(entityType.GetProperty(propertyName));
+        }
+
+        public string GetColumnName<TEntity, TProperty>(Expression<Func<TEntity, TProperty>> propExpr)
+        {
+            return GetColumnName(typeof(TEntity), propExpr.GetFullPropertyName());
         }
 
         protected virtual IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
