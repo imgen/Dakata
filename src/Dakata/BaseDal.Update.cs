@@ -240,16 +240,16 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
     {
         public virtual void Update(TEntity entity,
             Func<string, string> columnValueProvider = null,
-            params string[] columsToUpdate)
+            params string[] columnsToUpdate)
         {
-            UpdateByRawSql(entity, columnValueProvider, columnsToUpdate:);
+            UpdateByRawSql(entity, columnValueProvider, columnsToUpdate);
         }
 
         public virtual async Task UpdateAsync(TEntity entity, 
             Func<string, string> columnValueProvider = null, 
-            params string[] columsToUpdate)
+            params string[] columnsToUpdate)
         {
-            await UpdateByRawSqlAsync(entity, columnValueProvider);
+            await UpdateByRawSqlAsync(entity, columnValueProvider, columnsToUpdate);
         }
 
         public virtual int UpdateAll(IEnumerable<TEntity> entities,
