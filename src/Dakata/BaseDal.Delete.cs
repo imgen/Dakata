@@ -113,7 +113,7 @@ namespace Dakata
             }
 
             batchSize = CalculateBatchSize(batchSize, criteriaColumns.Length);
-            var tempTableName = $"{TableName}_Values";
+            var tempTableName = $"{TableName}_Values".Replace(".", "_");
             var batches = entities.Batch(batchSize);
 
             return (criteriaColumns, batchSize, batches, tempTableName);

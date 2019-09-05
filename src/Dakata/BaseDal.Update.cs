@@ -91,7 +91,7 @@ namespace Dakata
                 throw new ArgumentException("No key columns found on entity. Please specify key columns in the DAL entity");
             }
             var allColumns = keyColumns.Concat(columnsToUpdate).ToArray();
-            var tempTableName = $"{TableName}_Values";
+            var tempTableName = $"{TableName}_Values".Replace(".", "_");
 
             batchSize = CalculateBatchSize(batchSize, allColumns.Length);
 

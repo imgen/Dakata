@@ -1,5 +1,6 @@
 ﻿using Dakata.Example.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -71,6 +72,17 @@ namespace Dakata.Example.Dal
 
             var results = await QueryAndMapDynamicAsync(query);
             return results.FirstOrDefault();
+        }
+
+        public async Task ChangeSupplier(IEnumerable<PurchaseOrder> purchaseOrders, int newSupplierID)
+        {
+            var purchaseOrdersArray = purchaseOrders.ToArray();
+            foreach(var po in purchaseOrdersArray)
+            {
+                po.SupplierID = newSupplierID;
+            }
+
+            await UpdateAllAsync(purchaseOrders);
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Dakata.Example
         {
             var purchaseOrderDal = new PurchaseOrderDal(dapperConnection);
 
-            var now = DateTime.UtcNow;
+            var now = DateTime.UtcNow.TruncateDateTimeToSeconds();
             var today = now.Date;
             var pos = new List<PurchaseOrder>
             {

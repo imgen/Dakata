@@ -117,7 +117,7 @@ namespace Dakata
 
     public partial class BaseDal<TEntity>
     {
-        protected Query BuildGetByIdQuery<TKey>(TKey key)
+        private Query BuildGetByIdQuery<TKey>(TKey key)
         {
             var keyColumnName = GetKeyColumnName();
             return NewQuery().Where(keyColumnName, key);
@@ -135,36 +135,36 @@ namespace Dakata
             return await GetAsync(query);
         }
 
-        protected virtual TEntity Get(Query query)
+        public virtual TEntity Get(Query query)
         {
             return Query(query.Limit(1)).FirstOrDefault();
         }
 
-        protected virtual async Task<TEntity> GetAsync(Query query)
+        public virtual async Task<TEntity> GetAsync(Query query)
         {
             var results = await QueryAsync(query.Limit(1));
             return results.FirstOrDefault();
         }
 
-        protected virtual IEnumerable<TEntity> QueryByParameters(object parameters)
+        public virtual IEnumerable<TEntity> QueryByParameters(object parameters)
         {
             var query = NewQuery().Where(parameters.AsDictionary());
             return Query(query);
         }
 
-        protected virtual async Task<IEnumerable<TEntity>> QueryByParametersAsync(object parameters)
+        public virtual async Task<IEnumerable<TEntity>> QueryByParametersAsync(object parameters)
         {
             var query = NewQuery().Where(parameters.AsDictionary());
             return await QueryAsync(query);
         }
 
-        protected virtual TEntity GetWithParameters(object parameters)
+        public virtual TEntity GetWithParameters(object parameters)
         {
             var query = NewQuery().Where(parameters.AsDictionary());
             return Get(query);
         }
 
-        protected virtual async Task<TEntity> GetWithParametersAsync(object parameters)
+        public virtual async Task<TEntity> GetWithParametersAsync(object parameters)
         {
             var query = NewQuery().Where(parameters.AsDictionary());
             return await GetAsync(query);
@@ -200,39 +200,39 @@ namespace Dakata
             return query;
         }
 
-        protected virtual IEnumerable<TEntity> QueryByEntityKeys(TEntity keyEntity)
+        public virtual IEnumerable<TEntity> QueryByEntityKeys(TEntity keyEntity)
         {
             var query = BuildEntityKeysQuery(keyEntity);
             return Query(query);
         }
 
-        protected virtual async Task<IEnumerable<TEntity>> QueryByEntityKeysAsync(TEntity keyEntity)
+        public virtual async Task<IEnumerable<TEntity>> QueryByEntityKeysAsync(TEntity keyEntity)
         {
             var query = BuildEntityKeysQuery(keyEntity);
             return await QueryAsync(query);
         }
 
-        protected virtual IEnumerable<TEntity> QueryByColumn<TColumn>(string columnName,
+        public virtual IEnumerable<TEntity> QueryByColumn<TColumn>(string columnName,
             TColumn value)
         {
             var query = NewQuery().Where(columnName, value);
             return Query(query);
         }
 
-        protected virtual async Task<IEnumerable<TEntity>> QueryByColumnAsync<TColumn>(string columnName,
+        public virtual async Task<IEnumerable<TEntity>> QueryByColumnAsync<TColumn>(string columnName,
             TColumn value)
         {
             var query = NewQuery().Where(columnName, value);
             return await QueryAsync(query);
         }
 
-        protected virtual IEnumerable<TEntity> QueryByColumn<TColumn>(Expression<Func<TEntity, TColumn>> columnExpression,
+        public virtual IEnumerable<TEntity> QueryByColumn<TColumn>(Expression<Func<TEntity, TColumn>> columnExpression,
             TColumn value)
         {
             return QueryByColumn(GetColumnName(columnExpression), value);
         }
 
-        protected virtual async Task<IEnumerable<TEntity>> QueryByColumnAsync<TColumn>(Expression<Func<TEntity, TColumn>> columnExpression,
+        public virtual async Task<IEnumerable<TEntity>> QueryByColumnAsync<TColumn>(Expression<Func<TEntity, TColumn>> columnExpression,
             TColumn value)
         {
             return await QueryByColumnAsync(GetColumnName(columnExpression), value);
@@ -250,12 +250,12 @@ namespace Dakata
             return await GetAsync(query);
         }
 
-        protected virtual TMaxColumn GetMaxValueOfColumn<TMaxColumn>(Expression<Func<TEntity, TMaxColumn>> columnExpression)
+        public virtual TMaxColumn GetMaxValueOfColumn<TMaxColumn>(Expression<Func<TEntity, TMaxColumn>> columnExpression)
         {
             return GetMaxValueOfColumn<TMaxColumn>(GetColumnName(columnExpression));
         }
 
-        protected virtual async Task<TMaxColumn> GetMaxValueOfColumnAsync<TMaxColumn>(Expression<Func<TEntity, TMaxColumn>> columnExpression)
+        public virtual async Task<TMaxColumn> GetMaxValueOfColumnAsync<TMaxColumn>(Expression<Func<TEntity, TMaxColumn>> columnExpression)
         {
             return await GetMaxValueOfColumnAsync<TMaxColumn>(GetColumnName(columnExpression));
         }
@@ -266,85 +266,85 @@ namespace Dakata
             return NewQuery().WhereRaw($"{column} = ({maxQuerySql})");
         }
 
-        protected IEnumerable<TEntity> GetRecordsWithMaxValueOfColumn(string column)
+        public IEnumerable<TEntity> GetRecordsWithMaxValueOfColumn(string column)
         {
             var query = BuildRecordsWithMaxValueOfColumnQuery(column);
             return Query(query);
         }
 
-        protected async Task<IEnumerable<TEntity>> GetRecordsWithMaxValueOfColumnAsync(string column)
+        public async Task<IEnumerable<TEntity>> GetRecordsWithMaxValueOfColumnAsync(string column)
         {
             var query = BuildRecordsWithMaxValueOfColumnQuery(column);
             return await QueryAsync(query);
         }
 
-        protected IEnumerable<TEntity> GetRecordsWithMaxValueOfColumn<TMember>(
+        public IEnumerable<TEntity> GetRecordsWithMaxValueOfColumn<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression)
         {
             return GetRecordsWithMaxValueOfColumn(GetColumnName(memberExpression));
         }
 
-        protected async Task<IEnumerable<TEntity>> GetRecordsWithMaxValueOfColumnAsync<TMember>(
+        public async Task<IEnumerable<TEntity>> GetRecordsWithMaxValueOfColumnAsync<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression)
         {
             return await GetRecordsWithMaxValueOfColumnAsync(GetColumnName(memberExpression));
         }
 
-        protected TEntity GetRecordWithMaxValueOfColumn(string column)
+        public TEntity GetRecordWithMaxValueOfColumn(string column)
         {
             var query = BuildRecordsWithMaxValueOfColumnQuery(column);
             return Get(query);
         }
 
-        protected async Task<TEntity> GetRecordWithMaxValueOfColumnAsync(string column)
+        public async Task<TEntity> GetRecordWithMaxValueOfColumnAsync(string column)
         {
             var query = BuildRecordsWithMaxValueOfColumnQuery(column);
             return await GetAsync(query);
         }
 
-        protected TEntity GetRecordWithMaxValueOfColumn<TMember>(
+        public TEntity GetRecordWithMaxValueOfColumn<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression)
         {
             return GetRecordWithMaxValueOfColumn(GetColumnName(memberExpression));
         }
 
-        protected async Task<TEntity> GetRecordWithMaxValueOfColumnAsync<TMember>(
+        public async Task<TEntity> GetRecordWithMaxValueOfColumnAsync<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression)
         {
             return await GetRecordWithMaxValueOfColumnAsync(GetColumnName(memberExpression));
         }
 
-        protected virtual IEnumerable<TEntity> QueryByInClause(string column, IEnumerable<object> values)
+        public virtual IEnumerable<TEntity> QueryByInClause(string column, IEnumerable<object> values)
         {
             var query = NewQuery().WhereIn(column, values);
             return Query(query);
         }
 
-        protected virtual async Task<IEnumerable<TEntity>> QueryByInClauseAsync(string column, IEnumerable<object> values)
+        public virtual async Task<IEnumerable<TEntity>> QueryByInClauseAsync(string column, IEnumerable<object> values)
         {
             var query = NewQuery().WhereIn(column, values);
             return await QueryAsync(query);
         }
 
-        protected virtual IEnumerable<TEntity> QueryByInClause<TMember>(
+        public virtual IEnumerable<TEntity> QueryByInClause<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
         {
             return QueryByInClause(GetColumnName(memberExpression), values);
         }
 
-        protected virtual async Task<IEnumerable<TEntity>> QueryByInClauseAsync<TMember>(
+        public virtual async Task<IEnumerable<TEntity>> QueryByInClauseAsync<TMember>(
             Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
         {
             return await QueryByInClauseAsync(GetColumnName(memberExpression), values);
         }
 
-        protected virtual IEnumerable<TEntity> QueryAndMapDynamic(Query query)
+        public virtual IEnumerable<TEntity> QueryAndMapDynamic(Query query)
         {
             var dynamicResults = QueryDynamic(query);
             return AutoMapper.MapDynamic<TEntity>(dynamicResults).ToList();
         }
 
-        protected virtual async Task<IEnumerable<TEntity>> QueryAndMapDynamicAsync(Query query)
+        public virtual async Task<IEnumerable<TEntity>> QueryAndMapDynamicAsync(Query query)
         {
             var dynamicResults = await QueryDynamicAsync(query);
             return AutoMapper.MapDynamic<TEntity>(dynamicResults).ToList();
