@@ -165,9 +165,9 @@ namespace Dakata
         }
 
         public static T WithRawTransaction<T>(Func<IDbConnection, IDbTransaction, T> func,
-            Func<IDbConnection> connectionProvider, TimeSpan? timeout = null)
+            Func<TimeSpan?, IDbConnection> connectionProvider, TimeSpan? timeout = null)
         {
-            using (var connection = connectionProvider())
+            using (var connection = connectionProvider(timeout))
             {
                 _currentDbConnection = connection;
                 using (var transaction = connection.BeginTransaction())
