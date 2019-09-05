@@ -50,7 +50,7 @@ namespace Dakata
             EntityType = typeof(TEntity);
         }
 
-        protected BaseDal(DapperConnection dapperConnection, Action<SqlInfo> logger = null) :
+        public BaseDal(DapperConnection dapperConnection, Action<SqlInfo> logger = null) :
             this(GetTableName<TEntity>(), dapperConnection, logger)
         {
         }

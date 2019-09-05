@@ -38,17 +38,19 @@ namespace Dakata.Example
             RegisterColumnMappingsAndSlapperIdentifiers();
             var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
 
-            //LoggingExamples(connection);
+            LoggingExamples(connection);
 
-            //GetExamples(connection);
+            GetExamples(connection);
 
-            //InsertExamples(connection);
+            await GetAsyncExamples(connection);
+
+            InsertExamples(connection);
 
             await UpdateAsyncExamples(connection);
 
-            //await DeleteAsyncExamples(connection);
+            await DeleteAsyncExamples(connection);
 
-            //await JoinExamples(connection);
+            await JoinExamples(connection);
 
             return 0;
         }
