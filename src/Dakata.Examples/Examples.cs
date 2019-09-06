@@ -27,6 +27,7 @@ namespace Dakata.Examples
 
         public Examples()
         {
+            // This is the initialization you probably should do at the startup of your application
             RegisterColumnMappingsAndSlapperIdentifiers();
         }
 
