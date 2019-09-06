@@ -1,22 +1,19 @@
 ﻿using Dakata.Examples.Dal;
 using Dakata.Examples.Models;
+using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Dakata.Examples
 {
     public partial class Examples
     {
-        private static async Task UpdateAsyncExamples(DapperConnection dapperConnection)
+        [Fact]
+        public async Task UpdateAllAsyncExample()
         {
-            await UpdateAllAsyncExample(dapperConnection);
-            await UpdateAsyncExample(dapperConnection);
-        }
-
-        private static async Task UpdateAllAsyncExample(DapperConnection dapperConnection)
-        {
-            var purchaseOrderDal = new PurchaseOrderDal(dapperConnection,
+            var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(),
                 sqlInfo =>
                 {
                     Console.WriteLine(sqlInfo.Sql);
@@ -74,9 +71,10 @@ namespace Dakata.Examples
             await purchaseOrderDal.DeleteAllAsync(insertedPos);
         }
 
-        private static async Task UpdateAsyncExample(DapperConnection dapperConnection)
+        [Fact]
+        public async Task UpdateAsyncExample()
         {
-            var purchaseOrderDal = new PurchaseOrderDal(dapperConnection, sqlInfo => Console.Write(sqlInfo.Sql));
+            var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), sqlInfo => Console.Write(sqlInfo.Sql));
 
             var po = new PurchaseOrder
             {
@@ -114,10 +112,7 @@ namespace Dakata.Examples
             await purchaseOrderDal.UpdateAsync(po, columnsToUpdate: new[] { nameof(PurchaseOrder.Comments) });
 
             po = await purchaseOrderDal.GetAsync(po.ID);
-            if (po.Comments != "Committed")
-            {
-                WriteError("Oops, UpdateAsync doesn't work as expected");
-            }
+            po.Comments.Should().BeSameAs("Committed", "UpdateAsync doesn't work as expected");
 
             /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
             await purchaseOrderDal.DeleteAsync(po);

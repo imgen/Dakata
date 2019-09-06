@@ -1,30 +1,22 @@
 ﻿using Dakata.Examples.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using FluentAssertions;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Dakata.Examples
 {
     public partial class Examples
     {
-        private static async Task GetAsyncExamples(DapperConnection dapperConnection)
+        [Fact]
+        public async Task GetAsyncWithCompositeKeysExampe()
         {
-            await GetAsyncWithCompositeKeysExampe(dapperConnection);
-        }
-
-        private static async Task GetAsyncWithCompositeKeysExampe(DapperConnection dapperConnection)
-        {
-            var cityDal = new BaseDal<City>(dapperConnection);
+            var cityDal = new BaseDal<City>(CreateDapperConnection());
             var city = await cityDal.QueryByEntityKeysAsync(new City
             {
                 CityName = "Alfred",
                 StateProvinceID = 35
             });
-            if (city == null)
-            {
-                WriteError("QueryByEntityKeysAsync doesn't behave correctly");
-            }
+            city.Should().NotBeNull("QueryByEntityKeysAsync doesn't behave correctly");
         }
     }
 }

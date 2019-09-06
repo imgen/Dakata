@@ -1,9 +1,7 @@
 ﻿using Dakata.Examples.Models;
 using Dakata.SqlServer;
 using Dapper.ColumnMapper;
-using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Dakata.Examples
 {
@@ -11,7 +9,7 @@ namespace Dakata.Examples
     {
         private const string ConnectionString = "Data Source=(local);Initial Catalog=WorldWideImporters;Integrated Security=True;MultipleActiveResultSets=True";
 
-        private static void RegisterColumnMappingsAndSlapperIdentifiers()
+        private void RegisterColumnMappingsAndSlapperIdentifiers()
         {
             var poType = typeof(PurchaseOrder);
             string nspace = typeof(PurchaseOrder).Namespace;
@@ -27,33 +25,11 @@ namespace Dakata.Examples
             SlapperUtils.RegisterIdentifiers(modelTypes);
         }
 
-        private static void WriteError(string message)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Error.WriteLine($"ERROR: {message}");
-            Console.ResetColor();
-        }
-
-        static async Task<int> Main(string[] args)
+        public Examples()
         {
             RegisterColumnMappingsAndSlapperIdentifiers();
-            var connection = new DapperConnection(ConnectionString, new SqlServerDbProvider());
-
-            LoggingExamples(connection);
-
-            GetExamples(connection);
-
-            await GetAsyncExamples(connection);
-
-            InsertExamples(connection);
-
-            await UpdateAsyncExamples(connection);
-
-            await DeleteAsyncExamples(connection);
-
-            await JoinExamples(connection);
-
-            return 0;
         }
+
+        private DapperConnection CreateDapperConnection() => new DapperConnection(ConnectionString, new SqlServerDbProvider());
     }
 }

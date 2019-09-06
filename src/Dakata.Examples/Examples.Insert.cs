@@ -2,20 +2,16 @@
 using Dakata.Examples.Models;
 using System;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Dakata.Examples
 {
     public partial class Examples
     {
-        private static void InsertExamples(DapperConnection dapperConnection)
+        [Fact]
+        public void InsertExample()
         {
-            InsertExample(dapperConnection);
-            InsertAllExample(dapperConnection);
-        }
-
-        private static void InsertExample(DapperConnection dapperConnection)
-        {
-            var purchaseOrderDal = new PurchaseOrderDal(dapperConnection);
+            var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
             var po = new PurchaseOrder
             {
@@ -56,9 +52,10 @@ namespace Dakata.Examples
             });
         }
 
-        private static void InsertAllExample(DapperConnection dapperConnection)
+        [Fact]
+        public void InsertAllExample()
         {
-            var purchaseOrderDal = new PurchaseOrderDal(dapperConnection);
+            var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
             var now = DateTime.UtcNow.TruncateDateTimeToSeconds();
             var today = now.Date;

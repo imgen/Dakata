@@ -1,13 +1,15 @@
 ﻿using Dakata.Examples.Dal;
 using System;
+using Xunit;
 
 namespace Dakata.Examples
 {
     public partial class Examples
     {
-        public static void LoggingExamples(DapperConnection dapperConnection)
+        [Fact]
+        public void LoggingExamples()
         {
-            var purchaseOrderDal = new PurchaseOrderDal(dapperConnection, 
+            var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), 
                 sqlInfo => 
                 {
                     Console.WriteLine($"The SQL is {sqlInfo.Sql}");

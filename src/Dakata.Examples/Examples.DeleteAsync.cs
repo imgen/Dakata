@@ -1,19 +1,18 @@
 ﻿using Dakata.Examples.Dal;
 using Dakata.Examples.Models;
+using FluentAssertions;
 using System;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Dakata.Examples
 {
     public partial class Examples
     {
-        private static async Task DeleteAsyncExamples(DapperConnection dapperConnection)
+        [Fact]
+        public async Task DeleteByIdAsyncExample()
         {
-            await DeleteByIdAsyncExample(dapperConnection);
-        }
-
-        private static async Task DeleteByIdAsyncExample(DapperConnection dapperConnection)
-        {
+            var dapperConnection = CreateDapperConnection();
             var purchaseOrderDal = new PurchaseOrderDal(dapperConnection);
 
             var po = new PurchaseOrder
@@ -50,21 +49,13 @@ namespace Dakata.Examples
 
             po = await purchaseOrderDal.GetAsync(po.ID);
 
-            if (po == null)
-            {
-                WriteError("Oops, GetAsync didn't work as expected");
-            }
+            po.Should().NotBeNull("Oops, GetAsync didn't work as expected");
 
             /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
             await purchaseOrderDal.DeleteByIdAsync(po.ID);
 
             po = await purchaseOrderDal.GetAsync(po.ID);
-            if (po != null)
-            {
-                WriteError("Oops, DeleteByIdAsync didn't work as expected");
-            }
+            po.Should().BeNull("Oops, DeleteByIdAsync didn't work as expected");
         }
-
-
     }
 }
