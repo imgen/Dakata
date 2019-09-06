@@ -20,6 +20,7 @@ namespace Dakata
             string prefix = "", string tableName = null, Type entityType = null)
         {
             prefix = prefix ?? string.Empty;
+            entityType = entityType?? EntityType;
             if (!prefix.IsNullOrEmpty())
             {
                 prefix = $"{prefix}_";

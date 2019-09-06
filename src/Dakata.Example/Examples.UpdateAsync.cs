@@ -76,7 +76,7 @@ namespace Dakata.Example
 
         private static async Task UpdateAsyncExample(DapperConnection dapperConnection)
         {
-            var purchaseOrderDal = new PurchaseOrderDal(dapperConnection);
+            var purchaseOrderDal = new PurchaseOrderDal(dapperConnection, sqlInfo => Console.Write(sqlInfo.Sql));
 
             var po = new PurchaseOrder
             {
@@ -112,6 +112,12 @@ namespace Dakata.Example
 
             po.Comments = "Committed";
             await purchaseOrderDal.UpdateAsync(po, columnsToUpdate: new[] { nameof(PurchaseOrder.Comments) });
+
+            po = await purchaseOrderDal.GetAsync(po.ID);
+            if (po.Comments != "Committed")
+            {
+                WriteError("Oops, UpdateAsync doesn't work as expected");
+            }
 
             /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
             await purchaseOrderDal.DeleteAsync(po);

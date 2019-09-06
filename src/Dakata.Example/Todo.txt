@@ -1,2 +1,1 @@
-﻿Use https://www.sql2object.com/ to generate C# classes
-Separate BaseDal into mulitple code files using partial classes
+﻿More comments in code and also XML comments for APIs
