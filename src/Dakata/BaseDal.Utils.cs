@@ -161,7 +161,7 @@ namespace Dakata
             bool ignoreKeyProperty = false,
             Type entityType = null)
         {
-            return GetMappedProperties(ignoreAutoIncrementColumns, ignoreKeyProperty, entityType)
+            return GetMappedProperties(ignoreAutoIncrementColumns, ignoreKeyProperty, entityType?? EntityType)
                 .Select(prop => (prop.Name, GetColumnName(prop)));
         }
 
