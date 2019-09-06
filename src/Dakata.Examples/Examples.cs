@@ -9,7 +9,7 @@ namespace Dakata.Examples
     {
         private const string ConnectionString = "Data Source=(local);Initial Catalog=WorldWideImporters;Integrated Security=True;MultipleActiveResultSets=True";
 
-        private void RegisterColumnMappingsAndSlapperIdentifiers()
+        private static void RegisterColumnMappingsAndSlapperIdentifiers()
         {
             var poType = typeof(PurchaseOrder);
             string nspace = typeof(PurchaseOrder).Namespace;
@@ -25,7 +25,7 @@ namespace Dakata.Examples
             SlapperUtils.RegisterIdentifiers(modelTypes);
         }
 
-        public Examples()
+        static Examples()
         {
             // This is the initialization you probably should do at the startup of your application
             RegisterColumnMappingsAndSlapperIdentifiers();
