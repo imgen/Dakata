@@ -1,11 +1,11 @@
-﻿using Dakata.Example.Dal;
-using Dakata.Example.Models;
+﻿using Dakata.Examples.Dal;
+using Dakata.Examples.Models;
 using SqlKata;
 using System;
 using System.Linq;
 using static System.Console;
 
-namespace Dakata.Example
+namespace Dakata.Examples
 {
     public partial class Examples
     {

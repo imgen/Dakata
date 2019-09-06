@@ -1,9 +1,9 @@
-﻿using Dakata.Example.Dal;
-using Dakata.Example.Models;
+﻿using Dakata.Examples.Dal;
+using Dakata.Examples.Models;
 using System;
 using System.Collections.Generic;
 
-namespace Dakata.Example
+namespace Dakata.Examples
 {
     public partial class Examples
     {

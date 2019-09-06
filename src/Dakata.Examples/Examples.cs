@@ -1,10 +1,11 @@
-﻿using Dakata.Example.Models;
+﻿using Dakata.Examples.Models;
+using Dakata.SqlServer;
 using Dapper.ColumnMapper;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Dakata.Example
+namespace Dakata.Examples
 {
     public partial class Examples
     {

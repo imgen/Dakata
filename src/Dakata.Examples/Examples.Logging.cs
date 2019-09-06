@@ -1,7 +1,7 @@
-﻿using Dakata.Example.Dal;
+﻿using Dakata.Examples.Dal;
 using System;
 
-namespace Dakata.Example
+namespace Dakata.Examples
 {
     public partial class Examples
     {

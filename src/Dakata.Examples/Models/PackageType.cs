@@ -2,7 +2,7 @@
 using Dapper.Contrib.Extensions;
 using System;
 
-namespace Dakata.Example.Models
+namespace Dakata.Examples.Models
 {
     [Table("Warehouse.PackageTypes")]
     public class PackageType

@@ -2,7 +2,7 @@
 using Dapper.Contrib.Extensions;
 using System;
 
-namespace Dakata.Example.Models
+namespace Dakata.Examples.Models
 {
     [Table("Purchasing.PurchaseOrderLines")]
     public class PurchaseOrderLine

@@ -1,10 +1,10 @@
-﻿using Dakata.Example.Models;
+﻿using Dakata.Examples.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Dakata.Example.Dal
+namespace Dakata.Examples.Dal
 {
     public class PurchaseOrderDal : BaseDal<PurchaseOrder>
     {

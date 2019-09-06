@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dakata.Example
+namespace Dakata.Examples
 {
     public static class Utils
     {

@@ -1,10 +1,10 @@
-﻿using Dakata.Example.Models;
+﻿using Dakata.Examples.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dakata.Example
+namespace Dakata.Examples
 {
     public partial class Examples
     {

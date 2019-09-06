@@ -1,7 +1,7 @@
 ﻿using Dapper.Contrib.Extensions;
 using System;
 
-namespace Dakata.Example.Models
+namespace Dakata.Examples.Models
 {
     [Table("Application.Cities")]
     public class City
