@@ -47,7 +47,7 @@ namespace Dakata.Examples.Dal
             );
 
             // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
-            query = Include(query,
+            query = Include<PurchaseOrderLine, PackageType, int>(query,
                 selectPrefix: $"{nameof(Entity.PurchaseOrderLines)}_{nameof(PurchaseOrderLine.PackageType)}",
                 joinProperty: x => x.ID,
                 baseProperty: x => x.PackageTypeID
