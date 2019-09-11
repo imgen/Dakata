@@ -24,16 +24,11 @@ namespace Dakata.Examples.Dal
             var keyColumnName = GetKeyColumnName();
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-            query = InnerJoinTable<PurchaseOrderLine>(query,
-                joinTableColumnName: nameof(PurchaseOrderLine.PurchaseOrderID),
-                baseTableColumnName: GetColumnName(x => x.ID)
+            query = LeftIncludeList(query,
+                includeProperty: x => x.PurchaseOrderLines,
+                joinProperty: x => x.PurchaseOrderID,
+                baseProperty: x => x.ID
             );
-            var purchaseOrderSelections = GetColumnSelections();
-            var purchaseOrderLineSelections = GetColumnSelectionsFromEntity<PurchaseOrderLine>(
-                prefix: nameof(PurchaseOrder.PurchaseOrderLines)
-            );
-            var allSelections = purchaseOrderSelections.Concat(purchaseOrderLineSelections).ToArray();
-            query = query.Select(allSelections);
 
             var results = await QueryAndMapDynamicAsync(query);
             return results.FirstOrDefault();
@@ -45,30 +40,18 @@ namespace Dakata.Examples.Dal
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
 
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-            query = InnerJoinTable<PurchaseOrderLine>(query,
-                joinTableColumnName: nameof(PurchaseOrderLine.PurchaseOrderID),
-                baseTableColumnName: GetColumnName(x => x.ID)
+            query = LeftIncludeList(query,
+                includeProperty: x => x.PurchaseOrderLines,
+                joinProperty: x => x.PurchaseOrderID,
+                baseProperty: x => x.ID
             );
 
             // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
-            query = InnerJoinTable<PackageType>(query,
-                joinTableColumnName: GetColumnName<PackageType, int>(x => x.ID),
-                baseTableColumnName: nameof(PurchaseOrderLine.PackageTypeID),
-                baseTableName: DbUtils.GetTableName<PurchaseOrderLine>()
+            query = LeftInclude<PurchaseOrderLine, PackageType, int>(query,
+                selectPrefix: $"{nameof(Entity.PurchaseOrderLines)}_{nameof(PurchaseOrderLine.PackageType)}",
+                joinProperty: x => x.ID,
+                baseProperty: x => x.PackageTypeID
             );
-
-            var purchaseOrderSelections = GetColumnSelections();
-            var purchaseOrderLineSelections = GetColumnSelectionsFromEntity<PurchaseOrderLine>(
-                prefix: nameof(PurchaseOrder.PurchaseOrderLines)
-            );
-            var packageTypeSelections = GetColumnSelectionsFromEntity<PackageType>(
-                prefix: $"{nameof(PurchaseOrder.PurchaseOrderLines)}_{nameof(PurchaseOrderLine.PackageType)}"
-            );
-            var allSelections = purchaseOrderSelections
-                .Concat(purchaseOrderLineSelections)
-                .Concat(packageTypeSelections)
-                .ToArray();
-            query = query.Select(allSelections);
 
             var results = await QueryAndMapDynamicAsync(query);
             return results.FirstOrDefault();

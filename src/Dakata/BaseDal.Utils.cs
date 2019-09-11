@@ -16,7 +16,7 @@ namespace Dakata
         public int GetMaxBatchSize(int parameterCountOfOneRecord) =>
             MaxParameterCount / parameterCountOfOneRecord;
 
-        public IEnumerable<string> GetColumnSelections(
+        public string[] GetColumnSelections(
             string prefix = "", string tableName = null, Type entityType = null)
         {
             prefix = prefix ?? string.Empty;
@@ -27,10 +27,12 @@ namespace Dakata
             }
             tableName = tableName ?? (entityType != null ? GetTableName(entityType) : TableName);
             return GetPropertyColumnMapping(entityType: entityType)
-                .Select(mapping => $"{AddTablePrefix(mapping.column, tableName)} AS {prefix}{mapping.property}");
+                .Select(mapping => 
+                    $"{AddTablePrefix(mapping.column, tableName)} AS {prefix}{mapping.property}")
+                .ToArray();
         }
 
-        public IEnumerable<string> GetColumnSelectionsFromEntity<TEntity>(
+        public string[] GetColumnSelectionsFromEntity<TEntity>(
             string prefix = "")
         {
             return GetColumnSelections(prefix, entityType: typeof(TEntity));
@@ -41,42 +43,6 @@ namespace Dakata
             return column => columnName.Equals(column, StringComparison.InvariantCultureIgnoreCase)
                 ? DbProvider.UtcNowExpression
                 : null;
-        }
-
-        public Query LeftJoinTable(Query query, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
-        {
-            return JoinTable(query, query.LeftJoin, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
-        }
-
-        public Query JoinTable(Query query, Func<string, Func<Join, Join>, Query> joiner, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
-        {
-            baseTableName = baseTableName ?? TableName;
-            baseTableColumnName = baseTableColumnName ?? joinTableName + joinTableColumnName;
-            return joiner(joinTableName,
-                join => join.On(AddTablePrefix(joinTableColumnName, joinTableName), AddTablePrefix(baseTableColumnName, baseTableName))
-            );
-        }
-
-        public Query InnerJoinTable(Query query, string joinTableName, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
-        {
-            return JoinTable(query,
-                (joinTableName2, join) => query.Join(joinTableName, join),
-                joinTableName,
-                joinTableColumnName,
-                baseTableColumnName,
-                baseTableName);
-        }
-
-        public Query LeftJoinTable<TJoinEntity>(Query query, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
-        {
-            var joinTableName = GetTableName<TJoinEntity>();
-            return LeftJoinTable(query, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
-        }
-
-        public Query InnerJoinTable<TJoinEntity>(Query query, string joinTableColumnName, string baseTableColumnName = null, string baseTableName = null)
-        {
-            var joinTableName = GetTableName<TJoinEntity>();
-            return InnerJoinTable(query, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
         }
 
         public string AddTablePrefix<TTableEntity>(string columnName) =>
@@ -291,6 +257,13 @@ namespace Dakata
                 value = Convert.ChangeType(value, propertyType);
                 property.SetValue(entity, value);
             }
+        }
+
+        public static string GetColumnExpressionFromSelectClause(string selectClause)
+        {
+            var asIndex = selectClause.IndexOf(" AS ",
+                            StringComparison.InvariantCultureIgnoreCase);
+            return selectClause.Substring(0, asIndex > 0 ? asIndex : selectClause.Length);
         }
     }
 
