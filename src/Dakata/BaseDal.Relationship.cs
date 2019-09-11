@@ -184,8 +184,9 @@ namespace Dakata
         /// <param name="joinExpression">The expression to specify join properties,
         ///     should be something like 
         ///         () => baseEntity.JoinProperty = joinEntity.Poperty</param>
+        /// <param name="useLeftJoin">Indicate whether to use left join</param>
         /// <returns></returns>
-        public Query Include<TBaseEntity, TJoinEntity>(Query query,
+        private Query Include<TBaseEntity, TJoinEntity>(Query query,
             string selectPrefix,
             Expression<Func<TBaseEntity, TJoinEntity, bool>> joinExpression,
             bool useLeftJoin = false)
@@ -202,8 +203,9 @@ namespace Dakata
         /// <param name="joinExpression">The expression to specify the include property 
         ///     and join properties, should be something like 
         ///         () => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
+        /// <param name="useLeftJoin">Indicate whether to use left join</param>
         /// <returns></returns>
-        public Query Include<TBaseEntity, TJoinEntity>(Query query,
+        private Query Include<TBaseEntity, TJoinEntity>(Query query,
             Expression<Func<TBaseEntity, bool>> joinExpression,
             bool useLeftJoin = false)
         {
