@@ -62,17 +62,23 @@ namespace Dakata
             return LeftJoinTable(query, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
         }
 
-        public Query LeftInclude(Query query,
+        public Query Include(Query query,
             Type joinEntityType,
             string selectPrefix,
             string joinTableColumnName,
             string baseTableColumnName = null,
-            string baseTableName = null)
+            string baseTableName = null,
+            bool useLeftJoin = false)
         {
             var joinTableName = GetTableName(joinEntityType);
-            LeftJoinTable(query, joinTableName, joinTableColumnName,
-                baseTableColumnName, baseTableName);
-            
+            query = useLeftJoin? 
+                LeftJoinTable(query, 
+                    joinTableName, joinTableColumnName,
+                    baseTableColumnName, baseTableName) :
+                InnerJoinTable(query, 
+                    joinTableName, joinTableColumnName,
+                    baseTableColumnName, baseTableName);
+
             var baseTableColumnSelections = 
                 GetColumnSelections(tableName: baseTableName);
             var baseTableColumnNames = baseTableColumnSelections
@@ -102,62 +108,70 @@ namespace Dakata
             return query.Select(joinTableColumnSelections);
         }
 
-        public Query LeftInclude<TJoinEntity>(Query query,
+        public Query Include<TJoinEntity>(Query query,
             string selectPrefix,
             string joinTableColumnName,
             string baseTableColumnName = null,
-            string baseTableName = null)
+            string baseTableName = null,
+            bool useLeftJoin = false)
         {
-            return LeftInclude(query, 
+            return Include(query, 
                 typeof(TJoinEntity),
                 selectPrefix,
                 joinTableColumnName,
                 baseTableColumnName,
-                baseTableName);
+                baseTableName,
+                useLeftJoin);
         }
 
-        public Query LeftInclude<TBaseEntity, 
+        public Query Include<TBaseEntity, 
             TJoinEntity, TJoinProperty>(Query query,
             string selectPrefix,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
-            Expression<Func<TBaseEntity, TJoinProperty>> baseProperty)
+            Expression<Func<TBaseEntity, TJoinProperty>> baseProperty,
+            bool useLeftJoin = false)
         {
             var joinTableColumnName = GetColumnName(joinProperty);
             var baseTableColumnName = GetColumnName(baseProperty);
             var baseTableName = GetTableName<TBaseEntity>();
-            return LeftInclude<TJoinEntity>(query,
+            return Include<TJoinEntity>(query,
                 selectPrefix,
                 joinTableColumnName,
                 baseTableColumnName,
-                baseTableName);
+                baseTableName,
+                useLeftJoin);
         }
 
-        public Query LeftInclude<TBaseEntity, 
+        public Query Include<TBaseEntity, 
             TJoinEntity, 
             TJoinProperty>(Query query,
             Expression<Func<TBaseEntity, TJoinEntity>> includeProperty,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
-            Expression<Func<TBaseEntity, TJoinProperty>> baseProperty)
+            Expression<Func<TBaseEntity, TJoinProperty>> baseProperty,
+            bool useLeftJoin = false)
         {
             var selectPrefix = includeProperty.GetFullPropertyName();
-            return LeftInclude(query,
+            return Include(query,
                 selectPrefix,
                 joinProperty,
-                baseProperty);
+                baseProperty,
+                useLeftJoin);
         }
 
-        public Query LeftIncludeList<TBaseEntity,
+        public Query IncludeList<TBaseEntity,
             TJoinEntity,
             TJoinProperty>(Query query,
             Expression<Func<TBaseEntity, List<TJoinEntity>>> includeProperty,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
-            Expression<Func<TBaseEntity, TJoinProperty>> baseProperty)
+            Expression<Func<TBaseEntity, TJoinProperty>> baseProperty,
+            bool useLeftJoin = false)
         {
             var selectPrefix = includeProperty.GetFullPropertyName();
-            return LeftInclude(query,
+            return Include(query,
                 selectPrefix,
                 joinProperty,
-                baseProperty);
+                baseProperty,
+                useLeftJoin);
         }
 
         /// <summary>
@@ -171,9 +185,10 @@ namespace Dakata
         ///     should be something like 
         ///         () => baseEntity.JoinProperty = joinEntity.Poperty</param>
         /// <returns></returns>
-        public Query LeftInclude<TBaseEntity, TJoinEntity>(Query query,
+        public Query Include<TBaseEntity, TJoinEntity>(Query query,
             string selectPrefix,
-            Expression<Func<TBaseEntity, TJoinEntity, bool>> joinExpression)
+            Expression<Func<TBaseEntity, TJoinEntity, bool>> joinExpression,
+            bool useLeftJoin = false)
         {
             return query;
         }
@@ -188,8 +203,9 @@ namespace Dakata
         ///     and join properties, should be something like 
         ///         () => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
         /// <returns></returns>
-        public Query LeftInclude<TBaseEntity, TJoinEntity>(Query query,
-            Expression<Func<TBaseEntity, bool>> joinExpression)
+        public Query Include<TBaseEntity, TJoinEntity>(Query query,
+            Expression<Func<TBaseEntity, bool>> joinExpression,
+            bool useLeftJoin = false)
         {
             return query;
         }
@@ -197,39 +213,48 @@ namespace Dakata
 
     public partial class BaseDal<TEntity>
     {
-        public Query LeftInclude<TJoinEntity, TJoinProperty>(Query query,
+        public Query Include<TJoinEntity, TJoinProperty>(Query query,
             string selectPrefix,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
-            Expression<Func<TEntity, TJoinProperty>> baseProperty)
+            Expression<Func<TEntity, TJoinProperty>> baseProperty,
+            bool useLeftJoin = false)
         {
-            return base.LeftInclude
-                (query, selectPrefix, joinProperty, baseProperty);
+            return base.Include
+                (query, 
+                selectPrefix, 
+                joinProperty, 
+                baseProperty, 
+                useLeftJoin);
         }
 
-        public Query LeftInclude<
+        public Query Include<
             TJoinEntity,
             TJoinProperty>(Query query,
             Expression<Func<TEntity, TJoinEntity>> includeProperty,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
-            Expression<Func<TEntity, TJoinProperty>> baseProperty)
+            Expression<Func<TEntity, TJoinProperty>> baseProperty,
+            bool useLeftJoin = false)
         {
-            return base.LeftInclude(query,
+            return base.Include(query,
                 includeProperty,
                 joinProperty,
-                baseProperty);
+                baseProperty,
+                useLeftJoin);
         }
 
-        public Query LeftIncludeList<
+        public Query IncludeList<
             TJoinEntity,
             TJoinProperty>(Query query,
             Expression<Func<TEntity, List<TJoinEntity>>> includeProperty,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
-            Expression<Func<TEntity, TJoinProperty>> baseProperty)
+            Expression<Func<TEntity, TJoinProperty>> baseProperty,
+            bool useLeftJoin = false)
         {
-            return base.LeftIncludeList(query,
+            return base.IncludeList(query,
                 includeProperty,
                 joinProperty,
-                baseProperty);
+                baseProperty,
+                useLeftJoin);
         }
     }
 }
