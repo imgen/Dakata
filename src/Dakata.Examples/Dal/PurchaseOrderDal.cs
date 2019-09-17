@@ -40,14 +40,14 @@ namespace Dakata.Examples.Dal
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
 
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-            query = IncludeList(query,
+            IncludeList(query,
                 includeProperty: x => x.PurchaseOrderLines,
                 joinProperty: x => x.PurchaseOrderID,
                 baseProperty: x => x.ID
             );
 
             // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
-            query = Include<PurchaseOrderLine, PackageType, int>(query,
+            Include<PurchaseOrderLine, PackageType, int>(query,
                 selectPrefix: $"{nameof(Entity.PurchaseOrderLines)}_{nameof(PurchaseOrderLine.PackageType)}",
                 joinProperty: x => x.ID,
                 baseProperty: x => x.PackageTypeID
