@@ -23,5 +23,18 @@ namespace Dakata.Examples
             purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
             purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
         }
+
+        [Fact]
+        public async Task DeepInclude()
+        {
+            var purchaseOrderDal = new PurchaseOrderDal(
+                CreateDapperConnection(),
+                sqlInfo => _testOutputHelper.WriteLine($"The sql is {sqlInfo.Sql}")
+            );
+
+            var purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType4(5);
+            purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
+            purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
+        }
     }
 }
