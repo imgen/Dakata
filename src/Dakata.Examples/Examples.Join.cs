@@ -1,6 +1,5 @@
 ﻿using Dakata.Examples.Dal;
 using FluentAssertions;
-using System;
 using System.Threading.Tasks;
 using Xunit;
 

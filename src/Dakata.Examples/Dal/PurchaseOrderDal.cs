@@ -63,6 +63,24 @@ namespace Dakata.Examples.Dal
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
             Include<PurchaseOrderLine>(query,
+                (po, pol) => po.ID == pol.PurchaseOrderID,
+                nameof(PurchaseOrder.PurchaseOrderLines));
+            // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
+            Include<PurchaseOrderLine, PackageType>(
+                query,
+                (pol, packageType) => pol.PackageTypeID == packageType.ID,
+                selectPrefix: $"{nameof(PurchaseOrder.PurchaseOrderLines)}_{nameof(PurchaseOrderLine.PackageType)}"
+            );
+            var results = await QueryAndMapDynamicAsync(query);
+            return results.FirstOrDefault();
+        }
+
+        public async Task<PurchaseOrder> GetPurchaseOrderWithLinesAndPackageType3(int id)
+        {
+            var keyColumnName = GetKeyColumnName();
+            var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
+            // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
+            Include<PurchaseOrderLine>(query,
                 po => po.ID == po.PurchaseOrderLines.First().PurchaseOrderID);
             // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
             Include<PurchaseOrderLine, PackageType>(

@@ -1,6 +1,5 @@
 ﻿using Dakata.Examples.Dal;
 using FluentAssertions;
-using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -20,7 +19,7 @@ namespace Dakata.Examples
             purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
             purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
 
-            purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType2(1);
+            purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType3(5);
             purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
             purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
         }

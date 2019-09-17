@@ -188,11 +188,21 @@ namespace Dakata
         /// <param name="useLeftJoin">Indicate whether to use left join</param>
         /// <returns></returns>
         public Query Include<TBaseEntity, TJoinEntity>(Query query,
-            string selectPrefix,
             Expression<Func<TBaseEntity, TJoinEntity, bool>> joinExpression,
+            string selectPrefix,
             bool useLeftJoin = false)
         {
-            return query;
+            var (leftSideProps, rightSideProps) = new IncludeVisitor()
+                .VisitEqualExpression(joinExpression.Body as BinaryExpression);
+            var baseTableColumnName = GetColumnName(leftSideProps.Last());
+            var joinTableColumnName = GetColumnName(rightSideProps.Last());
+            return Include(query,
+                baseEntityType: typeof(TBaseEntity),
+                joinEntityType: typeof(TJoinEntity),
+                selectPrefix: selectPrefix,
+                joinTableColumnName: joinTableColumnName,
+                baseTableColumnName: baseTableColumnName,
+                useLeftJoin: useLeftJoin);
         }
 
         /// <summary>
@@ -204,13 +214,13 @@ namespace Dakata
         /// <param name="joinExpression">The expression to specify the include property 
         ///     and join properties, should be something like 
         ///         () => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
-        /// <param name="useLeftJoin">Indicate whether to use left join</param>
         /// <param name="selectPrefix">The select prefix</param>
+        /// <param name="useLeftJoin">Indicate whether to use left join</param>
         /// <returns></returns>
         public Query Include<TBaseEntity, TJoinEntity>(Query query,
             Expression<Func<TBaseEntity, bool>> joinExpression,
-            bool useLeftJoin = false, 
-            string selectPrefix = "")
+            string selectPrefix = "",
+            bool useLeftJoin = false)
         {
             var (leftSideProps, rightSideProps) = new IncludeVisitor()
                 .VisitEqualExpression(joinExpression.Body as BinaryExpression);
@@ -315,7 +325,15 @@ namespace Dakata
             Expression<Func<TEntity, bool>> joinExpression,
             bool useLeftJoin = false)
         {
-            return Include<TEntity, TJoinEntity>(query, joinExpression, useLeftJoin);
+            return Include<TEntity, TJoinEntity>(query, joinExpression, useLeftJoin: useLeftJoin);
+        }
+
+        public Query Include<TJoinEntity>(Query query,
+            Expression<Func<TEntity, TJoinEntity, bool>> joinExpression,
+            string selectPrefix,
+            bool useLeftJoin = false)
+        {
+            return Include<TEntity, TJoinEntity>(query, joinExpression, selectPrefix, useLeftJoin: useLeftJoin);
         }
     }
 }
