@@ -13,10 +13,9 @@ namespace Dakata.Examples
         {
             var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), sqlInfo => 
             {
-                Console.WriteLine($"The sql is {sqlInfo.Sql}");
+                _testOutputHelper.WriteLine($"The sql is {sqlInfo.Sql}");
             });
-            var firstPo = await purchaseOrderDal.GetFirstAsync();
-            var poWithLines = await purchaseOrderDal.GetPurchaseOrderWithLines(firstPo.ID);
+            var poWithLines = await purchaseOrderDal.GetPurchaseOrderWithLines(1);
             poWithLines.Should().NotBeNull("GetPurchaseOrderWithLines doesn't work as expected");
             poWithLines.PurchaseOrderLines.Should().NotBeNullOrEmpty();
         }
@@ -26,10 +25,9 @@ namespace Dakata.Examples
         {
             var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), sqlInfo =>
             {
-                Console.WriteLine($"The sql is {sqlInfo.Sql}");
+                _testOutputHelper.WriteLine($"The sql is {sqlInfo.Sql}");
             });
-            var firstPo = await purchaseOrderDal.GetFirstAsync();
-            var poWithLinesAndPackageType = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType(firstPo.ID);
+            var poWithLinesAndPackageType = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType(1);
             poWithLinesAndPackageType.Should().NotBeNull("GetPurchaseOrderWithLinesAndPackageType doesn't work as expected");
             poWithLinesAndPackageType.PurchaseOrderLines.Should().NotBeNullOrEmpty();
             poWithLinesAndPackageType.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());

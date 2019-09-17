@@ -57,6 +57,23 @@ namespace Dakata.Examples.Dal
             return results.FirstOrDefault();
         }
 
+        public async Task<PurchaseOrder> GetPurchaseOrderWithLinesAndPackageType2(int id)
+        {
+            var keyColumnName = GetKeyColumnName();
+            var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
+            // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
+            Include<PurchaseOrderLine>(query,
+                po => po.ID == po.PurchaseOrderLines.First().PurchaseOrderID);
+            // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
+            Include<PurchaseOrderLine, PackageType>(
+                query,
+                pol => pol.PackageTypeID == pol.PackageType.ID,
+                selectPrefix: nameof(PurchaseOrder.PurchaseOrderLines)
+            );
+            var results = await QueryAndMapDynamicAsync(query);
+            return results.FirstOrDefault();
+        }
+
         public async Task ChangeSupplier(IEnumerable<PurchaseOrder> purchaseOrders, int newSupplierID)
         {
             var purchaseOrdersArray = purchaseOrders.ToArray();

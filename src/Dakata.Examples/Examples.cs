@@ -2,12 +2,17 @@
 using Dakata.SqlServer;
 using Dapper.ColumnMapper;
 using System.Linq;
+using Xunit.Abstractions;
 
 namespace Dakata.Examples
 {
     public partial class Examples
     {
         private const string ConnectionString = "Data Source=(local);Initial Catalog=WorldWideImporters;Integrated Security=True;MultipleActiveResultSets=True";
+
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public Examples(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         private static void RegisterColumnMappingsAndSlapperIdentifiers()
         {
