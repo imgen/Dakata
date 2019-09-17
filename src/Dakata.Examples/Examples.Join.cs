@@ -18,6 +18,7 @@ namespace Dakata.Examples
             var firstPo = await purchaseOrderDal.GetFirstAsync();
             var poWithLines = await purchaseOrderDal.GetPurchaseOrderWithLines(firstPo.ID);
             poWithLines.Should().NotBeNull("GetPurchaseOrderWithLines doesn't work as expected");
+            poWithLines.PurchaseOrderLines.Should().NotBeNullOrEmpty();
         }
 
         [Fact]
@@ -28,8 +29,10 @@ namespace Dakata.Examples
                 Console.WriteLine($"The sql is {sqlInfo.Sql}");
             });
             var firstPo = await purchaseOrderDal.GetFirstAsync();
-            var poWithLines = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType(firstPo.ID);
-            poWithLines.Should().NotBeNull("GetPurchaseOrderWithLinesAndPackageType doesn't work as expected");
+            var poWithLinesAndPackageType = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType(firstPo.ID);
+            poWithLinesAndPackageType.Should().NotBeNull("GetPurchaseOrderWithLinesAndPackageType doesn't work as expected");
+            poWithLinesAndPackageType.PurchaseOrderLines.Should().NotBeNullOrEmpty();
+            poWithLinesAndPackageType.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
         }
     }
 }
