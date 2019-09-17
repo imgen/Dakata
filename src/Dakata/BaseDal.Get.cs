@@ -347,7 +347,7 @@ namespace Dakata
         public virtual async Task<IEnumerable<TEntity>> QueryAndMapDynamicAsync(Query query)
         {
             var dynamicResults = await QueryDynamicAsync(query);
-            return AutoMapper.MapDynamic<TEntity>(dynamicResults).ToList();
+            return AutoMapper.MapDynamic<TEntity>(dynamicResults, keepCache: false).ToList();
         }
     }
 }

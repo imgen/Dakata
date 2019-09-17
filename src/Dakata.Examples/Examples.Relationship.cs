@@ -16,11 +16,11 @@ namespace Dakata.Examples
                 sqlInfo => _testOutputHelper.WriteLine($"The sql is {sqlInfo.Sql}")
             );
             
-            var purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType2(1);
+            var purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType2(5);
             purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
             purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
 
-            purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType2(5);
+            purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType2(1);
             purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
             purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
         }
