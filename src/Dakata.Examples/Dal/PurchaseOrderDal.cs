@@ -24,7 +24,7 @@ namespace Dakata.Examples.Dal
             var keyColumnName = GetKeyColumnName();
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-            query = IncludeList(query,
+            IncludeList(query,
                 includeProperty: x => x.PurchaseOrderLines,
                 joinProperty: x => x.PurchaseOrderID,
                 baseProperty: x => x.ID
@@ -40,14 +40,12 @@ namespace Dakata.Examples.Dal
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
 
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
+            // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
             IncludeList(query,
                 includeProperty: x => x.PurchaseOrderLines,
                 joinProperty: x => x.PurchaseOrderID,
                 baseProperty: x => x.ID
-            );
-
-            // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
-            Include<PurchaseOrderLine, PackageType, int>(query,
+            ).Include<PurchaseOrderLine, PackageType, int>(query,
                 selectPrefix: $"{nameof(Entity.PurchaseOrderLines)}_{nameof(PurchaseOrderLine.PackageType)}",
                 joinProperty: x => x.ID,
                 baseProperty: x => x.PackageTypeID
@@ -62,11 +60,11 @@ namespace Dakata.Examples.Dal
             var keyColumnName = GetKeyColumnName();
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
+            // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
             Include<PurchaseOrderLine>(query,
                 (po, pol) => po.ID == pol.PurchaseOrderID,
-                nameof(PurchaseOrder.PurchaseOrderLines));
-            // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
-            Include<PurchaseOrderLine, PackageType>(
+                nameof(PurchaseOrder.PurchaseOrderLines)
+            ).Include<PurchaseOrderLine, PackageType>(
                 query,
                 (pol, packageType) => pol.PackageTypeID == packageType.ID,
                 selectPrefix: $"{nameof(PurchaseOrder.PurchaseOrderLines)}_{nameof(PurchaseOrderLine.PackageType)}"
@@ -80,14 +78,13 @@ namespace Dakata.Examples.Dal
             var keyColumnName = GetKeyColumnName();
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-            Include(query,
-                po => po.ID == po.PurchaseOrderLines.First().PurchaseOrderID);
-            // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
-            Include<PurchaseOrderLine>(
-                query,
-                pol => pol.PackageTypeID == pol.PackageType.ID,
-                selectPrefix: nameof(PurchaseOrder.PurchaseOrderLines)
-            );
+            // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
+            Include(query, po => po.ID == po.PurchaseOrderLines.First().PurchaseOrderID)
+                .Include<PurchaseOrderLine>(
+                    query,
+                    pol => pol.PackageTypeID == pol.PackageType.ID,
+                    selectPrefix: nameof(PurchaseOrder.PurchaseOrderLines)
+                );
             var results = await QueryAndMapDynamicAsync(query);
             return results.FirstOrDefault();
         }
@@ -97,14 +94,13 @@ namespace Dakata.Examples.Dal
             var keyColumnName = GetKeyColumnName();
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-            Include(query,
-                po => po.ID == po.PurchaseOrderLines.First().PurchaseOrderID);
-            // Join PackageType.ID from PurchaseOrderLine.PackageTypeID
-            DeepInclude(
-                query,
-                po => po.PurchaseOrderLines.First().PackageTypeID == 
-                    po.PurchaseOrderLines.First().PackageType.ID
-            );
+            // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
+            Include(query, po => po.ID == po.PurchaseOrderLines.First().PurchaseOrderID)
+                .DeepInclude(
+                    query,
+                    po => po.PurchaseOrderLines.First().PackageTypeID == 
+                        po.PurchaseOrderLines.First().PackageType.ID
+                );
             var results = await QueryAndMapDynamicAsync(query);
             return results.FirstOrDefault();
         }
