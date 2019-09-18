@@ -190,7 +190,7 @@ namespace Dakata
                 }
                 valueClause.Add(columnValue);
             }
-            var autoIncrementAttributeProperty = EntityType.GetPropertiesWithAttribute<AutoIncrementAttribute>().FirstOrDefault();
+            var autoIncrementAttributeProperty = entity.GetType().GetPropertiesWithAttribute<AutoIncrementAttribute>().FirstOrDefault();
             var autoIncrementAttribute = autoIncrementAttributeProperty?.
 GetCustomAttributes(true)?.
 Cast<Attribute>()?.

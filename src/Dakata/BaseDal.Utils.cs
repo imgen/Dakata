@@ -147,7 +147,8 @@ namespace Dakata
         }
 
         public virtual IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
-            bool ignoreKeyProperty) => GetMappedProperties(ignoreAutoIncrementColumns, ignoreKeyProperty, EntityType);
+            bool ignoreKeyProperty) => GetMappedProperties(ignoreAutoIncrementColumns, 
+                                                ignoreKeyProperty, EntityType);
 
         public static IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
             bool ignoreKeyProperty,

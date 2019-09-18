@@ -117,14 +117,14 @@ namespace Dakata
             return this;
         }
 
-        public BaseDal Include<TJoinEntity>(Query query,
+        public BaseDal Include<TBaseEntity, TJoinEntity>(Query query,
             string selectPrefix,
             string joinTableColumnName,
             string baseTableColumnName = null,
             bool useLeftJoin = false)
         {
             return Include(query, 
-                baseEntityType: EntityType,
+                typeof(TBaseEntity),
                 typeof(TJoinEntity),
                 selectPrefix,
                 joinTableColumnName,
