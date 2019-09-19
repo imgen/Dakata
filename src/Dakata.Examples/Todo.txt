@@ -2,3 +2,5 @@
 Use Navigation Property's name as join table alias
 Use $ to join the alias of navigation properties
 All alias names ends with $ to avoid conflict with table names
+Use && to combine multiple include -> MultipleInclude
+AutoInclude -> Check Select statement to parse previous prefixes
