@@ -1,4 +1,5 @@
-﻿using SqlKata;
+﻿using Dapper.Contrib.Extensions;
+using SqlKata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,9 @@ namespace Dakata
     public partial class BaseDal
     {
         public BaseDal JoinTable(
-            Func<string, Func<Join, Join>, Query> joiner, 
-            string joinTableName, string joinTableColumnName, 
-            string baseTableColumnName = null, 
+            Func<string, Func<Join, Join>, Query> joiner,
+            string joinTableName, string joinTableColumnName,
+            string baseTableColumnName = null,
             string baseTableName = null)
         {
             baseTableName = baseTableName ?? TableName;
@@ -24,10 +25,10 @@ namespace Dakata
             return this;
         }
 
-        public BaseDal InnerJoinTable(Query query, 
-            string joinTableName, 
-            string joinTableColumnName, 
-            string baseTableColumnName = null, 
+        public BaseDal InnerJoinTable(Query query,
+            string joinTableName,
+            string joinTableColumnName,
+            string baseTableColumnName = null,
             string baseTableName = null)
         {
             return JoinTable((joinTableName2, join) => query.Join(joinTableName, join),
@@ -37,27 +38,27 @@ namespace Dakata
                 baseTableName);
         }
 
-        public BaseDal InnerJoinTable<TJoinEntity>(Query query, 
-            string joinTableColumnName, 
-            string baseTableColumnName = null, 
+        public BaseDal InnerJoinTable<TJoinEntity>(Query query,
+            string joinTableColumnName,
+            string baseTableColumnName = null,
             string baseTableName = null)
         {
             var joinTableName = GetTableName<TJoinEntity>();
             return InnerJoinTable(query, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
         }
 
-        public BaseDal LeftJoinTable(Query query, 
-            string joinTableName, 
-            string joinTableColumnName, 
-            string baseTableColumnName = null, 
+        public BaseDal LeftJoinTable(Query query,
+            string joinTableName,
+            string joinTableColumnName,
+            string baseTableColumnName = null,
             string baseTableName = null)
         {
             return JoinTable(query.LeftJoin, joinTableName, joinTableColumnName, baseTableColumnName, baseTableName);
         }
 
-        public BaseDal LeftJoinTable<TJoinEntity>(Query query, 
-            string joinTableColumnName, 
-            string baseTableColumnName = null, 
+        public BaseDal LeftJoinTable<TJoinEntity>(Query query,
+            string joinTableColumnName,
+            string baseTableColumnName = null,
             string baseTableName = null)
         {
             var joinTableName = GetTableName<TJoinEntity>();
@@ -75,19 +76,19 @@ namespace Dakata
             var baseTableName = GetTableName(baseEntityType);
             var joinTableName = GetTableName(joinEntityType);
             if (useLeftJoin)
-            { 
-                LeftJoinTable(query, 
+            {
+                LeftJoinTable(query,
                     joinTableName, joinTableColumnName,
                     baseTableColumnName, baseTableName);
             }
             else
-            { 
-                InnerJoinTable(query, 
+            {
+                InnerJoinTable(query,
                     joinTableName, joinTableColumnName,
                     baseTableColumnName, baseTableName);
             }
 
-            var baseTableColumnSelections = 
+            var baseTableColumnSelections =
                 GetColumnSelections(tableName: baseTableName, entityType: baseEntityType);
             var baseTableColumnNames = baseTableColumnSelections
                     .Select(s => (selection: s, column: GetColumnExpressionFromSelectClause(s)))
@@ -99,12 +100,12 @@ namespace Dakata
 
             baseTableColumnSelections = baseTableColumnNames
                 .Where(c => !columnNamesInQuery
-                            .Any(c2 => 
+                            .Any(c2 =>
                                 c2.Equals(c.column, StringComparison.InvariantCultureIgnoreCase))
                             )
                 .Select(c => c.selection)
                 .ToArray();
-            
+
             if (baseTableColumnSelections.Any())
             {
                 query.Select(baseTableColumnSelections);
@@ -123,7 +124,7 @@ namespace Dakata
             string baseTableColumnName = null,
             bool useLeftJoin = false)
         {
-            return Include(query, 
+            return Include(query,
                 typeof(TBaseEntity),
                 typeof(TJoinEntity),
                 selectPrefix,
@@ -132,7 +133,7 @@ namespace Dakata
                 useLeftJoin);
         }
 
-        public BaseDal Include<TBaseEntity, 
+        public BaseDal Include<TBaseEntity,
             TJoinEntity, TJoinProperty>(Query query,
             string selectPrefix,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
@@ -150,8 +151,8 @@ namespace Dakata
                 useLeftJoin);
         }
 
-        public BaseDal Include<TBaseEntity, 
-            TJoinEntity, 
+        public BaseDal Include<TBaseEntity,
+            TJoinEntity,
             TJoinProperty>(Query query,
             Expression<Func<TBaseEntity, TJoinEntity>> includeProperty,
             Expression<Func<TJoinEntity, TJoinProperty>> joinProperty,
@@ -217,7 +218,7 @@ namespace Dakata
         /// <param name="query">The query</param>
         /// <param name="joinExpression">The expression to specify the include property 
         ///     and join properties, should be something like 
-        ///         () => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
+        ///         baseEntity => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
         /// <param name="selectPrefix">The select prefix</param>
         /// <param name="useLeftJoin">Indicate whether to use left join</param>
         /// <returns></returns>
@@ -228,19 +229,24 @@ namespace Dakata
         {
             var (leftSideProps, rightSideProps) = new IncludeVisitor()
                 .VisitEqualExpression(joinExpression.Body as BinaryExpression);
+            if (leftSideProps.Length > rightSideProps.Length)
+            {
+                // Navigate property is on the left side, swap to make sure the subsequent code works
+                (leftSideProps, rightSideProps) = (rightSideProps, leftSideProps);
+            }
             var lastRightSideProp = rightSideProps.Last();
             var baseTableColumnName = GetColumnName(leftSideProps.Last());
             var joinTableColumnName = GetColumnName(lastRightSideProp);
             var prefixPropName = rightSideProps[rightSideProps.Length - 2].Name;
-            selectPrefix = selectPrefix.IsNullOrEmpty()? 
-                prefixPropName : 
+            selectPrefix = selectPrefix.IsNullOrEmpty() ?
+                prefixPropName :
                 $"{selectPrefix}_{prefixPropName}";
-            return Include(query, 
+            return Include(query,
                 baseEntityType: typeof(TBaseEntity),
-                joinEntityType: lastRightSideProp.DeclaringType, 
-                selectPrefix: selectPrefix, 
-                joinTableColumnName: joinTableColumnName, 
-                baseTableColumnName: baseTableColumnName, 
+                joinEntityType: lastRightSideProp.DeclaringType,
+                selectPrefix: selectPrefix,
+                joinTableColumnName: joinTableColumnName,
+                baseTableColumnName: baseTableColumnName,
                 useLeftJoin: useLeftJoin);
         }
 
@@ -252,8 +258,7 @@ namespace Dakata
         /// <param name="query">The query</param>
         /// <param name="joinExpression">The expression to specify the include property 
         ///     and join properties, should be something like 
-        ///         () => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
-        /// <param name="selectPrefix">The select prefix</param>
+        ///         baseEntity => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
         /// <param name="useLeftJoin">Indicate whether to use left join</param>
         /// <returns></returns>
         public BaseDal DeepInclude<TBaseEntity>(Query query,
@@ -279,10 +284,88 @@ namespace Dakata
                 useLeftJoin: useLeftJoin);
         }
 
-        private class IncludeVisitor: ExpressionVisitor
+        /// <summary>
+        /// Include an entity
+        /// </summary>
+        /// <typeparam name="TBaseEntity">The base entity type</typeparam>
+        /// <typeparam name="TFirstJoinEntity">The first join entity type</typeparam>
+        /// <param name="query">The query</param>
+        /// <param name="joinExpression">The expression to specify the include property 
+        ///     and join properties, should be something like 
+        ///         baseEntity => baseEntity.IncludeProperty.JoinProperty = baseEntity.Poperty</param>
+        /// <param name="selectPrefix">The select prefix</param>
+        /// <param name="useLeftJoin">Indicate whether to use left join</param>
+        /// <returns></returns>
+        public BaseDal MultipleInclude
+            <TBaseEntity, TFirstJoinEntity>(
+            Query query,
+            Expression<Func<TBaseEntity, TFirstJoinEntity, bool>> joinExpression,
+            bool useLeftJoin = false)
         {
-            private Stack<PropertyInfo> LeftSideProperties { get; set; } = new Stack<PropertyInfo>();
-            private Stack<PropertyInfo> RightSideProperties { get; set; } = new Stack<PropertyInfo>();
+            var visitor = new MultipleIncludeVisitor();
+            var equalExpressions = visitor.GetEqualExpressions(joinExpression.Body as BinaryExpression);
+            var firstEqualExpression = equalExpressions[0];
+            var firstFunc = Expression.Lambda<Func<TBaseEntity, bool>>(firstEqualExpression,
+                joinExpression.Parameters.First());
+            Include(query, firstFunc, useLeftJoin: useLeftJoin);
+            var navigationProperty = visitor.GetNavigationProperty(firstEqualExpression);
+            var secondEqualExpression = equalExpressions[1];
+            var secondFunc = Expression.Lambda<Func<TFirstJoinEntity, bool>>(secondEqualExpression,
+                joinExpression.Parameters[1]);
+            return Include(query, secondFunc, navigationProperty.Name, useLeftJoin);
+        }
+
+        private class MultipleIncludeVisitor : ExpressionVisitor
+        {
+            private readonly List<BinaryExpression> _equalExpressions = new List<BinaryExpression>();
+            private PropertyInfo _navigationProperty;
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (node.NodeType == ExpressionType.Equal)
+                {
+                    _equalExpressions.Add(node);
+                }
+                return base.VisitBinary(node);
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (node.Member is PropertyInfo property &&
+                    Attribute.IsDefined(property, typeof(ComputedAttribute)))
+                {
+                    _navigationProperty = property;
+                }
+                return base.VisitMember(node);
+            }
+
+            public BinaryExpression[] GetEqualExpressions(BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType != ExpressionType.AndAlso)
+                {
+                    return default;
+                }
+                _equalExpressions.Clear();
+                Visit(binaryExpression);
+                return _equalExpressions.ToArray();
+            }
+
+            public PropertyInfo GetNavigationProperty(BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType != ExpressionType.Equal)
+                {
+                    return default;
+                }
+                _navigationProperty = null;
+                Visit(binaryExpression);
+                return _navigationProperty;
+            }
+        }
+
+        private class IncludeVisitor : ExpressionVisitor
+        {
+            private readonly Stack<PropertyInfo> _leftSideProperties = new Stack<PropertyInfo>(),
+                _rightSideProperties = new Stack<PropertyInfo>();
             private bool _isLeftSideParsingFinished = false;
 
             protected override Expression VisitMember(MemberExpression node)
@@ -290,27 +373,26 @@ namespace Dakata
                 var member = node.Member;
                 if (member is PropertyInfo property)
                 {
-                    var propertyNames = _isLeftSideParsingFinished? RightSideProperties : LeftSideProperties;
+                    var propertyNames = _isLeftSideParsingFinished ? _rightSideProperties : _leftSideProperties;
                     propertyNames.Push(property);
                 }
                 return base.VisitMember(node);
             }
 
-            public (PropertyInfo[] leftSideProperties, PropertyInfo[] rightSideProperties) 
+            public (PropertyInfo[] leftSideProperties, PropertyInfo[] rightSideProperties)
                 VisitEqualExpression(BinaryExpression node)
             {
                 if (node.NodeType != ExpressionType.Equal)
                 {
                     return default;
                 }
+                _isLeftSideParsingFinished = false;
+                _leftSideProperties.Clear();
+                _rightSideProperties.Clear();
                 Visit(node.Left);
                 _isLeftSideParsingFinished = true;
                 Visit(node.Right);
-                var propertyNames = (LeftSideProperties.ToArray(), RightSideProperties.ToArray());
-                _isLeftSideParsingFinished = false;
-                LeftSideProperties.Clear();
-                RightSideProperties.Clear();
-                return propertyNames;
+                return (_leftSideProperties.ToArray(), _rightSideProperties.ToArray());
             }
         }
     }
@@ -324,10 +406,10 @@ namespace Dakata
             bool useLeftJoin = false)
         {
             base.Include
-                (query, 
-                selectPrefix, 
-                joinProperty, 
-                baseProperty, 
+                (query,
+                selectPrefix,
+                joinProperty,
+                baseProperty,
                 useLeftJoin);
             return this;
         }
@@ -386,6 +468,20 @@ namespace Dakata
             bool useLeftJoin = false)
         {
             DeepInclude<TEntity>(query, joinExpression, useLeftJoin);
+            return this;
+        }
+
+        public BaseDal<TEntity> MultipleInclude
+            <TJoinEntity>(
+            Query query,
+            Expression<Func<TEntity, TJoinEntity, bool>> joinExpression,
+            bool useLeftJoin = false)
+        {
+            MultipleInclude<TEntity, TJoinEntity>(
+                query,
+                joinExpression,
+                useLeftJoin
+                );
             return this;
         }
     }

@@ -8,15 +8,15 @@ namespace Dakata.Examples.Dal
 {
     public class PurchaseOrderDal : BaseDal<PurchaseOrder>
     {
-        public PurchaseOrderDal(DapperConnection connection, Action<SqlInfo> logger = null): base(connection, logger) { }
+        public PurchaseOrderDal(DapperConnection connection, Action<SqlInfo> logger = null) : base(connection, logger) { }
 
-        public DateTime GetLatestExpectedDeliveryDate() => 
+        public DateTime GetLatestExpectedDeliveryDate() =>
             GetMaxValueOfColumn<DateTime>(nameof(Entity.ExpectedDeliveryDate));
 
         public DateTime GetEarliestExpectedDeliveryDate() =>
             GetMinValueOfColumn<DateTime>(nameof(Entity.ExpectedDeliveryDate));
 
-        public int GetCountOfPurchaseOrdersSince(DateTime date) => 
+        public int GetCountOfPurchaseOrdersSince(DateTime date) =>
             GetCount<int>(NewQuery().WhereDate(nameof(Entity.OrderDate), ">=", date));
 
         public async Task<PurchaseOrder> GetPurchaseOrderWithLines(int id)
@@ -98,9 +98,22 @@ namespace Dakata.Examples.Dal
             Include(query, po => po.ID == po.PurchaseOrderLines.First().PurchaseOrderID)
                 .DeepInclude(
                     query,
-                    po => po.PurchaseOrderLines.First().PackageTypeID == 
+                    po => po.PurchaseOrderLines.First().PackageTypeID ==
                         po.PurchaseOrderLines.First().PackageType.ID
                 );
+            var results = await QueryAndMapDynamicAsync(query);
+            return results.FirstOrDefault();
+        }
+
+        public async Task<PurchaseOrder> GetPurchaseOrderWithLinesAndPackageType5(int id)
+        {
+            var keyColumnName = GetKeyColumnName();
+            var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
+            // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
+            // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
+            MultipleInclude<PurchaseOrderLine>(query,
+                (po, pol) => po.PurchaseOrderLines.First().PurchaseOrderID == po.ID &&
+                            pol.PackageTypeID == pol.PackageType.ID);
             var results = await QueryAndMapDynamicAsync(query);
             return results.FirstOrDefault();
         }
@@ -108,12 +121,12 @@ namespace Dakata.Examples.Dal
         public async Task ChangeSupplier(IEnumerable<PurchaseOrder> purchaseOrders, int newSupplierID)
         {
             var purchaseOrdersArray = purchaseOrders.ToArray();
-            foreach(var po in purchaseOrdersArray)
+            foreach (var po in purchaseOrdersArray)
             {
                 po.SupplierID = newSupplierID;
             }
 
-            await UpdateAllAsync(purchaseOrders, 
+            await UpdateAllAsync(purchaseOrders,
                 columnsToUpdate: GetColumnName(x => x.SupplierID)
             );
         }

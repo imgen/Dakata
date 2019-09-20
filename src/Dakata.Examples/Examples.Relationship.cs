@@ -1,5 +1,7 @@
 ﻿using Dakata.Examples.Dal;
+using Dakata.Examples.Models;
 using FluentAssertions;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -39,7 +41,7 @@ namespace Dakata.Examples
                 CreateDapperConnection(),
                 sqlInfo => _testOutputHelper.WriteLine($"The sql is {sqlInfo.Sql}")
             );
-            
+
             var purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType2(5);
             purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
             purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
@@ -58,6 +60,19 @@ namespace Dakata.Examples
             );
 
             var purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType4(5);
+            purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
+            purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
+        }
+
+        [Fact]
+        public async Task MultipleInclude()
+        {
+            var purchaseOrderDal = new PurchaseOrderDal(
+                CreateDapperConnection(),
+                sqlInfo => _testOutputHelper.WriteLine($"The sql is {sqlInfo.Sql}")
+            );
+
+            var purchaseOrder = await purchaseOrderDal.GetPurchaseOrderWithLinesAndPackageType5(5);
             purchaseOrder.PurchaseOrderLines.Should().NotBeNull();
             purchaseOrder.PurchaseOrderLines.ForEach(x => x.PackageType.Should().NotBeNull());
         }

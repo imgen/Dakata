@@ -36,8 +36,8 @@ namespace Dakata
             };
             return new TransactionScope(TransactionScopeOption.Required, transactionOptions, asyncOption);
         }
-        
-        public static T WithTransaction<T>(Func<TransactionScope, T> func, 
+
+        public static T WithTransaction<T>(Func<TransactionScope, T> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
             bool enableMultithreadSupportForTransaction = false)
@@ -56,7 +56,7 @@ namespace Dakata
             }
         }
 
-        public static void WithTransaction(Action<TransactionScope> action, 
+        public static void WithTransaction(Action<TransactionScope> action,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
@@ -67,7 +67,7 @@ namespace Dakata
             }, timeout, isolationLevel);
         }
 
-        public static async Task<T> WithTransaction<T>(Func<TransactionScope, Task<T>> func, 
+        public static async Task<T> WithTransaction<T>(Func<TransactionScope, Task<T>> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
@@ -79,7 +79,7 @@ namespace Dakata
             }
         }
 
-        public static async Task WithTransaction(Func<TransactionScope, Task> func, 
+        public static async Task WithTransaction(Func<TransactionScope, Task> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
@@ -90,7 +90,7 @@ namespace Dakata
             }, timeout, isolationLevel);
         }
 
-        public static T WithTransaction<T>(Func<T> func, 
+        public static T WithTransaction<T>(Func<T> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
             bool enableMultithreadSupportForTransaction = false)
@@ -109,7 +109,7 @@ namespace Dakata
             }
         }
 
-        public static void WithTransaction(Action action, 
+        public static void WithTransaction(Action action,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
             bool enableMultithreadSupportForTransaction = false)
@@ -121,7 +121,7 @@ namespace Dakata
             }, timeout, isolationLevel);
         }
 
-        public static async Task<T> WithTransaction<T>(Func<Task<T>> func, 
+        public static async Task<T> WithTransaction<T>(Func<Task<T>> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
@@ -133,7 +133,7 @@ namespace Dakata
             }
         }
 
-        public static async Task WithTransaction(Func<Task> func, 
+        public static async Task WithTransaction(Func<Task> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
@@ -144,15 +144,10 @@ namespace Dakata
             }, timeout, isolationLevel);
         }
 
-        public static string GetTableName<TEntity>()
-        {
-            return GetTableName(typeof(TEntity));
-        }
+        public static string GetTableName<TEntity>() => GetTableName(typeof(TEntity));
 
-        public static string GetTableName(Type entityType)
-        {
-            return entityType.GetAttributeValue<TableAttribute, string>(x => x.Name).Replace("`", string.Empty);
-        }
+        public static string GetTableName(Type entityType) =>
+            entityType.GetAttributeValue<TableAttribute, string>(x => x.Name).Replace("`", string.Empty);
 
         public static string MakeLikeable(this object value)
         {
