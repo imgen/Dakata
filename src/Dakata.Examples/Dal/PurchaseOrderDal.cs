@@ -113,7 +113,7 @@ namespace Dakata.Examples.Dal
             // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
             MultipleInclude<PurchaseOrderLine>(query,
                 (po, pol) => po.PurchaseOrderLines.First().PurchaseOrderID == po.ID &&
-                            pol.PackageTypeID == pol.PackageType.ID);
+                            pol.PackageType.ID == pol.PackageTypeID);
             var results = await QueryAndMapDynamicAsync(query);
             return results.FirstOrDefault();
         }
