@@ -25,7 +25,7 @@ namespace Dakata.Examples.Dal
             var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
             IncludeList(query,
-                includeProperty: x => x.PurchaseOrderLines,
+                navigationProperty: x => x.PurchaseOrderLines,
                 joinProperty: x => x.PurchaseOrderID,
                 baseProperty: x => x.ID
             );
@@ -42,7 +42,7 @@ namespace Dakata.Examples.Dal
             // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
             // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
             IncludeList(query,
-                includeProperty: x => x.PurchaseOrderLines,
+                navigationProperty: x => x.PurchaseOrderLines,
                 joinProperty: x => x.PurchaseOrderID,
                 baseProperty: x => x.ID
             ).Include<PurchaseOrderLine, PackageType, int>(query,
