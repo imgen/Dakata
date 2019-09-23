@@ -1,1 +1,3 @@
 ﻿More comments in code and also XML comments for APIs
+Use Navigation Property's name as join table alias
+Use $ to join the alias of navigation properties
