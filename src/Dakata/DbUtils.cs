@@ -114,11 +114,16 @@ namespace Dakata
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
             bool enableMultithreadSupportForTransaction = false)
         {
-            WithTransaction(scope =>
-            {
-                action();
-                return (object)null;
-            }, timeout, isolationLevel);
+            WithTransaction(
+                scope =>
+                {
+                    action();
+                    return (object)null;
+                },
+                timeout,
+                isolationLevel,
+                enableMultithreadSupportForTransaction
+            );
         }
 
         public static async Task<T> WithTransaction<T>(Func<Task<T>> func,
