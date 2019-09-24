@@ -130,7 +130,7 @@ namespace Dakata
             {
                 return valueSelector(att);
             }
-            return default(TValue);
+            return default;
         }
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<TAttr>(this Type type, Func<TAttr, bool> checker = null)
@@ -203,7 +203,7 @@ namespace Dakata
             if (!TryFindMemberExpression(exp.Body, out MemberExpression memberExp))
                 return string.Empty;
 
-            Stack<string> memberNames = new Stack<string>();
+            var memberNames = new Stack<string>();
             do
             {
                 memberNames.Push(memberExp.Member.Name);
@@ -247,8 +247,8 @@ namespace Dakata
 
         public static string[] GetFiles(this string path, string searchPattern, SearchOption searchOption)
         {
-            string[] searchPatterns = searchPattern.Split('|');
-            List<string> files = searchPatterns.SelectMany(
+            var searchPatterns = searchPattern.Split('|');
+            var files = searchPatterns.SelectMany(
                 sp => Directory.GetFiles(path, sp, searchOption)
             ).ToList();
             files.Sort();
