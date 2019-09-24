@@ -420,7 +420,7 @@ namespace Dakata
 
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence)
         {
-            HashSet<T> hashSet = new HashSet<T>();
+            var hashSet = new HashSet<T>();
             foreach (T item in sequence)
             {
                 hashSet.Add(item);
