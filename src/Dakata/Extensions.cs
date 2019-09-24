@@ -19,7 +19,7 @@ namespace Dakata
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>);
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public static string ToNullIfEmpty(this string s)
@@ -39,8 +39,8 @@ namespace Dakata
 
         public static T[] Shuffle<T>(this IEnumerable<T> sequence)
         {
-            var array = sequence.ToArray();
-            var provider = new RNGCryptoServiceProvider();
+            T[] array = sequence.ToArray();
+            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
             int n = array.Length;
             while (n > 1)
             {
@@ -57,8 +57,8 @@ namespace Dakata
         }
 
         public static string ShortenString(this string str, int maxLength,
-            string fill = "...", 
-            bool skipMiddle = true, 
+            string fill = "...",
+            bool skipMiddle = true,
             int endCharsToKeep = 10)
         {
             if (str.Length <= maxLength)
@@ -86,7 +86,7 @@ namespace Dakata
             {
                 return str;
             }
-            var chars = str.ToLower().Skip(1).Prepend(char.ToUpper(str[0])).ToArray();
+            char[] chars = str.ToLower().Skip(1).Prepend(char.ToUpper(str[0])).ToArray();
             return new string(chars);
         }
 
@@ -105,8 +105,8 @@ namespace Dakata
 
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> sequence, Action<T> action)
         {
-            var items = sequence as T[] ?? sequence.ToArray();
-            foreach (var item in items)
+            T[] items = sequence as T[] ?? sequence.ToArray();
+            foreach (T item in items)
             {
                 action(item);
             }
@@ -116,11 +116,9 @@ namespace Dakata
 
         public static byte[] ReadAllBytes(this Stream stream)
         {
-            using (var ms = new MemoryStream((int)stream.Length))
-            {
-                stream.CopyTo(ms);
-                return ms.ToArray();
-            }
+            using var ms = new MemoryStream((int)stream.Length);
+            stream.CopyTo(ms);
+            return ms.ToArray();
         }
 
         public static TValue GetAttributeValue<TAttribute, TValue>(
@@ -136,7 +134,7 @@ namespace Dakata
         }
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<TAttr>(this Type type, Func<TAttr, bool> checker = null)
-            where TAttr: Attribute
+            where TAttr : Attribute
         {
             return type.GetPropertiesWithAttribute(typeof(TAttr), attr => checker?.Invoke(attr as TAttr) ?? true);
         }
@@ -145,7 +143,7 @@ namespace Dakata
         {
             return type.GetProperties()
                             .Where(x => x.GetCustomAttributes(true)
-                                   .Any(attr => attr.GetType() == attrType && (checker?.Invoke(attr as Attribute)?? true))
+                                   .Any(attr => attr.GetType() == attrType && (checker?.Invoke(attr as Attribute) ?? true))
                                   );
         }
 
@@ -161,7 +159,7 @@ namespace Dakata
             return list;
         }
 
-        public static void Add<T>(this List<T> list, IEnumerable<T> items) => list.AddRange(items?? Enumerable.Empty<T>());
+        public static void Add<T>(this List<T> list, IEnumerable<T> items) => list.AddRange(items ?? Enumerable.Empty<T>());
 
         public static string Prepend(this string str, string prefix)
         {
@@ -173,14 +171,14 @@ namespace Dakata
 
         public static string JoinString<T>(this IEnumerable<T> items, string separator) =>
             string.Join(separator, items);
-        
+
         public static IEnumerable<IEnumerable<TSource>> Batch<TSource>(
                   this IEnumerable<TSource> source, int size)
         {
             TSource[] bucket = null;
-            var count = 0;
+            int count = 0;
 
-            foreach (var item in source)
+            foreach (TSource item in source)
             {
                 if (bucket == null)
                     bucket = new TSource[size];
@@ -202,10 +200,10 @@ namespace Dakata
         // code adjusted to prevent horizontal overflow
         public static string GetFullPropertyName<T, TProperty>(this Expression<Func<T, TProperty>> exp)
         {
-            if (!TryFindMemberExpression(exp.Body, out var memberExp))
+            if (!TryFindMemberExpression(exp.Body, out MemberExpression memberExp))
                 return string.Empty;
 
-            var memberNames = new Stack<string>();
+            Stack<string> memberNames = new Stack<string>();
             do
             {
                 memberNames.Push(memberExp.Member.Name);
@@ -249,8 +247,8 @@ namespace Dakata
 
         public static string[] GetFiles(this string path, string searchPattern, SearchOption searchOption)
         {
-            var searchPatterns = searchPattern.Split('|');
-            var files = searchPatterns.SelectMany(
+            string[] searchPatterns = searchPattern.Split('|');
+            List<string> files = searchPatterns.SelectMany(
                 sp => Directory.GetFiles(path, sp, searchOption)
             ).ToList();
             files.Sort();
@@ -263,7 +261,7 @@ namespace Dakata
             {
                 return null;
             }
-            return int.TryParse(str, out var result)? result : (int?)null;
+            return int.TryParse(str, out int result) ? result : (int?)null;
         }
 
         public static long? ParseLong(this string str)
@@ -272,7 +270,7 @@ namespace Dakata
             {
                 return null;
             }
-            return long.TryParse(str, out var result) ? result : (long?)null;
+            return long.TryParse(str, out long result) ? result : (long?)null;
         }
 
         public static float? ParseFloat(this string str)
@@ -281,7 +279,7 @@ namespace Dakata
             {
                 return null;
             }
-            return float.TryParse(str, out var result) ? result : (float?)null;
+            return float.TryParse(str, out float result) ? result : (float?)null;
         }
 
         public static double? ParseDouble(this string str)
@@ -290,7 +288,7 @@ namespace Dakata
             {
                 return null;
             }
-            return double.TryParse(str, out var result) ? result : (double?)null;
+            return double.TryParse(str, out double result) ? result : (double?)null;
         }
 
         public static decimal? ParseDecimal(this string str)
@@ -299,7 +297,7 @@ namespace Dakata
             {
                 return null;
             }
-            return decimal.TryParse(str, out var result) ? result : (decimal?)null;
+            return decimal.TryParse(str, out decimal result) ? result : (decimal?)null;
         }
 
         public static string FormatString(this string str, params object[] args)
@@ -308,14 +306,14 @@ namespace Dakata
         }
 
         public static TEnum[] GetEnumValues<TEnum>(this TEnum obj)
-            where TEnum: struct 
+            where TEnum : struct
         {
-            return (TEnum[]) Enum.GetValues(typeof(TEnum));
+            return (TEnum[])Enum.GetValues(typeof(TEnum));
         }
 
         public static DateTimeOffset RoundToHour(this DateTimeOffset dateTime)
         {
-            var updated = dateTime.AddMinutes(30);
+            DateTimeOffset updated = dateTime.AddMinutes(30);
             return new DateTimeOffset(updated.Year, updated.Month, updated.Day,
                                  updated.Hour, 0, 0, dateTime.Offset);
         }
@@ -327,7 +325,7 @@ namespace Dakata
 
         public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(
             this IEnumerable<TSource> source,
-            Func<TSource, TKey> keySelector, 
+            Func<TSource, TKey> keySelector,
             bool ascending)
         {
             return ascending ? source.OrderBy(keySelector) : source.OrderByDescending(keySelector);
@@ -336,28 +334,28 @@ namespace Dakata
 
         public static ExpandoObject ToExpando(this IDictionary<string, object> dictionary)
         {
-            var expando = new ExpandoObject();
-            var expandoDic = (IDictionary<string, object>)expando;
+            ExpandoObject expando = new ExpandoObject();
+            IDictionary<string, object> expandoDic = (IDictionary<string, object>)expando;
 
             // go through the items in the dictionary and copy over the key value pairs)
-            foreach (var kvp in dictionary)
+            foreach (KeyValuePair<string, object> kvp in dictionary)
             {
                 // if the value can also be turned into an ExpandoObject, then do it!
                 if (kvp.Value is IDictionary<string, object> objects)
                 {
-                    var expandoValue = objects.ToExpando();
+                    ExpandoObject expandoValue = objects.ToExpando();
                     expandoDic.Add(kvp.Key, expandoValue);
                 }
                 else if (kvp.Value is ICollection collection)
                 {
                     // iterate through the collection and convert any strin-object dictionaries
                     // along the way into expando objects
-                    var itemList = new List<object>();
-                    foreach (var item in collection)
+                    List<object> itemList = new List<object>();
+                    foreach (object item in collection)
                     {
                         if (item is IDictionary<string, object> objects1)
                         {
-                            var expandoItem = objects1.ToExpando();
+                            ExpandoObject expandoItem = objects1.ToExpando();
                             itemList.Add(expandoItem);
                         }
                         else
@@ -393,11 +391,11 @@ namespace Dakata
         }
 
         public static T ShadowClone<T>(this T obj)
-            where T: class 
+            where T : class
         {
-            var memberwiseCloneMethod = obj?.GetType().GetMethod("MemberwiseClone", 
+            MethodInfo memberwiseCloneMethod = obj?.GetType().GetMethod("MemberwiseClone",
                 BindingFlags.Instance | BindingFlags.NonPublic);
-            return (T) memberwiseCloneMethod?.Invoke(obj, null);
+            return (T)memberwiseCloneMethod?.Invoke(obj, null);
         }
 
         public static string ReverseString(this string str)
@@ -422,8 +420,8 @@ namespace Dakata
 
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> sequence)
         {
-            var hashSet = new HashSet<T>();
-            foreach (var item in sequence)
+            HashSet<T> hashSet = new HashSet<T>();
+            foreach (T item in sequence)
             {
                 hashSet.Add(item);
             }
@@ -433,7 +431,7 @@ namespace Dakata
 
         public static T[] ToSingleElementArray<T>(this T item)
         {
-            return new[] {item};
+            return new[] { item };
         }
 
         public static List<T> MakeEmptyIfNull<T>(this List<T> list)
@@ -453,7 +451,7 @@ namespace Dakata
             this IDictionary<TKey, TValue> dictionary,
             params TKey[] keys)
         {
-            foreach (var key in keys)
+            foreach (TKey key in keys)
             {
                 dictionary.Remove(key);
             }
@@ -468,14 +466,14 @@ namespace Dakata
         {
             return sequences.Aggregate(source, (current, sequence) => current.Concat(sequence));
         }
-        
+
         public static T ToObject<T>(this IDictionary<string, object> source)
             where T : class, new()
         {
-            var someObject = new T();
-            var someObjectType = someObject.GetType();
+            T someObject = new T();
+            Type someObjectType = someObject.GetType();
 
-            foreach (var item in source)
+            foreach (KeyValuePair<string, object> item in source)
             {
                 someObjectType.GetProperty(item.Key)?.SetValue(someObject, item.Value, null);
             }
@@ -485,30 +483,26 @@ namespace Dakata
 
         public static Dictionary<string, object> AsDictionary(this object source)
         {
-            switch (source)
+            Dictionary<string, object> dict = source switch
             {
-                case null:
-                    return new Dictionary<string, object>();
-                case IReadOnlyDictionary<string, object> readOnlyDictionary:
-                    return readOnlyDictionary.ToDictionary(x => x.Key, x => x.Value);
-                case IDictionary<string, object> dictionary:
-                    return dictionary.ToDictionary(x => x.Key, x => x.Value);
-                case DynamicParameters dynamicParameters:
-                    var dictionary2 = new Dictionary<string, object>();
-                    var parameterLookup = dynamicParameters as IParameterLookup;
-                    foreach(var name in dynamicParameters.ParameterNames)
-                    {
-                        dictionary2[name] = parameterLookup[name];
-                    }
-                    return dictionary2;
+                null => new Dictionary<string, object>(),
+                IEnumerable<KeyValuePair<string, object>> keyValuePairs =>
+                    keyValuePairs.ToDictionary(x => x.Key, x => x.Value),
+                DynamicParameters dynamicParameters =>
+                    ConvertDynamicParametersToDictionary(dynamicParameters),
+                _ => null
+            };
+            if (dict != null)
+            {
+                return dict;
             }
 
-            var type = source.GetType();
+            Type type = source.GetType();
             if (type.IsGenericType)
             {
                 const string DICTIONARY_INTERFACE_NAME = "System.Collections.Generic.IDictionary`2",
                     READONLY_DICTIONARY_INTERFACE_NAME = "System.Collections.Generic.IReadOnlyDictionary`2";
-                var dictionaryInterface = type.GetInterface(DICTIONARY_INTERFACE_NAME) ??
+                Type dictionaryInterface = type.GetInterface(DICTIONARY_INTERFACE_NAME) ??
                     type.GetInterface(READONLY_DICTIONARY_INTERFACE_NAME);
                 if (dictionaryInterface != null &&
                     dictionaryInterface.GetGenericArguments()[0] == typeof(string))
@@ -521,15 +515,26 @@ namespace Dakata
 
             const BindingFlags BINDING_ATTR = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty;
             // Exclude indexers when get the properties
-            var properties = type.GetProperties(BINDING_ATTR)
+            PropertyInfo[] properties = type.GetProperties(BINDING_ATTR)
                 .Where(x => !x.GetIndexParameters().Any())
                 .ToArray();
-            var dict = properties.ToDictionary(
+            dict = properties.ToDictionary(
                 property => property.Name,
                 property => property.GetValue(source)
                 );
 
             return dict;
+
+            static Dictionary<string, object> ConvertDynamicParametersToDictionary(DynamicParameters dynamicParameters)
+            {
+                Dictionary<string, object> dictionary2 = new Dictionary<string, object>();
+                IParameterLookup parameterLookup = dynamicParameters as IParameterLookup;
+                foreach (string name in dynamicParameters.ParameterNames)
+                {
+                    dictionary2[name] = parameterLookup[name];
+                }
+                return dictionary2;
+            }
         }
     }
 }

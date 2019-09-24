@@ -42,18 +42,16 @@ namespace Dakata
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
             bool enableMultithreadSupportForTransaction = false)
         {
-            using (var scope = CreateTransactionScope(timeout, isolationLevel,
+            using var scope = CreateTransactionScope(timeout, isolationLevel,
                 enableMultithreadSupportForTransaction
                     ? TransactionScopeAsyncFlowOption.Enabled
-                    : TransactionScopeAsyncFlowOption.Suppress))
-            {
-                if (enableMultithreadSupportForTransaction)
-                    TransactionInterop.GetTransmitterPropagationToken(Transaction.Current);
+                    : TransactionScopeAsyncFlowOption.Suppress);
+            if (enableMultithreadSupportForTransaction)
+                TransactionInterop.GetTransmitterPropagationToken(Transaction.Current);
 
-                var result = func(scope);
-                scope.Complete();
-                return result;
-            }
+            var result = func(scope);
+            scope.Complete();
+            return result;
         }
 
         public static void WithTransaction(Action<TransactionScope> action,
@@ -71,12 +69,10 @@ namespace Dakata
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
-            using (var scope = CreateTransactionScope(timeout, isolationLevel, EnableAsync))
-            {
-                var result = await func(scope);
-                scope.Complete();
-                return result;
-            }
+            using var scope = CreateTransactionScope(timeout, isolationLevel, EnableAsync);
+            var result = await func(scope);
+            scope.Complete();
+            return result;
         }
 
         public static async Task WithTransaction(Func<TransactionScope, Task> func,
@@ -95,18 +91,16 @@ namespace Dakata
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
             bool enableMultithreadSupportForTransaction = false)
         {
-            using (var scope = CreateTransactionScope(timeout, isolationLevel,
+            using var scope = CreateTransactionScope(timeout, isolationLevel,
                 enableMultithreadSupportForTransaction
                     ? TransactionScopeAsyncFlowOption.Enabled
-                    : TransactionScopeAsyncFlowOption.Suppress))
-            {
-                if (enableMultithreadSupportForTransaction)
-                    TransactionInterop.GetTransmitterPropagationToken(Transaction.Current);
+                    : TransactionScopeAsyncFlowOption.Suppress);
+            if (enableMultithreadSupportForTransaction)
+                TransactionInterop.GetTransmitterPropagationToken(Transaction.Current);
 
-                var result = func();
-                scope.Complete();
-                return result;
-            }
+            var result = func();
+            scope.Complete();
+            return result;
         }
 
         public static void WithTransaction(Action action,
@@ -130,12 +124,10 @@ namespace Dakata
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
-            using (var scope = CreateTransactionScope(timeout, isolationLevel, EnableAsync))
-            {
-                var result = await func();
-                scope.Complete();
-                return result;
-            }
+            using var scope = CreateTransactionScope(timeout, isolationLevel, EnableAsync);
+            var result = await func();
+            scope.Complete();
+            return result;
         }
 
         public static async Task WithTransaction(Func<Task> func,
@@ -167,22 +159,18 @@ namespace Dakata
         public static T WithRawTransaction<T>(Func<IDbConnection, IDbTransaction, T> func,
             Func<TimeSpan?, IDbConnection> connectionProvider, TimeSpan? timeout = null)
         {
-            using (var connection = connectionProvider(timeout))
+            using var connection = connectionProvider(timeout);
+            _currentDbConnection = connection;
+            using var transaction = connection.BeginTransaction();
+            _currentDbTransaction = transaction;
+            try
             {
-                _currentDbConnection = connection;
-                using (var transaction = connection.BeginTransaction())
-                {
-                    _currentDbTransaction = transaction;
-                    try
-                    {
-                        return func(connection, transaction);
-                    }
-                    catch (Exception)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
+                return func(connection, transaction);
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
             }
         }
     }
