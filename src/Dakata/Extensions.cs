@@ -40,7 +40,7 @@ namespace Dakata
         public static T[] Shuffle<T>(this IEnumerable<T> sequence)
         {
             T[] array = sequence.ToArray();
-            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
+            using var provider = new RNGCryptoServiceProvider();
             int n = array.Length;
             while (n > 1)
             {
@@ -65,7 +65,7 @@ namespace Dakata
             {
                 return str;
             }
-            fill = fill ?? string.Empty;
+            fill ??= string.Empty;
             if (!skipMiddle)
             {
                 return str.Substring(0, maxLength - fill.Length) + fill;
@@ -305,7 +305,7 @@ namespace Dakata
             return string.Format(str, args);
         }
 
-        public static TEnum[] GetEnumValues<TEnum>(this TEnum obj)
+        public static TEnum[] GetEnumValues<TEnum>(this TEnum _)
             where TEnum : struct
         {
             return (TEnum[])Enum.GetValues(typeof(TEnum));
@@ -334,8 +334,8 @@ namespace Dakata
 
         public static ExpandoObject ToExpando(this IDictionary<string, object> dictionary)
         {
-            ExpandoObject expando = new ExpandoObject();
-            IDictionary<string, object> expandoDic = (IDictionary<string, object>)expando;
+            var expando = new ExpandoObject();
+            IDictionary<string, object> expandoDic = expando;
 
             // go through the items in the dictionary and copy over the key value pairs)
             foreach (KeyValuePair<string, object> kvp in dictionary)
@@ -504,8 +504,7 @@ namespace Dakata
                     READONLY_DICTIONARY_INTERFACE_NAME = "System.Collections.Generic.IReadOnlyDictionary`2";
                 Type dictionaryInterface = type.GetInterface(DICTIONARY_INTERFACE_NAME) ??
                     type.GetInterface(READONLY_DICTIONARY_INTERFACE_NAME);
-                if (dictionaryInterface != null &&
-                    dictionaryInterface.GetGenericArguments()[0] == typeof(string))
+                if (dictionaryInterface?.GetGenericArguments()?[0] == typeof(string))
                 {
                     dynamic stringDict = source;
                     ICollection<string> keys = stringDict.Keys;
@@ -515,7 +514,7 @@ namespace Dakata
 
             const BindingFlags BINDING_ATTR = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty;
             // Exclude indexers when get the properties
-            PropertyInfo[] properties = type.GetProperties(BINDING_ATTR)
+            var properties = type.GetProperties(BINDING_ATTR)
                 .Where(x => !x.GetIndexParameters().Any())
                 .ToArray();
             dict = properties.ToDictionary(
@@ -527,8 +526,8 @@ namespace Dakata
 
             static Dictionary<string, object> ConvertDynamicParametersToDictionary(DynamicParameters dynamicParameters)
             {
-                Dictionary<string, object> dictionary2 = new Dictionary<string, object>();
-                IParameterLookup parameterLookup = dynamicParameters as IParameterLookup;
+                var dictionary2 = new Dictionary<string, object>();
+                var parameterLookup = dynamicParameters as IParameterLookup;
                 foreach (string name in dynamicParameters.ParameterNames)
                 {
                     dictionary2[name] = parameterLookup[name];
