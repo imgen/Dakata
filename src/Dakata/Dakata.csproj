@@ -7,7 +7,7 @@
 
     <ItemGroup>
       <PackageReference Include="Dapper.ColumnMapper" Version="1.2.0" />
-      <PackageReference Include="Dapper.Contrib" Version="2.0.4" />
+      <PackageReference Include="Dapper.Contrib" Version="2.0.30" />
       <PackageReference Include="Slapper.AutoMapper" Version="2.0.0.9-beta" />
       <PackageReference Include="SqlKata" Version="1.1.7" />
     </ItemGroup>
