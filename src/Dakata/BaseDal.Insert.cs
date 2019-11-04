@@ -121,7 +121,7 @@ namespace Dakata
                 PrepareInsertByRawSqlParameters(entity,
                     columnValueProvider,
                     columns);
-            long identity = Execute(connection =>
+            var identity = Execute(connection =>
                                         DbProvider.Insert(sql,
                                             parameters,
                                             connection,
@@ -140,7 +140,7 @@ namespace Dakata
                 PrepareInsertByRawSqlParameters(entity,
                     columnValueProvider,
                     columns);
-            long identity = await ExecuteAsync(async connection =>
+            var identity = await ExecuteAsync(async connection =>
                                             await DbProvider.InsertAsync(sql,
                                             parameters,
                                             connection,

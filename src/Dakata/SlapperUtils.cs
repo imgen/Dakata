@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Dakata
 {
-    public class SlapperUtils
+    public static class SlapperUtils
     {
         public static void RegisterIdentifiers(params Type[] modelTypes)
         {

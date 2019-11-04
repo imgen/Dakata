@@ -19,13 +19,13 @@ namespace Dakata
         public string[] GetColumnSelections(
             string prefix = "", string tableName = null, Type entityType = null)
         {
-            prefix = prefix ?? string.Empty;
-            entityType = entityType?? EntityType;
+            prefix ??= string.Empty;
+            entityType ??= EntityType;
             if (!prefix.IsNullOrEmpty())
             {
                 prefix = $"{prefix}_";
             }
-            tableName = tableName ?? (entityType != null ? GetTableName(entityType) : TableName);
+            tableName ??= (entityType != null ? GetTableName(entityType) : TableName);
             return GetPropertyColumnMapping(entityType: entityType)
                 .Select(mapping => 
                     $"{AddTablePrefix(mapping.column, tableName)} AS {prefix}{mapping.property}")
@@ -182,7 +182,7 @@ namespace Dakata
             Func<string, string> columnValueProvider,
             params string[] columns)
         {
-            int i = 0;
+            var i = 0;
             var parameters = new DynamicParameters();
             var valueClauses = entities.Select(
                 x =>

@@ -17,8 +17,8 @@ namespace Dakata
             string baseTableColumnName = null,
             string baseTableName = null)
         {
-            baseTableName = baseTableName ?? TableName;
-            baseTableColumnName = baseTableColumnName ?? joinTableName + joinTableColumnName;
+            baseTableName ??= TableName;
+            baseTableColumnName ??= joinTableName + joinTableColumnName;
             joiner(joinTableName,
                 join => join.On(AddTablePrefix(joinTableColumnName, joinTableName), AddTablePrefix(baseTableColumnName, baseTableName))
             );

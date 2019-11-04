@@ -17,10 +17,10 @@ namespace Dakata.Examples
         private static void RegisterColumnMappingsAndSlapperIdentifiers()
         {
             var poType = typeof(PurchaseOrder);
-            string nspace = typeof(PurchaseOrder).Namespace;
+            var @namespace = typeof(PurchaseOrder).Namespace;
 
             var modelTypes = poType.Assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.Namespace == nspace)
+                .Where(t => t.IsClass && !t.IsAbstract && t.Namespace == @namespace)
                 .ToArray();
             // If ColumnMapping attribute is present, will be processed and configured with Dapper
             ColumnTypeMapper.RegisterForTypes(modelTypes);

@@ -60,14 +60,14 @@ namespace Dakata.Examples
         {
             var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
-            Func<Query> top10PurchaseOrderQuery = () => purchaseOrderDal.NewQuery().Limit(10);
+            Query Top10PurchaseOrder() => purchaseOrderDal.NewQuery().Limit(10);
 
             // Below two statements shows two different ways of doing ordering
             // If multiple columns have different directions of ordering 
             // (ascending / descending), use the second way
             var top10LatestPurchaseOrdersQuery = purchaseOrderDal
                 .OrderBy(
-                    top10PurchaseOrderQuery(), 
+                    Top10PurchaseOrder(), 
                     ascending: false,
                     nameof(PurchaseOrder.OrderDate),
                     nameof(PurchaseOrder.ExpectedDeliveryDate)
@@ -75,7 +75,7 @@ namespace Dakata.Examples
 
             top10LatestPurchaseOrdersQuery = purchaseOrderDal
                 .OrderBy(
-                    top10PurchaseOrderQuery(),
+                    Top10PurchaseOrder(),
                     (
                         column: nameof(PurchaseOrder.OrderDate),
                         ascending: false

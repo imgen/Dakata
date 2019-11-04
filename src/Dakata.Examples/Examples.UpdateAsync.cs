@@ -89,16 +89,12 @@ namespace Dakata.Examples
             var purchaseOrderId = await purchaseOrderDal.InsertAsync(po,
                 columnName =>
                 {
-                    if (columnName == nameof(PurchaseOrder.OrderDate))
+                    return columnName switch
                     {
-                        // Only the date part
-                        return "CONVERT (date, SYSUTCDATETIME())";
-                    }
-                    if (columnName == nameof(PurchaseOrder.LastEditedWhen))
-                    {
-                        return purchaseOrderDal.DbProvider.UtcNowExpression;
-                    }
-                    return null;
+                        nameof(PurchaseOrder.OrderDate) => "CONVERT (date, SYSUTCDATETIME())", // Only the date part
+                        nameof(PurchaseOrder.LastEditedWhen) => purchaseOrderDal.DbProvider.UtcNowExpression,
+                        _ => null
+                    };
                 }
             );
             Console.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");

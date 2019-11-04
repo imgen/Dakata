@@ -28,7 +28,7 @@ namespace Dakata
             IsolationLevel isolationLevel,
             TransactionScopeAsyncFlowOption asyncOption = TransactionScopeAsyncFlowOption.Suppress)
         {
-            timeout = timeout ?? DefaultTimeout;
+            timeout ??= DefaultTimeout;
             var transactionOptions = new TransactionOptions
             {
                 IsolationLevel = isolationLevel,
@@ -40,13 +40,13 @@ namespace Dakata
         public static T WithTransaction<T>(Func<TransactionScope, T> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
-            bool enableMultithreadSupportForTransaction = false)
+            bool enableMultiThreadSupportForTransaction = false)
         {
             using var scope = CreateTransactionScope(timeout, isolationLevel,
-                enableMultithreadSupportForTransaction
+                enableMultiThreadSupportForTransaction
                     ? TransactionScopeAsyncFlowOption.Enabled
                     : TransactionScopeAsyncFlowOption.Suppress);
-            if (enableMultithreadSupportForTransaction)
+            if (enableMultiThreadSupportForTransaction)
                 TransactionInterop.GetTransmitterPropagationToken(Transaction.Current);
 
             var result = func(scope);
@@ -89,13 +89,13 @@ namespace Dakata
         public static T WithTransaction<T>(Func<T> func,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
-            bool enableMultithreadSupportForTransaction = false)
+            bool enableMultiThreadSupportForTransaction = false)
         {
             using var scope = CreateTransactionScope(timeout, isolationLevel,
-                enableMultithreadSupportForTransaction
+                enableMultiThreadSupportForTransaction
                     ? TransactionScopeAsyncFlowOption.Enabled
                     : TransactionScopeAsyncFlowOption.Suppress);
-            if (enableMultithreadSupportForTransaction)
+            if (enableMultiThreadSupportForTransaction)
                 TransactionInterop.GetTransmitterPropagationToken(Transaction.Current);
 
             var result = func();
@@ -106,7 +106,7 @@ namespace Dakata
         public static void WithTransaction(Action action,
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted,
-            bool enableMultithreadSupportForTransaction = false)
+            bool enableMultiThreadSupportForTransaction = false)
         {
             WithTransaction(
                 scope =>
@@ -116,7 +116,7 @@ namespace Dakata
                 },
                 timeout,
                 isolationLevel,
-                enableMultithreadSupportForTransaction
+                enableMultiThreadSupportForTransaction
             );
         }
 

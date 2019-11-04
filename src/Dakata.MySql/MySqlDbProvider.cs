@@ -41,7 +41,7 @@ namespace Dakata.MySql
 
         private static long GetId(IEnumerable<dynamic> results)
         {
-            dynamic first = results.FirstOrDefault();
+            var first = results.FirstOrDefault();
             if (first == null)
             {
                 return 0;
