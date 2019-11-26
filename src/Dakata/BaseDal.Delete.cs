@@ -9,42 +9,42 @@ namespace Dakata
 {
     public partial class BaseDal
     {
-        public virtual void DeleteByParameters(object parameters)
+        public virtual void DeleteByParameters(object parameters, int? commandTimeout = null)
         {
             var query = NewQuery().Where(parameters.AsDictionary());
-            Execute(query.AsDelete());
+            Execute(query.AsDelete(), commandTimeout);
         }
 
-        public virtual async Task DeleteByParametersAsync(object parameters)
+        public virtual async Task DeleteByParametersAsync(object parameters, int? commandTimeout = null)
         {
             var query = NewQuery().Where(parameters.AsDictionary());
-            await ExecuteAsync(query.AsDelete());
+            await ExecuteAsync(query.AsDelete(), commandTimeout);
         }
 
-        public virtual void DeleteByInClause(string column, IEnumerable<object> values)
+        public virtual void DeleteByInClause(string column, IEnumerable<object> values, int? commandTimeout = null)
         {
             var query = NewQuery().WhereIn(column, values).AsDelete();
-            Execute(query);
+            Execute(query, commandTimeout);
         }
 
-        public virtual async Task DeleteByInClauseAsync(string column, IEnumerable<object> values)
+        public virtual async Task DeleteByInClauseAsync(string column, IEnumerable<object> values, int? commandTimeout = null)
         {
             var query = NewQuery().WhereIn(column, values).AsDelete();
-            await ExecuteAsync(query);
+            await ExecuteAsync(query, commandTimeout);
         }
 
-        public virtual void DeleteById<TIdentity>(TIdentity identity)
+        public virtual void DeleteById<TIdentity>(TIdentity identity, int? commandTimeout = null)
         {
             var keyProperty = GetKeyProperty();
             var query = NewQuery().Where(GetColumnName(keyProperty), identity).AsDelete();
-            Execute(query);
+            Execute(query, commandTimeout);
         }
 
-        public virtual async Task DeleteByIdAsync<TIdentity>(TIdentity identity)
+        public virtual async Task DeleteByIdAsync<TIdentity>(TIdentity identity, int? commandTimeout = null)
         {
             var keyProperty = GetKeyProperty();
             var query = NewQuery().Where(GetColumnName(keyProperty), identity).AsDelete();
-            await ExecuteAsync(query);
+            await ExecuteAsync(query, commandTimeout);
         }
 
         private (string keyColumnName, object[] keyColumnValues) GetKeyColumnNameAndValues(IEnumerable<object> entities)
@@ -55,40 +55,40 @@ namespace Dakata
             return (keyColumnName, values);
         }
 
-        public virtual void DeleteByKeyColumn(IEnumerable<object> entities)
+        public virtual void DeleteByKeyColumn(IEnumerable<object> entities, int? commandTimeout = null)
         {
             var (keyColumnName, values) = GetKeyColumnNameAndValues(entities);
-            DeleteByInClause(keyColumnName, values);
+            DeleteByInClause(keyColumnName, values, commandTimeout);
         }
 
-        public virtual async Task DeleteByKeyColumnAsync(IEnumerable<object> entities)
+        public virtual async Task DeleteByKeyColumnAsync(IEnumerable<object> entities, int? commandTimeout = null)
         {
             var (keyColumnName, values) = GetKeyColumnNameAndValues(entities);
-            await DeleteByInClauseAsync(keyColumnName, values);
+            await DeleteByInClauseAsync(keyColumnName, values, commandTimeout);
         }
 
         private string DeleteAllStatement => $"DELETE FROM {TableName}";
 
-        public virtual void DeleteAll()
+        public virtual void DeleteAll(int? commandTimeout = null)
         {
-            Execute(DeleteAllStatement);
+            Execute(DeleteAllStatement, commandTimeout);
         }
 
-        public virtual async Task DeleteAllAsync()
+        public virtual async Task DeleteAllAsync(int? commandTimeout = null)
         {
-            await ExecuteAsync(DeleteAllStatement);
+            await ExecuteAsync(DeleteAllStatement, commandTimeout);
         }
 
         private string TruncateStatement => $"TRUNCATE TABLE {TableName}";
 
-        public virtual void Truncate()
+        public virtual void Truncate(int? commandTimeout = null)
         {
-            Execute(TruncateStatement);
+            Execute(TruncateStatement, commandTimeout);
         }
 
-        public virtual async Task TruncateAsync()
+        public virtual async Task TruncateAsync(int? commandTimeout = null)
         {
-            await ExecuteAsync(TruncateStatement);
+            await ExecuteAsync(TruncateStatement, commandTimeout);
         }
 
         private (string[] columns,
@@ -123,7 +123,8 @@ namespace Dakata
         public virtual int DeleteAll(IEnumerable<object> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
-            Func<string, string> columnValueProvider = null,
+            Func<string, string> columnValueProvider = null, 
+            int? commandTimeout = null,
             params string[] criteriaColumns)
         {
             var (newCriteriaColumns, newBatchSize, batches, tempTableName) = 
@@ -132,14 +133,14 @@ namespace Dakata
             {
                 Parallel.ForEach(batches, batch =>
                 {
-                    DeleteAll(newCriteriaColumns, batch, tempTableName, columnValueProvider);
+                    DeleteAll(newCriteriaColumns, batch, tempTableName, columnValueProvider, commandTimeout);
                 });
             }
             else
             {
                 batches.ForEach(batch =>
                 {
-                    DeleteAll(newCriteriaColumns, batch, tempTableName, columnValueProvider);
+                    DeleteAll(newCriteriaColumns, batch, tempTableName, columnValueProvider, commandTimeout);
                 });
             }
 
@@ -151,6 +152,7 @@ namespace Dakata
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] criteriaColumns)
         {
             var (newCriteriaColumns, newBatchSize, batches, tempTableName) =
@@ -163,7 +165,8 @@ namespace Dakata
                         DeleteAllAsync(newCriteriaColumns, 
                             batch, 
                             tempTableName, 
-                            columnValueProvider)
+                            columnValueProvider,
+                            commandTimeout)
                     )
                     .ToArray();
                 await Task.WhenAll(deleteAllTasks);
@@ -175,7 +178,8 @@ namespace Dakata
                     await DeleteAllAsync(newCriteriaColumns,
                             batch,
                             tempTableName,
-                            columnValueProvider);
+                            columnValueProvider,
+                            commandTimeout);
                 }
             }
 
@@ -197,16 +201,16 @@ namespace Dakata
                 ProcessColumn(column, columnValueProvider, parameters, entity);
         }
 
-        public virtual void DeleteByRawSql(object entity, Func<string, string> columnValueProvider)
+        public virtual void DeleteByRawSql(object entity, Func<string, string> columnValueProvider, int? commandTimeout = null)
         {
             var (sql, parameters) = GetDeleteSql(entity, columnValueProvider);
-            Execute(sql, parameters);
+            Execute(sql, parameters, commandTimeout);
         }
 
-        public virtual async Task DeleteByRawSqlAsync(object entity, Func<string, string> columnValueProvider)
+        public virtual async Task DeleteByRawSqlAsync(object entity, Func<string, string> columnValueProvider, int? commandTimeout = null)
         {
             var (sql, parameters) = GetDeleteSql(entity, columnValueProvider);
-            await ExecuteAsync(sql, parameters);
+            await ExecuteAsync(sql, parameters, commandTimeout);
         }
 
         private (string sql, DynamicParameters parameters) BuildDeleteAllQuery(string[] criteriaColumns, IEnumerable<object> batch, string tempTableName,
@@ -224,17 +228,20 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
         private void DeleteAll(string[] criteriaColumns, 
             IEnumerable<object> batch, 
             string tempTableName,
-            Func<string, string> columnValueProvider)
+            Func<string, string> columnValueProvider, 
+            int? commandTimeout = null)
         {
             var (sql, parameters) = BuildDeleteAllQuery(criteriaColumns, batch, tempTableName, columnValueProvider);
-            Execute(sql, parameters);
+            Execute(sql, parameters, commandTimeout);
         }
 
-        private async Task DeleteAllAsync(string[] criteriaColumns, IEnumerable<object> batch, string tempTableName,
-            Func<string, string> columnValueProvider)
+        private async Task DeleteAllAsync(string[] criteriaColumns, 
+            IEnumerable<object> batch, string tempTableName,
+            Func<string, string> columnValueProvider, 
+            int? commandTimeout = null)
         {
             var (sql, parameters) = BuildDeleteAllQuery(criteriaColumns, batch, tempTableName, columnValueProvider);
-            await ExecuteAsync(sql, parameters);
+            await ExecuteAsync(sql, parameters, commandTimeout);
         }
     }
 
@@ -253,29 +260,35 @@ ON {criteriaColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName
         public virtual int DeleteAll(IEnumerable<TEntity> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
-            Func<string, string> columnValueProvider = null,
+            Func<string, string> columnValueProvider = null, 
+            int? commandTimeout = null,
             params string[] criteriaColumns)
         {
-            return base.DeleteAll(entities, batchSize, parallel, columnValueProvider, criteriaColumns);
+            return base.DeleteAll(entities, batchSize, parallel, columnValueProvider, commandTimeout, criteriaColumns);
         }
 
         public virtual async Task<int> DeleteAllAsync(IEnumerable<TEntity> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] criteriaColumns)
         {
-            return await base.DeleteAllAsync(entities, batchSize, parallel, columnValueProvider, criteriaColumns);
+            return await base.DeleteAllAsync(entities, batchSize, parallel, columnValueProvider, commandTimeout, criteriaColumns);
         }
 
-        public virtual void DeleteByInClause<TMember>(Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
+        public virtual void DeleteByInClause<TMember>(Expression<Func<TEntity, TMember>> memberExpression,
+            IEnumerable<object> values,
+            int? commandTimeout = null)
         {
-            DeleteByInClause(GetColumnName(memberExpression), values);
+            DeleteByInClause(GetColumnName(memberExpression), values, commandTimeout);
         }
 
-        public virtual async Task DeleteByInClauseAsync<TMember>(Expression<Func<TEntity, TMember>> memberExpression, IEnumerable<object> values)
+        public virtual async Task DeleteByInClauseAsync<TMember>(Expression<Func<TEntity, TMember>> memberExpression,
+            IEnumerable<object> values,
+            int? commandTimeout = null)
         {
-            await DeleteByInClauseAsync(GetColumnName(memberExpression), values);
+            await DeleteByInClauseAsync(GetColumnName(memberExpression), values, commandTimeout);
         }
     }
 }
