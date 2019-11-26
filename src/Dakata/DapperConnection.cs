@@ -52,14 +52,14 @@ namespace Dakata
             return await ExecuteAsync(async conn => await conn.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType));
         }
 
-        public T ExecuteScalar<T>(Query query)
+        public T ExecuteScalar<T>(Query query, int? commandTimeout = null)
         {
-            return query.ExecuteWithSqlKataQuery((sql, parameter) => ExecuteScalar<T>(sql, parameter));
+            return query.ExecuteWithSqlKataQuery((sql, parameter) => ExecuteScalar<T>(sql, parameter, commandTimeout: commandTimeout));
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(Query query)
+        public async Task<T> ExecuteScalarAsync<T>(Query query, int? commandTimeout = null)
         {
-            return await query.ExecuteWithSqlKataQuery(async (sql, parameter) => await ExecuteScalarAsync<T>(sql, parameter));
+            return await query.ExecuteWithSqlKataQuery(async (sql, parameter) => await ExecuteScalarAsync<T>(sql, parameter, commandTimeout: commandTimeout));
         }
 
         public int Execute(string sql,
@@ -82,14 +82,14 @@ namespace Dakata
             return await ExecuteAsync(async conn => await conn.ExecuteAsync(sql, param, transaction, commandTimeout, commandType));
         }
 
-        public void Execute(Query query)
+        public void Execute(Query query, int? commandTimeout = null)
         {
-            query.ExecuteWithSqlKataQuery((sql, parameter) => Execute(sql, parameter));
+            query.ExecuteWithSqlKataQuery((sql, parameter) => Execute(sql, parameter, commandTimeout: commandTimeout));
         }
 
-        public async Task ExecuteAsync(Query query)
+        public async Task ExecuteAsync(Query query, int? commandTimeout = null)
         {
-            await query.ExecuteWithSqlKataQueryAsync(async (sql, parameter) => await ExecuteAsync(sql, parameter));
+            await query.ExecuteWithSqlKataQueryAsync(async (sql, parameter) => await ExecuteAsync(sql, parameter, commandTimeout: commandTimeout));
         }
 
         public IEnumerable<T> Query<T>(string sql,
@@ -115,16 +115,16 @@ namespace Dakata
                     sql, param, transaction, commandTimeout, commandType));
         }
 
-        public IEnumerable<T> Query<T>(Query query)
+        public IEnumerable<T> Query<T>(Query query, int? commandTimeout = null)
         {
             return query.ExecuteWithSqlKataQuery(
-                (sql, parameter) => Query<T>(sql, parameter));
+                (sql, parameter) => Query<T>(sql, parameter, commandTimeout: commandTimeout));
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(Query query)
+        public async Task<IEnumerable<T>> QueryAsync<T>(Query query, int? commandTimeout = null)
         {
             return await query.ExecuteWithSqlKataQueryAsync(
-                async (sql, parameter) => await QueryAsync<T>(sql, parameter));
+                async (sql, parameter) => await QueryAsync<T>(sql, parameter, commandTimeout: commandTimeout));
         }
 
         public IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(string sql,
@@ -233,11 +233,22 @@ namespace Dakata
             using var conn = DbProvider.CreateConnection(_connectionString);
             return func(conn);
         }
+        public T Execute<T>(Func<IDbConnection, int?, T> func, int? commandTimeout)
+        {
+            using var conn = DbProvider.CreateConnection(_connectionString);
+            return func(conn, commandTimeout);
+        }
 
         public async Task<T> ExecuteAsync<T>(Func<IDbConnection, Task<T>> func)
         {
             using var conn = DbProvider.CreateConnection(_connectionString);
             return await func(conn);
+        }
+
+        public async Task<T> ExecuteAsync<T>(Func<IDbConnection, int?, Task<T>> func, int? commandTimeout)
+        {
+            using var conn = DbProvider.CreateConnection(_connectionString);
+            return await func(conn, commandTimeout);
         }
     }
 }

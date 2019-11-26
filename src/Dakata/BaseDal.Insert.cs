@@ -115,17 +115,20 @@ namespace Dakata
 
         public long InsertByRawSql(object entity, 
             Func<string, string> columnValueProvider, 
+            int? commandTimeout = null,
             params string[] columns)
         {
             var (sql, parameters, autoIncrementAttribute, autoIncrementAttributeProperty) =
                 PrepareInsertByRawSqlParameters(entity,
                     columnValueProvider,
                     columns);
-            var identity = Execute(connection =>
+            var identity = Execute((connection, timeout) =>
                                         DbProvider.Insert(sql,
                                             parameters,
                                             connection,
-                                            autoIncrementAttribute?.SequenceName)
+                                            autoIncrementAttribute?.SequenceName,
+                                            timeout),
+                                    commandTimeout
                                  );
             RefreshEntity(entity, autoIncrementAttributeProperty, identity);
 
@@ -134,17 +137,20 @@ namespace Dakata
 
         public async Task<long> InsertByRawSqlAsync(object entity,
             Func<string, string> columnValueProvider,
+            int? commandTimeout = null,
             params string[] columns)
         {
             var (sql, parameters, autoIncrementAttribute, autoIncrementAttributeProperty) =
                 PrepareInsertByRawSqlParameters(entity,
                     columnValueProvider,
                     columns);
-            var identity = await ExecuteAsync(async connection =>
+            var identity = await ExecuteAsync(async (connection, timeout) =>
                                             await DbProvider.InsertAsync(sql,
                                             parameters,
                                             connection,
-                                            autoIncrementAttribute?.SequenceName)
+                                            autoIncrementAttribute?.SequenceName,
+                                            timeout),
+                                            commandTimeout
                                  );
             RefreshEntity(entity, autoIncrementAttributeProperty, identity);
 
@@ -222,15 +228,17 @@ FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
         }
 
         public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columns)
         {
-            return InsertByRawSql(entity, columnValueProvider, columns);
+            return InsertByRawSql(entity, columnValueProvider, commandTimeout, columns);
         }
 
         public virtual async Task<long> InsertAsync(TEntity entity, Func<string, string> columnValueProvider = null,
-           params string[] columns)
+            int? commandTimeout = null,
+            params string[] columns)
         {
-            return await InsertByRawSqlAsync(entity, columnValueProvider, columns);
+            return await InsertByRawSqlAsync(entity, columnValueProvider, commandTimeout, columns);
         }
     }
 }

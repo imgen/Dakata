@@ -21,17 +21,17 @@ namespace Dakata.SqlServer
 
         public IDbConnection CreateConnection(string connectionString) => new SqlConnection(connectionString);
 
-        public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName)
+        public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
         {
             sql = AddSelectIdStatement(sql, sequenceName);
-            var results = connection.Query<dynamic>(sql, parameters);
+            var results = connection.Query<dynamic>(sql, parameters, commandTimeout: commandTimeout);
             return GetId(results);
         }
 
-        public async Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName)
+        public async Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
         {
             sql = AddSelectIdStatement(sql, sequenceName);
-            var results = await connection.QueryAsync<dynamic>(sql, parameters);
+            var results = await connection.QueryAsync<dynamic>(sql, parameters, commandTimeout: commandTimeout);
             return GetId(results);
         }
 

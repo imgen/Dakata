@@ -23,19 +23,19 @@ namespace Dakata.MySql
 
         private const string SelectIdStatement = ";select LAST_INSERT_ID() id";
 
-        public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName)
+        public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
         {
             // Sequence name will be ignored since MySQL doesn't support that
             sql += SelectIdStatement; 
-            var results = connection.Query<dynamic>(sql, parameters);
+            var results = connection.Query<dynamic>(sql, parameters, commandTimeout: commandTimeout);
             return GetId(results);
         }
 
-        public async Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName)
+        public async Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
         {
             // Sequence name will be ignored since MySQL doesn't support that
             sql += SelectIdStatement;
-            var results = await connection.QueryAsync<dynamic>(sql, parameters);
+            var results = await connection.QueryAsync<dynamic>(sql, parameters, commandTimeout: commandTimeout);
             return GetId(results);
         }
 

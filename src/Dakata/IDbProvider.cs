@@ -11,8 +11,8 @@ namespace Dakata
         IDbConnection CreateConnection(string connectionString);
         Func<Compiler> SqlCompilerProvider { get; }
         string UtcNowExpression { get; }
-        long Insert(string sql, object parameters, IDbConnection connection, string sequenceName);
-        Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName);
+        long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null);
+        Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null);
         int MaxParameterCount { get; }
     }
 }
