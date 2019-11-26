@@ -8,44 +8,50 @@ namespace Dakata
 {
     public partial class BaseDal
     {
-        public virtual void Update(object whereParameters, object values)
+        public virtual void Update(object whereParameters, object values,
+            int? commandTimeout = null)
         {
-            Update(whereParameters.AsDictionary(), values.AsDictionary());
+            Update(whereParameters.AsDictionary(), values.AsDictionary(), commandTimeout);
         }
 
-        public virtual async Task UpdateAsync(object whereParameters, object values)
+        public virtual async Task UpdateAsync(object whereParameters, object values,
+            int? commandTimeout = null)
         {
-            await UpdateAsync(whereParameters.AsDictionary(), values.AsDictionary());
+            await UpdateAsync(whereParameters.AsDictionary(), values.AsDictionary(), commandTimeout);
         }
 
         public virtual void Update(IReadOnlyDictionary<string, object> whereParameters,
-            IReadOnlyDictionary<string, object> values)
+            IReadOnlyDictionary<string, object> values,
+            int? commandTimeout = null)
         {
             var query = NewQuery().Where(whereParameters).AsUpdate(values);
-            Execute(query);
+            Execute(query, commandTimeout);
         }
         public virtual async Task UpdateAsync(IReadOnlyDictionary<string, object> whereParameters,
-            IReadOnlyDictionary<string, object> values)
+            IReadOnlyDictionary<string, object> values,
+            int? commandTimeout = null)
         {
             var query = NewQuery().Where(whereParameters).AsUpdate(values);
-            await ExecuteAsync(query);
+            await ExecuteAsync(query, commandTimeout);
         }
 
         public virtual void UpdateByRawSql(object entity,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
             var (sql, parameters) = BuildUpdateQuery(entity, columnValueProvider, columnsToUpdate);
-            Execute(sql, parameters);
+            Execute(sql, parameters, commandTimeout);
             RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
         }
 
-        public virtual async Task UpdateByRawSqlAsync(object entity, 
+        public virtual async Task UpdateByRawSqlAsync(object entity,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
             var (sql, parameters) = BuildUpdateQuery(entity, columnValueProvider, columnsToUpdate);
-            await ExecuteAsync(sql, parameters);
+            await ExecuteAsync(sql, parameters, commandTimeout);
             RefreshEntityFromJustInsertedOrUpdatedRecord(entity);
         }
 
@@ -113,6 +119,7 @@ namespace Dakata
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
             var (newColumnsToUpdate, allColumns, keyColumns, newBatchSize, batches, tempTableName) = 
@@ -123,7 +130,7 @@ namespace Dakata
                 Parallel.ForEach(batches, batch =>
                 {
                     UpdateAll(newColumnsToUpdate, tempTableName, batch, allColumns, keyColumns,
-                        columnValueProvider);
+                        columnValueProvider, commandTimeout);
                 });
             }
             else
@@ -131,7 +138,7 @@ namespace Dakata
                 batches.ForEach(batch =>
                 {
                     UpdateAll(newColumnsToUpdate, tempTableName, batch, allColumns, keyColumns,
-                        columnValueProvider);
+                        columnValueProvider, commandTimeout);
                 });
             }
 
@@ -144,6 +151,7 @@ namespace Dakata
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
             var (newColumnsToUpdate, allColumns, keyColumns, newBatchSize, batches, tempTableName) =
@@ -159,7 +167,8 @@ namespace Dakata
                             batch, 
                             allColumns, 
                             keyColumns,
-                            columnValueProvider)
+                            columnValueProvider,
+                            commandTimeout)
                     )
                     .ToArray();
                 await Task.WhenAll(updateAllTasks);
@@ -173,7 +182,8 @@ namespace Dakata
                         batch, 
                         allColumns, 
                         keyColumns,
-                        columnValueProvider);
+                        columnValueProvider,
+                        commandTimeout);
                 }
             }
 
@@ -208,7 +218,8 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
             IEnumerable<object> batch,
             string[] allColumns,
             string[] keyColumns,
-            Func<string, string> columnValueProvider)
+            Func<string, string> columnValueProvider,
+            int? commandTimeout = null)
         {
             var (sql, parameters) = BuildUpdateAllQuery(columnsToUpdate, 
                 tempTableName, 
@@ -216,7 +227,7 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
                 allColumns, 
                 keyColumns, 
                 columnValueProvider);
-            Execute(sql, parameters);
+            Execute(sql, parameters, commandTimeout);
         }
 
         private async Task UpdateAllAsync(string[] columnsToUpdate,
@@ -224,7 +235,8 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
             IEnumerable<object> batch,
             string[] allColumns,
             string[] keyColumns,
-            Func<string, string> columnValueProvider)
+            Func<string, string> columnValueProvider,
+            int? commandTimeout = null)
         {
             var (sql, parameters) = BuildUpdateAllQuery(columnsToUpdate,
                 tempTableName,
@@ -232,7 +244,7 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
                 allColumns,
                 keyColumns,
                 columnValueProvider);
-            await ExecuteAsync(sql, parameters);
+            await ExecuteAsync(sql, parameters, commandTimeout);
         }
     }
 
@@ -240,34 +252,38 @@ ON {keyColumns.Select(column => $"{AddTablePrefix(column)} = {tempTableName}.{co
     {
         public virtual void Update(TEntity entity,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
-            UpdateByRawSql(entity, columnValueProvider, columnsToUpdate);
+            UpdateByRawSql(entity, columnValueProvider, commandTimeout, columnsToUpdate);
         }
 
-        public virtual async Task UpdateAsync(TEntity entity, 
-            Func<string, string> columnValueProvider = null, 
+        public virtual async Task UpdateAsync(TEntity entity,
+            Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
-            await UpdateByRawSqlAsync(entity, columnValueProvider, columnsToUpdate);
+            await UpdateByRawSqlAsync(entity, columnValueProvider, commandTimeout, columnsToUpdate);
         }
 
         public virtual int UpdateAll(IEnumerable<TEntity> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
-            return base.UpdateAll(entities, batchSize, parallel, columnValueProvider, columnsToUpdate);
+            return base.UpdateAll(entities, batchSize, parallel, columnValueProvider, commandTimeout, columnsToUpdate);
         }
 
         public virtual async Task<int> UpdateAllAsync(IEnumerable<TEntity> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columnsToUpdate)
         {
-            return await base.UpdateAllAsync(entities, batchSize, parallel, columnValueProvider, columnsToUpdate);
+            return await base.UpdateAllAsync(entities, batchSize, parallel, columnValueProvider, commandTimeout, columnsToUpdate);
         }
     }
 }

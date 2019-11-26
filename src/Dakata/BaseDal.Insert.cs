@@ -13,6 +13,7 @@ namespace Dakata
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columns)
         {
             columns = !columns.IsNullOrEmpty() ?
@@ -24,14 +25,14 @@ namespace Dakata
             {
                 Parallel.ForEach(batches, batch =>
                 {
-                    InsertAll(columns, IsOracle, joinedColumns, batch, columnValueProvider);
+                    InsertAll(columns, IsOracle, joinedColumns, batch, columnValueProvider, commandTimeout);
                 });
             }
             else
             {
                 batches.ForEach(batch =>
                 {
-                    InsertAll(columns, IsOracle, joinedColumns, batch, columnValueProvider);
+                    InsertAll(columns, IsOracle, joinedColumns, batch, columnValueProvider, commandTimeout);
                 });
             }
 
@@ -42,6 +43,7 @@ namespace Dakata
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columns)
         {
             columns = !columns.IsNullOrEmpty() ?
@@ -54,7 +56,7 @@ namespace Dakata
                 var insertAllTasks = batches
                     .Select(
                         batch => 
-                            InsertAllAsync(columns, IsOracle, joinedColumns, batch, columnValueProvider))
+                            InsertAllAsync(columns, IsOracle, joinedColumns, batch, columnValueProvider, commandTimeout))
                     .ToArray();
 
                 await Task.WhenAll(insertAllTasks);
@@ -63,7 +65,7 @@ namespace Dakata
             {
                 foreach(var batch in batches)
                 {
-                    await InsertAllAsync(columns, IsOracle, joinedColumns, batch, columnValueProvider);
+                    await InsertAllAsync(columns, IsOracle, joinedColumns, batch, columnValueProvider, commandTimeout);
                 }
             }
 
@@ -97,20 +99,22 @@ namespace Dakata
             bool isOracle,
             string joinedColumns,
             IEnumerable<object> batch,
-            Func<string, string> columnValueProvider)
+            Func<string, string> columnValueProvider,
+            int? commandTimeout = null)
         {
             var (sql, parameters) = BuildInsertAllQuery(columns, isOracle, joinedColumns, batch, columnValueProvider);
-            Execute(sql, parameters);
+            Execute(sql, parameters, commandTimeout);
         }
 
         private async Task InsertAllAsync(string[] columns,
             bool isOracle,
             string joinedColumns,
             IEnumerable<object> batch,
-            Func<string, string> columnValueProvider)
+            Func<string, string> columnValueProvider,
+            int? commandTimeout = null)
         {
             var (sql, parameters) = BuildInsertAllQuery(columns, isOracle, joinedColumns, batch, columnValueProvider);
-            await ExecuteAsync(sql, parameters);
+            await ExecuteAsync(sql, parameters, commandTimeout);
         }
 
         public long InsertByRawSql(object entity, 
@@ -213,18 +217,20 @@ FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columns)
         {
-            return base.InsertAll(entities, batchSize, parallel, columnValueProvider, columns);
+            return base.InsertAll(entities, batchSize, parallel, columnValueProvider, commandTimeout, columns);
         }
 
         public virtual async Task<int> InsertAllAsync(IEnumerable<TEntity> entities,
             int batchSize = DefaultBatchSize,
             bool parallel = false,
             Func<string, string> columnValueProvider = null,
+            int? commandTimeout = null,
             params string[] columns)
         {
-            return await base.InsertAllAsync(entities, batchSize, parallel, columnValueProvider, columns);
+            return await base.InsertAllAsync(entities, batchSize, parallel, columnValueProvider, commandTimeout, columns);
         }
 
         public virtual long Insert(TEntity entity, Func<string, string> columnValueProvider = null,
