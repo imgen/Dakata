@@ -12,7 +12,7 @@ using static Dakata.DbUtils;
 namespace Dakata
 {
     public partial class BaseDal
-    {     
+    {
         public int GetMaxBatchSize(int parameterCountOfOneRecord) =>
             MaxParameterCount / parameterCountOfOneRecord;
 
@@ -27,7 +27,7 @@ namespace Dakata
             }
             tableName ??= (entityType != null ? GetTableName(entityType) : TableName);
             return GetPropertyColumnMapping(entityType: entityType)
-                .Select(mapping => 
+                .Select(mapping =>
                     $"{AddTablePrefix(mapping.column, tableName)} AS {prefix}{mapping.property}")
                 .ToArray();
         }
@@ -64,7 +64,7 @@ namespace Dakata
         public static PropertyInfo GetKeyProperty(Type entityType)
         {
             var keyProperty =
-                entityType.GetPropertiesWithAttribute<KeyAttribute>().SingleOrDefault() ??
+                entityType.GetPropertiesWithAttribute<Dapper.Contrib.Extensions.KeyAttribute>().SingleOrDefault() ??
                 entityType.GetPropertiesWithAttribute<ExplicitKeyAttribute>().SingleOrDefault();
             if (keyProperty == null) throw new ApplicationException("No single [Key] or [ExplicitKey] property");
             return keyProperty;
@@ -81,7 +81,7 @@ namespace Dakata
         public static PropertyInfo[] GetKeyProperties(Type entityType)
         {
             var keyProperties =
-                entityType.GetPropertiesWithAttribute<KeyAttribute>();
+                entityType.GetPropertiesWithAttribute<Dapper.Contrib.Extensions.KeyAttribute>();
             var explicitKeyProperties = entityType.GetPropertiesWithAttribute<ExplicitKeyAttribute>();
             return keyProperties.Concat(explicitKeyProperties).ToArray();
         }
@@ -127,7 +127,7 @@ namespace Dakata
             bool ignoreKeyProperty = false,
             Type entityType = null)
         {
-            return GetMappedProperties(ignoreAutoIncrementColumns, ignoreKeyProperty, entityType?? EntityType)
+            return GetMappedProperties(ignoreAutoIncrementColumns, ignoreKeyProperty, entityType ?? EntityType)
                 .Select(prop => (prop.Name, GetColumnName(prop)));
         }
 
@@ -147,7 +147,7 @@ namespace Dakata
         }
 
         public virtual IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,
-            bool ignoreKeyProperty) => GetMappedProperties(ignoreAutoIncrementColumns, 
+            bool ignoreKeyProperty) => GetMappedProperties(ignoreAutoIncrementColumns,
                                                 ignoreKeyProperty, EntityType);
 
         public static IEnumerable<PropertyInfo> GetMappedProperties(bool ignoreAutoIncrementColumns,

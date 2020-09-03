@@ -26,7 +26,7 @@ namespace Dakata.MySql
         public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
         {
             // Sequence name will be ignored since MySQL doesn't support that
-            sql += SelectIdStatement; 
+            sql += SelectIdStatement;
             var results = connection.Query<dynamic>(sql, parameters, commandTimeout: commandTimeout);
             return GetId(results);
         }
