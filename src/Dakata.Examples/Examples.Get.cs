@@ -22,7 +22,7 @@ namespace Dakata.Examples
 
             // If limit parameter not provided, or is 0, will retrieve all records
             var allPurchaseOrders = purchaseOrderDal.GetAll().ToArray();
-            Console.WriteLine("All purchase orders retrieved");
+            Console.WriteLine($"All {allPurchaseOrders.Length} purchase orders retrieved");
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Dakata.Examples
             // (ascending / descending), use the second way
             var top10LatestPurchaseOrdersQuery = purchaseOrderDal
                 .OrderBy(
-                    Top10PurchaseOrder(), 
+                    Top10PurchaseOrder(),
                     ascending: false,
                     nameof(PurchaseOrder.OrderDate),
                     nameof(PurchaseOrder.ExpectedDeliveryDate)
