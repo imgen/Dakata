@@ -1,6 +1,6 @@
 # Dakata
 A DAL layer implemented using [`Dapper`](https://github.com/StackExchange/Dapper) + [`SqlKata`](https://sqlkata.com/) + [`Slapper.AutoMapper`](https://github.com/SlapperAutoMapper/Slapper.AutoMapper) + [`Dapper.ColumnMapper`](https://github.com/dturkenk/Dapper.ColumnMapper). Most features will work with any database `SqlKata` supports. But certain 
-features / APIs such as `InsertAll`, `UpdateAll` will only work with `SQL Server` and `MySQL` since that's what I used in my own code. If someone can add support for other databases such as `Postgres` or `Oracle`, feel free make a PR. 
+features / APIs such as `InsertAll`, `UpdateAll` will only work with `SQL Server` and `MySQL` since that's what I used in my own code. If someone can add support for other databases such as `Postgres` or `Oracle`, feel free to make a PR. 
 
 ## `IDbProvider` interface
 `IDbProvider` interface is a simple abstraction of a database's behavior such as creating the connection, maximum parameter count, when insert, how to retrieve the inserted id, etc. The `UtcNowExpression` is used for columns that its value is an `SQL` expression instead of an value passed by the caller, such as `TimeCreated`, `TimeUpdated`, etc. Please see [`SqlServerDbProvider`](https://github.com/imgen/Dakata/blob/master/src/Dakata.SqlServer/SqlServerDbProvider.cs) file for reference implementation. 
