@@ -14,4 +14,4 @@ The examples `XUnit` test project uses `SQL Server` sample database `WorldWideIm
 
 You probably need to change the connection string if you install `SQL Server` on a different machine or don't use `Windows Authentication` for authentication
 
-The example project is in .NET 8.0 so you need to have the lataest version of `Visual Studio 2022`
+The examples project is in .NET 8.0 so you need to have the lataest version of `Visual Studio 2022`
