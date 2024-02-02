@@ -9,7 +9,7 @@ namespace Dakata.Examples.Models
         [ExplicitKey]
         public string CityName { get; set; }
         [ExplicitKey]
-        public int StateProvinceID { get; set; }
+        public int StateProvinceId { get; set; }
         public int? LatestRecordedPopulation { get; set; }
         public int LastEditedBy { get; set; }
         public DateTime ValidFrom { get; set; }

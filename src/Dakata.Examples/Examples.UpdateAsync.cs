@@ -25,9 +25,9 @@ namespace Dakata.Examples
             {
                 new PurchaseOrder
                 {
-                    SupplierID = 2,
-                    ContactPersonID = 1001,
-                    DeliveryMethodID = 1,
+                    SupplierId = 2,
+                    ContactPersonId = 1001,
+                    DeliveryMethodId = 1,
                     ExpectedDeliveryDate = today.AddDays(3),
                     IsOrderFinalized = true,
                     LastEditedBy = 1001,
@@ -36,9 +36,9 @@ namespace Dakata.Examples
                 },
                 new PurchaseOrder
                 {
-                    SupplierID = 3,
-                    ContactPersonID = 1001,
-                    DeliveryMethodID = 1,
+                    SupplierId = 3,
+                    ContactPersonId = 1001,
+                    DeliveryMethodId = 1,
                     ExpectedDeliveryDate = today.AddDays(4),
                     IsOrderFinalized = true,
                     LastEditedBy = 1001,
@@ -47,9 +47,9 @@ namespace Dakata.Examples
                 },
                 new PurchaseOrder
                 {
-                    SupplierID = 4,
-                    ContactPersonID = 1001,
-                    DeliveryMethodID = 1,
+                    SupplierId = 4,
+                    ContactPersonId = 1001,
+                    DeliveryMethodId = 1,
                     ExpectedDeliveryDate = today.AddDays(5),
                     IsOrderFinalized = true,
                     LastEditedBy = 1001,
@@ -78,9 +78,9 @@ namespace Dakata.Examples
 
             var po = new PurchaseOrder
             {
-                SupplierID = 2,
-                ContactPersonID = 1001,
-                DeliveryMethodID = 1,
+                SupplierId = 2,
+                ContactPersonId = 1001,
+                DeliveryMethodId = 1,
                 ExpectedDeliveryDate = DateTime.UtcNow.AddDays(3),
                 IsOrderFinalized = true,
                 LastEditedBy = 1001
@@ -108,7 +108,7 @@ namespace Dakata.Examples
             po.Comments = comments;
             await purchaseOrderDal.UpdateAsync(po, columnsToUpdate: new[] { nameof(PurchaseOrder.Comments) });
 
-            po = await purchaseOrderDal.GetAsync(po.ID);
+            po = await purchaseOrderDal.GetAsync(po.Id);
             po.Comments.Should().Be(comments, "UpdateAsync doesn't work as expected");
 
             /* Delete the just inserted PurchaseOrder so the side facts are the smallest */

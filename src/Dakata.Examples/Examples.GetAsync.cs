@@ -14,7 +14,7 @@ namespace Dakata.Examples
             var city = await cityDal.QueryByEntityKeysAsync(new City
             {
                 CityName = "Alfred",
-                StateProvinceID = 35
+                StateProvinceId = 35
             });
             city.Should().NotBeNull("QueryByEntityKeysAsync doesn't behave correctly");
         }

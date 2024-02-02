@@ -8,12 +8,12 @@ namespace Dakata.Examples.Models
     [Table("Purchasing.PurchaseOrders")]
     public class PurchaseOrder
     {
-        [Key, AutoIncrement(SequenceName = "PurchaseOrderID"), ColumnMapping("PurchaseOrderID")]
-        public int ID { get; set; }
-        public int SupplierID { get; set; }
+        [Key, AutoIncrement(SequenceName = "PurchaseOrderId"), ColumnMapping("PurchaseOrderId")]
+        public int Id { get; set; }
+        public int SupplierId { get; set; }
         public DateTime OrderDate { get; set; }
-        public int DeliveryMethodID { get; set; }
-        public int ContactPersonID { get; set; }
+        public int DeliveryMethodId { get; set; }
+        public int ContactPersonId { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
         public string SupplierReference { get; set; }
         public bool IsOrderFinalized { get; set; }

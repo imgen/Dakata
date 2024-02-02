@@ -6,7 +6,7 @@
         Postgres,
         MySql,
         Oracle,
-        SQLite,
+        SqLite,
         Firebird
     }
 }

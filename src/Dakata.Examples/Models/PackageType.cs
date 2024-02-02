@@ -7,8 +7,8 @@ namespace Dakata.Examples.Models
     [Table("Warehouse.PackageTypes")]
     public class PackageType
     {
-        [Key, ColumnMapping("PackageTypeID")]
-        public int ID { get; set; }
+        [Key, ColumnMapping("PackageTypeId")]
+        public int Id { get; set; }
         public string PackageTypeName { get; set; }
         public int LastEditedBy { get; set; }
         public DateTime ValidFrom { get; set; }

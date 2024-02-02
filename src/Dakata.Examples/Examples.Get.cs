@@ -17,7 +17,7 @@ namespace Dakata.Examples
             var top100PurchaseOrders = purchaseOrderDal.GetAll(100);
             foreach (var po in top100PurchaseOrders)
             {
-                Console.WriteLine($"PO's ID is {po.ID}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
+                Console.WriteLine($"PO's ID is {po.Id}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
             }
 
             // If limit parameter not provided, or is 0, will retrieve all records
@@ -51,8 +51,8 @@ namespace Dakata.Examples
             var totalCountOfPurchaseOrders = purchaseOrderDal.GetCount<int>();
             Console.WriteLine($"There are {totalCountOfPurchaseOrders} purchase orders");
 
-            var countOfPurchaseOrdersSinceJanuary31st = purchaseOrderDal.GetCountOfPurchaseOrdersSince(DateTime.Parse("2016-01-31"));
-            Console.WriteLine($"There are {countOfPurchaseOrdersSinceJanuary31st} purchase orders since 2016-01-31");
+            var countOfPurchaseOrdersSinceJanuary31St = purchaseOrderDal.GetCountOfPurchaseOrdersSince(DateTime.Parse("2016-01-31"));
+            Console.WriteLine($"There are {countOfPurchaseOrdersSinceJanuary31St} purchase orders since 2016-01-31");
         }
 
         [Fact]

@@ -500,10 +500,10 @@ namespace Dakata
             var type = source.GetType();
             if (type.IsGenericType)
             {
-                const string DICTIONARY_INTERFACE_NAME = "System.Collections.Generic.IDictionary`2",
-                    READONLY_DICTIONARY_INTERFACE_NAME = "System.Collections.Generic.IReadOnlyDictionary`2";
-                var dictionaryInterface = type.GetInterface(DICTIONARY_INTERFACE_NAME) ??
-                                          type.GetInterface(READONLY_DICTIONARY_INTERFACE_NAME);
+                const string dictionaryInterfaceName = "System.Collections.Generic.IDictionary`2",
+                    readonlyDictionaryInterfaceName = "System.Collections.Generic.IReadOnlyDictionary`2";
+                var dictionaryInterface = type.GetInterface(dictionaryInterfaceName) ??
+                                          type.GetInterface(readonlyDictionaryInterfaceName);
                 if (dictionaryInterface?.GetGenericArguments()?[0] == typeof(string))
                 {
                     dynamic stringDict = source;
@@ -512,9 +512,9 @@ namespace Dakata
                 }
             }
 
-            const BindingFlags BINDING_ATTR = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty;
+            const BindingFlags bindingAttr = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty;
             // Exclude indexers when get the properties
-            var properties = type.GetProperties(BINDING_ATTR)
+            var properties = type.GetProperties(bindingAttr)
                 .Where(x => !x.GetIndexParameters().Any())
                 .ToArray();
             dict = properties.ToDictionary(

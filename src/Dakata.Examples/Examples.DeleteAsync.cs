@@ -17,9 +17,9 @@ namespace Dakata.Examples
 
             var po = new PurchaseOrder
             {
-                SupplierID = 2,
-                ContactPersonID = 1001,
-                DeliveryMethodID = 1,
+                SupplierId = 2,
+                ContactPersonId = 1001,
+                DeliveryMethodId = 1,
                 ExpectedDeliveryDate = DateTime.UtcNow.AddDays(3),
                 IsOrderFinalized = true,
                 LastEditedBy = 1001
@@ -47,14 +47,14 @@ namespace Dakata.Examples
             var lastEditWhen = po.LastEditedWhen;
             Console.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
 
-            po = await purchaseOrderDal.GetAsync(po.ID);
+            po = await purchaseOrderDal.GetAsync(po.Id);
 
             po.Should().NotBeNull("Oops, GetAsync didn't work as expected");
 
             /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
-            await purchaseOrderDal.DeleteByIdAsync(po.ID);
+            await purchaseOrderDal.DeleteByIdAsync(po.Id);
 
-            po = await purchaseOrderDal.GetAsync(po.ID);
+            po = await purchaseOrderDal.GetAsync(po.Id);
             po.Should().BeNull("Oops, DeleteByIdAsync didn't work as expected");
         }
     }
