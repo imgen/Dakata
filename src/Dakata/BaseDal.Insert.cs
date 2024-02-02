@@ -202,9 +202,9 @@ namespace Dakata
             }
             var autoIncrementAttributeProperty = entity.GetType().GetPropertiesWithAttribute<AutoIncrementAttribute>().FirstOrDefault();
             var autoIncrementAttribute = autoIncrementAttributeProperty?.
-GetCustomAttributes(true)?.
-Cast<Attribute>()?.
-FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
+                GetCustomAttributes(true)?.
+                Cast<Attribute>()?.
+                FirstOrDefault(x => x is AutoIncrementAttribute) as AutoIncrementAttribute;
             var sql = $"INSERT INTO {TableName} ({columns.JoinString(",")}) VALUES ({valueClause.JoinString(",")})";
             Logger(new SqlInfo(sql, parameters.AsDictionary()));
             return (sql, parameters, autoIncrementAttribute, autoIncrementAttributeProperty);

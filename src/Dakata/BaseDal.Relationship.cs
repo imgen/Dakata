@@ -200,8 +200,8 @@ namespace Dakata
         {
             var (leftSideProps, rightSideProps, _) = new IncludeVisitor()
                 .VisitEqualExpression(joinExpression.Body as BinaryExpression);
-            var baseTableColumnName = GetColumnName(leftSideProps.Last());
-            var joinTableColumnName = GetColumnName(rightSideProps.Last());
+            var baseTableColumnName = GetColumnName(leftSideProps[^1]);
+            var joinTableColumnName = GetColumnName(rightSideProps[^1]);
             return Include(query,
                 baseEntityType: typeof(TBaseEntity),
                 joinEntityType: typeof(TJoinEntity),
@@ -238,8 +238,8 @@ namespace Dakata
                     // Navigate property is on the left side, swap to make sure the subsequent code works
                     (leftSideProps, rightSideProps) = (rightSideProps, leftSideProps);
                 }
-                var lastRightSideProp = rightSideProps.Last();
-                var baseTableColumnName = GetColumnName(leftSideProps.Last());
+                var lastRightSideProp = rightSideProps[^1];
+                var baseTableColumnName = GetColumnName(leftSideProps[^1]);
                 var joinTableColumnName = GetColumnName(lastRightSideProp);
                 var prefixPropName = navigationProperty.Name;
                 selectPrefix = selectPrefix.IsNullOrEmpty() ?
@@ -279,7 +279,7 @@ namespace Dakata
             var equalExpressions = visitor.GetEqualExpressions(joinExpression.Body as BinaryExpression);
             var firstEqualExpression = equalExpressions[0];
             var firstFunc = Expression.Lambda<Func<TBaseEntity, bool>>(firstEqualExpression,
-                joinExpression.Parameters.First());
+                joinExpression.Parameters[0]);
             Include(query, firstFunc, useLeftJoin: useLeftJoin);
             var navigationProperty = visitor.GetNavigationProperty(firstEqualExpression);
             var secondEqualExpression = equalExpressions[1];
@@ -288,7 +288,7 @@ namespace Dakata
             return Include(query, secondFunc, navigationProperty.Name, useLeftJoin);
         }
 
-        private class MultipleIncludeVisitor : ExpressionVisitor
+        private sealed class MultipleIncludeVisitor : ExpressionVisitor
         {
             private readonly List<BinaryExpression> _equalExpressions = new List<BinaryExpression>();
             private PropertyInfo _navigationProperty;

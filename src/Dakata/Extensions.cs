@@ -124,20 +124,14 @@ namespace Dakata
         public static TValue GetAttributeValue<TAttribute, TValue>(
             this Type type,
             Func<TAttribute, TValue> valueSelector)
-        where TAttribute : Attribute
-        {
-            if (type.GetCustomAttributes<TAttribute>(true).FirstOrDefault() is TAttribute att)
-            {
-                return valueSelector(att);
-            }
-            return default;
-        }
+        where TAttribute : Attribute =>
+            type.GetCustomAttributes<TAttribute>(true).FirstOrDefault() is TAttribute att
+                ? valueSelector(att)
+                : default;
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<TAttr>(this Type type, Func<TAttr, bool> checker = null)
-            where TAttr : Attribute
-        {
-            return type.GetPropertiesWithAttribute(typeof(TAttr), attr => checker?.Invoke(attr as TAttr) ?? true);
-        }
+            where TAttr : Attribute =>
+            type.GetPropertiesWithAttribute(typeof(TAttr), attr => checker?.Invoke(attr as TAttr) ?? true);
 
         public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute(this Type type, Type attrType, Func<Attribute, bool> checker = null)
         {

@@ -109,7 +109,7 @@ namespace Dakata
             bool enableMultiThreadSupportForTransaction = false)
         {
             WithTransaction(
-                scope =>
+                _ =>
                 {
                     action();
                     return (object)null;
@@ -134,7 +134,7 @@ namespace Dakata
             TimeSpan? timeout = null,
             IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
         {
-            await WithTransaction(async scope =>
+            await WithTransaction(async _ =>
             {
                 await func();
                 return (object)null;

@@ -22,7 +22,7 @@ namespace Dakata
             dapperConnection.Logger = Logger;
         }
 
-        public IDbProvider DbProvider;
+        public IDbProvider DbProvider { get; }
 
         protected DbEngines DbEngine => DbProvider.DbEngine;
 
