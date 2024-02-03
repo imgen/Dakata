@@ -2,18 +2,13 @@
 using System.Data;
 using Dapper;
 
-namespace Dakata
-{
-    public class DateTimeDapperTypeHandler : SqlMapper.TypeHandler<DateTime>
-    {
-        public override void SetValue(IDbDataParameter parameter, DateTime value)
-        {
-            parameter.Value = value;
-        }
+namespace Dakata;
 
-        public override DateTime Parse(object value)
-        {
-            return DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
-        }
-    }
+public class DateTimeDapperTypeHandler : SqlMapper.TypeHandler<DateTime>
+{
+    public override void SetValue(IDbDataParameter parameter, DateTime value) => 
+        parameter.Value = value;
+
+    public override DateTime Parse(object value) => 
+        DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
 }

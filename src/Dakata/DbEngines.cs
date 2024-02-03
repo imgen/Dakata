@@ -1,12 +1,11 @@
-﻿namespace Dakata
+﻿namespace Dakata;
+
+public enum DbEngines
 {
-    public enum DbEngines
-    {
-        SqlServer,
-        Postgres,
-        MySql,
-        Oracle,
-        SqLite,
-        Firebird
-    }
+    SqlServer,
+    Postgres,
+    MySql,
+    Oracle,
+    SqLite,
+    Firebird
 }
