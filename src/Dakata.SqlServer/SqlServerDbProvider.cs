@@ -35,14 +35,12 @@ public class SqlServerDbProvider : IDbProvider
         return GetId(results);
     }
 
-    private string AddSelectIdStatement(string sql, string sequenceName)
-    {
-        return sql + (
+    private string AddSelectIdStatement(string sql, string sequenceName) =>
+        sql + (
             string.IsNullOrEmpty(sequenceName) ?
                 ";select SCOPE_IDENTITY() id" :
                 $";select current_value AS id from sys.sequences where name = '{sequenceName}'"
         );
-    }
 
     private static long GetId(IEnumerable<dynamic> results)
     {

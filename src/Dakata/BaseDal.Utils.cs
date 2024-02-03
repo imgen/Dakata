@@ -117,7 +117,7 @@ public partial class BaseDal
     /// </summary>
     /// <param name="tableName">The table name. If omitted, will use the table name from calculator</param>
     /// <returns>The basic query of the table</returns>
-    public Query NewQuery(string tableName = null) => new Query(tableName ?? TableName);
+    public Query NewQuery(string tableName = null) => new(tableName ?? TableName);
 
     public static string GetColumnName(PropertyInfo property)
     {

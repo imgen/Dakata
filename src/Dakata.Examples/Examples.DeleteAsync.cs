@@ -40,12 +40,12 @@ public partial class Examples
                 return null;
             }
         );
-        Console.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
+        _testOutputHelper.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
             
         var orderDate = po.OrderDate;
-        Console.WriteLine($"The order date of just inserted PurchaseOrder is {orderDate}");
+        _testOutputHelper.WriteLine($"The order date of just inserted PurchaseOrder is {orderDate}");
         var lastEditWhen = po.LastEditedWhen;
-        Console.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
+        _testOutputHelper.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
 
         po = await purchaseOrderDal.GetAsync(po.Id);
 

@@ -34,5 +34,5 @@ public partial class Examples(ITestOutputHelper testOutputHelper)
         RegisterColumnMappingsAndSlapperIdentifiers();
     }
 
-    private DapperConnection CreateDapperConnection() => new DapperConnection(ConnectionString, new SqlServerDbProvider());
+    private DapperConnection CreateDapperConnection() => new(ConnectionString, new SqlServerDbProvider());
 }

@@ -447,7 +447,7 @@ public static class Extensions
 
     public static T[] AsArray<T>(this T item) => new[] { item };
 
-    public static List<T> AsList<T>(this T item) => new List<T> { item };
+    public static List<T> AsList<T>(this T item) => new() { item };
 
     public static IEnumerable<T> ConcatMany<T>(this IEnumerable<T> source, params IEnumerable<T>[] sequences)
     {
