@@ -35,7 +35,7 @@ public class SqlServerDbProvider : IDbProvider
         return GetId(results);
     }
 
-    private string AddSelectIdStatement(string sql, string sequenceName) =>
+    private static string AddSelectIdStatement(string sql, string sequenceName) =>
         sql + (
             string.IsNullOrEmpty(sequenceName) ?
                 ";select SCOPE_IDENTITY() id" :

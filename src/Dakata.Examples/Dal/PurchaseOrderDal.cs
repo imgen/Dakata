@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dakata.Examples.Dal;
 
-public class PurchaseOrderDal : BaseDal<PurchaseOrder>
+public class PurchaseOrderDal(DapperConnection connection, Action<SqlInfo> logger = null)
+    : BaseDal<PurchaseOrder>(connection, logger)
 {
-    public PurchaseOrderDal(DapperConnection connection, Action<SqlInfo> logger = null) : base(connection, logger) { }
-
     public DateTime GetLatestExpectedDeliveryDate() =>
         GetMaxValueOfColumn<DateTime>(nameof(Entity.ExpectedDeliveryDate));
 
@@ -39,8 +38,8 @@ public class PurchaseOrderDal : BaseDal<PurchaseOrder>
         var keyColumnName = GetKeyColumnName();
         var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
 
-        // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-        // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
+        // Join PurchaseOrderLine.PurchaseOrderId from PurchaseOrder.Id
+        // and then join PackageType.Id from PurchaseOrderLine.PackageTypeId
         IncludeList(query,
             navigationProperty: x => x.PurchaseOrderLines,
             joinProperty: x => x.PurchaseOrderId,
@@ -59,8 +58,8 @@ public class PurchaseOrderDal : BaseDal<PurchaseOrder>
     {
         var keyColumnName = GetKeyColumnName();
         var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
-        // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-        // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
+        // Join PurchaseOrderLine.PurchaseOrderId from PurchaseOrder.Id
+        // and then join PackageType.Id from PurchaseOrderLine.PackageTypeId
         Include<PurchaseOrderLine>(query,
             (po, pol) => po.Id == pol.PurchaseOrderId,
             nameof(PurchaseOrder.PurchaseOrderLines)
@@ -77,8 +76,8 @@ public class PurchaseOrderDal : BaseDal<PurchaseOrder>
     {
         var keyColumnName = GetKeyColumnName();
         var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
-        // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
-        // and then join PackageType.ID from PurchaseOrderLine.PackageTypeID
+        // Join PurchaseOrderLine.PurchaseOrderId from PurchaseOrder.Id
+        // and then join PackageType.Id from PurchaseOrderLine.PackageTypeId
         Include(query, po => po.Id == po.PurchaseOrderLines[0].PurchaseOrderId)
             .Include<PurchaseOrderLine>(
                 query,
@@ -93,7 +92,7 @@ public class PurchaseOrderDal : BaseDal<PurchaseOrder>
     {
         var keyColumnName = GetKeyColumnName();
         var query = NewQuery().Where(AddTablePrefix(keyColumnName), id);
-        // Join PurchaseOrderLine.PurchaseOrderID from PurchaseOrder.ID
+        // Join PurchaseOrderLine.PurchaseOrderId from PurchaseOrder.Id
         // and then join PackageType.Id from PurchaseOrderLine.PackageTypeId
         MultipleInclude<PurchaseOrderLine>(query,
             (po, pol) => po.PurchaseOrderLines[0].PurchaseOrderId == po.Id &&
@@ -105,10 +104,8 @@ public class PurchaseOrderDal : BaseDal<PurchaseOrder>
     public async Task ChangeSupplier(IEnumerable<PurchaseOrder> purchaseOrders, int newSupplierId)
     {
         var purchaseOrdersArray = purchaseOrders.ToArray();
-        foreach (var po in purchaseOrdersArray)
-        {
+        foreach (var po in purchaseOrdersArray) 
             po.SupplierId = newSupplierId;
-        }
 
         await UpdateAllAsync(purchaseOrdersArray,
             columnsToUpdate: GetColumnName(x => x.SupplierId)
