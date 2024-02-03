@@ -29,15 +29,9 @@ public partial class Examples
             columnName =>
             {
                 if (columnName == nameof(PurchaseOrder.OrderDate))
-                {
                     // Only the date part
                     return "CONVERT (date, SYSUTCDATETIME())";
-                }
-                if (columnName == nameof(PurchaseOrder.LastEditedWhen))
-                {
-                    return purchaseOrderDal.DbProvider.UtcNowExpression;
-                }
-                return null;
+                return columnName == nameof(PurchaseOrder.LastEditedWhen) ? purchaseOrderDal.DbProvider.UtcNowExpression : null;
             }
         );
         _testOutputHelper.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
