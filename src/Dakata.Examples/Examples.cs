@@ -6,13 +6,11 @@ using Xunit.Abstractions;
 
 namespace Dakata.Examples;
 
-public partial class Examples
+public partial class Examples(ITestOutputHelper testOutputHelper)
 {
     private const string ConnectionString = "Data Source=(local);Initial Catalog=WorldWideImporters;Integrated Security=True;MultipleActiveResultSets=True";
 
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public Examples(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
     private static void RegisterColumnMappingsAndSlapperIdentifiers()
     {

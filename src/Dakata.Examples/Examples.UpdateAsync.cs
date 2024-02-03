@@ -3,6 +3,7 @@ using Dakata.Examples.Models;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,16 +15,13 @@ public partial class Examples
     public async Task UpdateAllAsyncExample()
     {
         var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(),
-            sqlInfo =>
-            {
-                Console.WriteLine(sqlInfo.Sql);
-            });
+            sqlInfo => _testOutputHelper.WriteLine(sqlInfo.Sql));
 
         var now = DateTime.UtcNow.TruncateDateTimeToSeconds();
         var today = now.Date;
         var pos = new List<PurchaseOrder>
         {
-            new PurchaseOrder
+            new()
             {
                 SupplierId = 2,
                 ContactPersonId = 1001,
@@ -34,7 +32,7 @@ public partial class Examples
                 LastEditedWhen = now,
                 OrderDate = today
             },
-            new PurchaseOrder
+            new()
             {
                 SupplierId = 3,
                 ContactPersonId = 1001,
@@ -45,7 +43,7 @@ public partial class Examples
                 LastEditedWhen = now,
                 OrderDate = today
             },
-            new PurchaseOrder
+            new()
             {
                 SupplierId = 4,
                 ContactPersonId = 1001,
@@ -60,10 +58,10 @@ public partial class Examples
 
         await purchaseOrderDal.InsertAllAsync(pos);
 
-        var insertedPos = await purchaseOrderDal.QueryByParametersAsync(new
+        var insertedPos = (await purchaseOrderDal.QueryByParametersAsync(new
         {
             LastEditedWhen = now
-        });
+        })).ToList();
 
         await purchaseOrderDal.ChangeSupplier(insertedPos, 5);
 
@@ -97,16 +95,16 @@ public partial class Examples
                 };
             }
         );
-        Console.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
+        _testOutputHelper.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
 
         var orderDate = po.OrderDate;
-        Console.WriteLine($"The order date of just inserted PurchaseOrder is {orderDate}");
+        _testOutputHelper.WriteLine($"The order date of just inserted PurchaseOrder is {orderDate}");
         var lastEditWhen = po.LastEditedWhen;
-        Console.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
+        _testOutputHelper.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
 
-        var comments = "Committed";
+        const string comments = "Committed";
         po.Comments = comments;
-        await purchaseOrderDal.UpdateAsync(po, columnsToUpdate: new[] { nameof(PurchaseOrder.Comments) });
+        await purchaseOrderDal.UpdateAsync(po, columnsToUpdate: nameof(PurchaseOrder.Comments));
 
         po = await purchaseOrderDal.GetAsync(po.Id);
         po.Comments.Should().Be(comments, "UpdateAsync doesn't work as expected");

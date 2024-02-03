@@ -66,6 +66,8 @@ public partial class Examples
     [Fact]
     public void PlayWithQuery()
     {
-        var query = new Query().From("Purchaing.PurchaseOrder AS po");
+#pragma warning disable S1481
+        var query = new Query().From("Purchasing.PurchaseOrder AS po");
+#pragma warning restore S1481
     }
 }

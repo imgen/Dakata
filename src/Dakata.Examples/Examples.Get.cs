@@ -2,6 +2,7 @@
 using Dakata.Examples.Models;
 using SqlKata;
 using System;
+using System.Globalization;
 using System.Linq;
 using Xunit;
 
@@ -15,14 +16,12 @@ public partial class Examples
         var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
         var top100PurchaseOrders = purchaseOrderDal.GetAll(100);
-        foreach (var po in top100PurchaseOrders)
-        {
-            Console.WriteLine($"PO's ID is {po.Id}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
-        }
+        foreach (var po in top100PurchaseOrders) 
+            _testOutputHelper.WriteLine($"PO's ID is {po.Id}, PO's expected delivery data is {po.ExpectedDeliveryDate}");
 
         // If limit parameter not provided, or is 0, will retrieve all records
         var allPurchaseOrders = purchaseOrderDal.GetAll().ToArray();
-        Console.WriteLine($"All {allPurchaseOrders.Length} purchase orders retrieved");
+        _testOutputHelper.WriteLine($"All {allPurchaseOrders.Length} purchase orders retrieved");
     }
 
     [Fact]
@@ -31,7 +30,7 @@ public partial class Examples
         var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
         var latestExpectedDeliveryDate = purchaseOrderDal.GetLatestExpectedDeliveryDate();
-        Console.WriteLine($"The latest expected delivery date is {latestExpectedDeliveryDate}");
+        _testOutputHelper.WriteLine($"The latest expected delivery date is {latestExpectedDeliveryDate}");
     }
 
     [Fact]
@@ -40,7 +39,7 @@ public partial class Examples
         var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
         var earliestExpectedDeliveryDate = purchaseOrderDal.GetEarliestExpectedDeliveryDate();
-        Console.WriteLine($"The earliest expected delivery date is {earliestExpectedDeliveryDate}");
+        _testOutputHelper.WriteLine($"The earliest expected delivery date is {earliestExpectedDeliveryDate}");
     }
 
     [Fact]
@@ -49,10 +48,10 @@ public partial class Examples
         var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
         var totalCountOfPurchaseOrders = purchaseOrderDal.GetCount<int>();
-        Console.WriteLine($"There are {totalCountOfPurchaseOrders} purchase orders");
+        _testOutputHelper.WriteLine($"There are {totalCountOfPurchaseOrders} purchase orders");
 
-        var countOfPurchaseOrdersSinceJanuary31St = purchaseOrderDal.GetCountOfPurchaseOrdersSince(DateTime.Parse("2016-01-31"));
-        Console.WriteLine($"There are {countOfPurchaseOrdersSinceJanuary31St} purchase orders since 2016-01-31");
+        var countOfPurchaseOrdersSinceJanuary31St = purchaseOrderDal.GetCountOfPurchaseOrdersSince(DateTime.Parse("2016-01-31", CultureInfo.InvariantCulture));
+        _testOutputHelper.WriteLine($"There are {countOfPurchaseOrdersSinceJanuary31St} purchase orders since 2016-01-31");
     }
 
     [Fact]
@@ -60,11 +59,10 @@ public partial class Examples
     {
         var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection());
 
-        Query Top10PurchaseOrder() => purchaseOrderDal.NewQuery().Limit(10);
-
         // Below two statements shows two different ways of doing ordering
         // If multiple columns have different directions of ordering 
         // (ascending / descending), use the second way
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
         var top10LatestPurchaseOrdersQuery = purchaseOrderDal
             .OrderBy(
                 Top10PurchaseOrder(),
@@ -72,6 +70,7 @@ public partial class Examples
                 nameof(PurchaseOrder.OrderDate),
                 nameof(PurchaseOrder.ExpectedDeliveryDate)
             );
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
 
         top10LatestPurchaseOrdersQuery = purchaseOrderDal
             .OrderBy(
@@ -85,7 +84,9 @@ public partial class Examples
                     ascending: true
                 )
             );
-        var top10LatestPurchaseOrders = purchaseOrderDal.Query(top10LatestPurchaseOrdersQuery).ToList();
-        Console.WriteLine($"The top 10 latest purchase orders are retrieved");
+        var _ = purchaseOrderDal.Query(top10LatestPurchaseOrdersQuery).ToList();
+        _testOutputHelper.WriteLine($"The top 10 latest purchase orders are retrieved");
+
+        Query Top10PurchaseOrder() => purchaseOrderDal.NewQuery().Limit(10);
     }
 }

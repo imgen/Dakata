@@ -12,11 +12,9 @@ public partial class Examples
             var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), 
                 sqlInfo => 
                 {
-                    Console.WriteLine($"The SQL is {sqlInfo.Sql}");
-                    foreach(var (key, value) in sqlInfo.Parameters)
-                    {
-                        Console.WriteLine($"The parameter name is {key}, value is {value}");
-                    }
+                    _testOutputHelper.WriteLine($"The SQL is {sqlInfo.Sql}");
+                    foreach(var (key, value) in sqlInfo.Parameters) 
+                        _testOutputHelper.WriteLine($"The parameter name is {key}, value is {value}");
                 });
 
             purchaseOrderDal.GetAll(100);
