@@ -2,13 +2,13 @@
 using System;
 using Xunit;
 
-namespace Dakata.Examples
+namespace Dakata.Examples;
+
+public partial class Examples
 {
-    public partial class Examples
+    [Fact]
+    public void LoggingExamples()
     {
-        [Fact]
-        public void LoggingExamples()
-        {
             var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), 
                 sqlInfo => 
                 {
@@ -21,5 +21,4 @@ namespace Dakata.Examples
 
             purchaseOrderDal.GetAll(100);
         }
-    }
 }

@@ -6,113 +6,112 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Dakata.Examples
+namespace Dakata.Examples;
+
+public partial class Examples
 {
-    public partial class Examples
+    [Fact]
+    public async Task UpdateAllAsyncExample()
     {
-        [Fact]
-        public async Task UpdateAllAsyncExample()
-        {
-            var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(),
-                sqlInfo =>
-                {
-                    Console.WriteLine(sqlInfo.Sql);
-                });
-
-            var now = DateTime.UtcNow.TruncateDateTimeToSeconds();
-            var today = now.Date;
-            var pos = new List<PurchaseOrder>
+        var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(),
+            sqlInfo =>
             {
-                new PurchaseOrder
-                {
-                    SupplierId = 2,
-                    ContactPersonId = 1001,
-                    DeliveryMethodId = 1,
-                    ExpectedDeliveryDate = today.AddDays(3),
-                    IsOrderFinalized = true,
-                    LastEditedBy = 1001,
-                    LastEditedWhen = now,
-                    OrderDate = today
-                },
-                new PurchaseOrder
-                {
-                    SupplierId = 3,
-                    ContactPersonId = 1001,
-                    DeliveryMethodId = 1,
-                    ExpectedDeliveryDate = today.AddDays(4),
-                    IsOrderFinalized = true,
-                    LastEditedBy = 1001,
-                    LastEditedWhen = now,
-                    OrderDate = today
-                },
-                new PurchaseOrder
-                {
-                    SupplierId = 4,
-                    ContactPersonId = 1001,
-                    DeliveryMethodId = 1,
-                    ExpectedDeliveryDate = today.AddDays(5),
-                    IsOrderFinalized = true,
-                    LastEditedBy = 1001,
-                    LastEditedWhen = now,
-                    OrderDate = today
-                }
-            };
-
-            await purchaseOrderDal.InsertAllAsync(pos);
-
-            var insertedPos = await purchaseOrderDal.QueryByParametersAsync(new
-            {
-                LastEditedWhen = now
+                Console.WriteLine(sqlInfo.Sql);
             });
 
-            await purchaseOrderDal.ChangeSupplier(insertedPos, 5);
-
-            /* Delete the just inserted PurchaseOrders so the side facts are the smallest */
-            await purchaseOrderDal.DeleteAllAsync(insertedPos);
-        }
-
-        [Fact]
-        public async Task UpdateAsyncExample()
+        var now = DateTime.UtcNow.TruncateDateTimeToSeconds();
+        var today = now.Date;
+        var pos = new List<PurchaseOrder>
         {
-            var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), sqlInfo => Console.Write(sqlInfo.Sql));
-
-            var po = new PurchaseOrder
+            new PurchaseOrder
             {
                 SupplierId = 2,
                 ContactPersonId = 1001,
                 DeliveryMethodId = 1,
-                ExpectedDeliveryDate = DateTime.UtcNow.AddDays(3),
+                ExpectedDeliveryDate = today.AddDays(3),
                 IsOrderFinalized = true,
-                LastEditedBy = 1001
-            };
+                LastEditedBy = 1001,
+                LastEditedWhen = now,
+                OrderDate = today
+            },
+            new PurchaseOrder
+            {
+                SupplierId = 3,
+                ContactPersonId = 1001,
+                DeliveryMethodId = 1,
+                ExpectedDeliveryDate = today.AddDays(4),
+                IsOrderFinalized = true,
+                LastEditedBy = 1001,
+                LastEditedWhen = now,
+                OrderDate = today
+            },
+            new PurchaseOrder
+            {
+                SupplierId = 4,
+                ContactPersonId = 1001,
+                DeliveryMethodId = 1,
+                ExpectedDeliveryDate = today.AddDays(5),
+                IsOrderFinalized = true,
+                LastEditedBy = 1001,
+                LastEditedWhen = now,
+                OrderDate = today
+            }
+        };
 
-            var purchaseOrderId = await purchaseOrderDal.InsertAsync(po,
-                columnName =>
+        await purchaseOrderDal.InsertAllAsync(pos);
+
+        var insertedPos = await purchaseOrderDal.QueryByParametersAsync(new
+        {
+            LastEditedWhen = now
+        });
+
+        await purchaseOrderDal.ChangeSupplier(insertedPos, 5);
+
+        /* Delete the just inserted PurchaseOrders so the side facts are the smallest */
+        await purchaseOrderDal.DeleteAllAsync(insertedPos);
+    }
+
+    [Fact]
+    public async Task UpdateAsyncExample()
+    {
+        var purchaseOrderDal = new PurchaseOrderDal(CreateDapperConnection(), sqlInfo => Console.Write(sqlInfo.Sql));
+
+        var po = new PurchaseOrder
+        {
+            SupplierId = 2,
+            ContactPersonId = 1001,
+            DeliveryMethodId = 1,
+            ExpectedDeliveryDate = DateTime.UtcNow.AddDays(3),
+            IsOrderFinalized = true,
+            LastEditedBy = 1001
+        };
+
+        var purchaseOrderId = await purchaseOrderDal.InsertAsync(po,
+            columnName =>
+            {
+                return columnName switch
                 {
-                    return columnName switch
-                    {
-                        nameof(PurchaseOrder.OrderDate) => "CONVERT (date, SYSUTCDATETIME())", // Only the date part
-                        nameof(PurchaseOrder.LastEditedWhen) => purchaseOrderDal.DbProvider.UtcNowExpression,
-                        _ => null
-                    };
-                }
-            );
-            Console.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
+                    nameof(PurchaseOrder.OrderDate) => "CONVERT (date, SYSUTCDATETIME())", // Only the date part
+                    nameof(PurchaseOrder.LastEditedWhen) => purchaseOrderDal.DbProvider.UtcNowExpression,
+                    _ => null
+                };
+            }
+        );
+        Console.WriteLine($"The ID of just inserted PurchaseOrder is {purchaseOrderId}");
 
-            var orderDate = po.OrderDate;
-            Console.WriteLine($"The order date of just inserted PurchaseOrder is {orderDate}");
-            var lastEditWhen = po.LastEditedWhen;
-            Console.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
+        var orderDate = po.OrderDate;
+        Console.WriteLine($"The order date of just inserted PurchaseOrder is {orderDate}");
+        var lastEditWhen = po.LastEditedWhen;
+        Console.WriteLine($"The last edit time of just inserted PurchaseOrder is {lastEditWhen}");
 
-            var comments = "Committed";
-            po.Comments = comments;
-            await purchaseOrderDal.UpdateAsync(po, columnsToUpdate: new[] { nameof(PurchaseOrder.Comments) });
+        var comments = "Committed";
+        po.Comments = comments;
+        await purchaseOrderDal.UpdateAsync(po, columnsToUpdate: new[] { nameof(PurchaseOrder.Comments) });
 
-            po = await purchaseOrderDal.GetAsync(po.Id);
-            po.Comments.Should().Be(comments, "UpdateAsync doesn't work as expected");
+        po = await purchaseOrderDal.GetAsync(po.Id);
+        po.Comments.Should().Be(comments, "UpdateAsync doesn't work as expected");
 
-            /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
-            await purchaseOrderDal.DeleteAsync(po);
-        }
+        /* Delete the just inserted PurchaseOrder so the side facts are the smallest */
+        await purchaseOrderDal.DeleteAsync(po);
     }
 }

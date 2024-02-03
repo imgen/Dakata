@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Dakata.Examples
+namespace Dakata.Examples;
+
+public static class Utils
 {
-    public static class Utils
+    public static DateTime TruncateDateTimeToSeconds(this DateTime time)
     {
-        public static DateTime TruncateDateTimeToSeconds(this DateTime time)
-        {
             return new DateTime(
                 time.Year,
                 time.Month,
@@ -15,5 +15,4 @@ namespace Dakata.Examples
                 time.Second,
                 time.Kind);
         }
-    }
 }

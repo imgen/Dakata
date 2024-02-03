@@ -3,20 +3,19 @@ using FluentAssertions;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Dakata.Examples
+namespace Dakata.Examples;
+
+public partial class Examples
 {
-    public partial class Examples
+    [Fact]
+    public async Task GetAsyncWithCompositeKeysExampe()
     {
-        [Fact]
-        public async Task GetAsyncWithCompositeKeysExampe()
+        var cityDal = new BaseDal<City>(CreateDapperConnection());
+        var city = await cityDal.QueryByEntityKeysAsync(new City
         {
-            var cityDal = new BaseDal<City>(CreateDapperConnection());
-            var city = await cityDal.QueryByEntityKeysAsync(new City
-            {
-                CityName = "Alfred",
-                StateProvinceId = 35
-            });
-            city.Should().NotBeNull("QueryByEntityKeysAsync doesn't behave correctly");
-        }
+            CityName = "Alfred",
+            StateProvinceId = 35
+        });
+        city.Should().NotBeNull("QueryByEntityKeysAsync doesn't behave correctly");
     }
 }
