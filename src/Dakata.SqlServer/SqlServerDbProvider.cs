@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Data;
 using SqlKata.Compilers;
-using System.Data.SqlClient;
 using Dapper;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
 
 namespace Dakata.SqlServer;
 
@@ -46,9 +46,7 @@ public class SqlServerDbProvider : IDbProvider
     {
         var first = results.FirstOrDefault();
         if (first == null)
-        {
             return 0;
-        }
         var id = first.id;
         return id == null ? 0 : (long)id;
     }
