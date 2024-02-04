@@ -90,7 +90,6 @@ public class DapperConnection
         return func(conn, commandTimeout);
     }
 
-
     public async Task<int> ExecuteAsync(string sql,
         object param = null,
         IDbTransaction transaction = null,
