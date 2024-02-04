@@ -81,12 +81,14 @@ public class DapperConnection
     public T Execute<T>(Func<IDbConnection, T> func)
     {
         using var conn = DbProvider.CreateConnection(_connectionString);
+        conn.Open();
         return func(conn);
     }
 
     public T Execute<T>(Func<IDbConnection, int?, T> func, int? commandTimeout)
     {
         using var conn = DbProvider.CreateConnection(_connectionString);
+        conn.Open();
         return func(conn, commandTimeout);
     }
 
@@ -102,13 +104,15 @@ public class DapperConnection
 
     public async Task<T> ExecuteAsync<T>(Func<IDbConnection, Task<T>> func)
     {
-        using var conn = DbProvider.CreateConnection(_connectionString);
+        await using var conn = DbProvider.CreateConnection(_connectionString);
+        await conn.OpenAsync();
         return await func(conn);
     }
 
     public async Task<T> ExecuteAsync<T>(Func<IDbConnection, int?, Task<T>> func, int? commandTimeout)
     {
-        using var conn = DbProvider.CreateConnection(_connectionString);
+        await using var conn = DbProvider.CreateConnection(_connectionString);
+        await conn.OpenAsync();
         return await func(conn, commandTimeout);
     }
 

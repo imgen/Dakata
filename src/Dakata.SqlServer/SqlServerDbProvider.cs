@@ -5,6 +5,7 @@ using Dapper;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Data.Common;
 using Microsoft.Data.SqlClient;
 
 namespace Dakata.SqlServer;
@@ -19,7 +20,7 @@ public class SqlServerDbProvider : IDbProvider
 
     public int MaxParameterCount => 2100;
 
-    public IDbConnection CreateConnection(string connectionString) => new SqlConnection(connectionString);
+    public DbConnection CreateConnection(string connectionString) => new SqlConnection(connectionString);
 
     public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
     {

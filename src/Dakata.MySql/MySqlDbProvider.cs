@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -13,7 +14,7 @@ public class MySqlDbProvider : IDbProvider
 {
     public DbEngines DbEngine { get; } = DbEngines.MySql;
 
-    public IDbConnection CreateConnection(string connectionString) => new MySqlConnection(connectionString);
+    public DbConnection CreateConnection(string connectionString) => new MySqlConnection(connectionString);
 
     public Func<Compiler> SqlCompilerProvider => () => new MySqlCompiler();
     public string UtcNowExpression { get; } = "NOW()";
