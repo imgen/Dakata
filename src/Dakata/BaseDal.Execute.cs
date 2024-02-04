@@ -1,7 +1,7 @@
 ﻿using SqlKata;
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 
 namespace Dakata;
@@ -11,7 +11,7 @@ public partial class BaseDal
     public virtual void Execute(Query query, int? commandTimeout = null) => 
         DapperConnection.Execute(query, commandTimeout);
 
-    public virtual T Execute<T>(Func<IDbConnection, int?, T> func, int? commandTimeout = null) => 
+    public virtual T Execute<T>(Func<DbConnection, int?, T> func, int? commandTimeout = null) => 
         DapperConnection.Execute(func, commandTimeout);
 
     public virtual void Execute(string sql, object parameters = null, int? commandTimeout = null) =>
@@ -20,7 +20,7 @@ public partial class BaseDal
     public virtual async Task ExecuteAsync(Query query, int? commandTimeout = null) =>
         await DapperConnection.ExecuteAsync(query, commandTimeout);
 
-    public virtual async Task<T> ExecuteAsync<T>(Func<IDbConnection, int?, Task<T>> func, int? commandTimeout = null) => 
+    public virtual async Task<T> ExecuteAsync<T>(Func<DbConnection, int?, Task<T>> func, int? commandTimeout = null) => 
         await DapperConnection.ExecuteAsync(func, commandTimeout);
 
         

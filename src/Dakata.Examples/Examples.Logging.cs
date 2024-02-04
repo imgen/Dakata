@@ -1,5 +1,4 @@
 ﻿using Dakata.Examples.Dal;
-using System;
 using Xunit;
 
 namespace Dakata.Examples;

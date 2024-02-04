@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper.Contrib.Extensions;
@@ -9,15 +10,11 @@ namespace Dakata;
 
 public static class DbUtils
 {
-    [ThreadStatic]
-    private static IDbConnection _currentDbConnection;
+    [field: ThreadStatic]
+    public static DbConnection CurrentDbConnection { get; private set; }
 
-    public static IDbConnection CurrentDbConnection => _currentDbConnection;
-
-    [ThreadStatic]
-    private static IDbTransaction _currentDbTransaction;
-
-    public static IDbTransaction CurrentDbTransaction => _currentDbTransaction;
+    [field: ThreadStatic]
+    public static IDbTransaction CurrentDbTransaction { get; private set; }
 
     private const TransactionScopeAsyncFlowOption EnableAsync = TransactionScopeAsyncFlowOption.Enabled;
 
@@ -156,13 +153,13 @@ public static class DbUtils
         return $"{value}%";
     }
 
-    public static T WithRawTransaction<T>(Func<IDbConnection, IDbTransaction, T> func,
-        Func<TimeSpan?, IDbConnection> connectionProvider, TimeSpan? timeout = null)
+    public static T WithRawTransaction<T>(Func<DbConnection, IDbTransaction, T> func,
+        Func<TimeSpan?, DbConnection> connectionProvider, TimeSpan? timeout = null)
     {
         using var connection = connectionProvider(timeout);
-        _currentDbConnection = connection;
+        CurrentDbConnection = connection;
         using var transaction = connection.BeginTransaction();
-        _currentDbTransaction = transaction;
+        CurrentDbTransaction = transaction;
         try
         {
             return func(connection, transaction);

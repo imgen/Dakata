@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using SqlKata.Compilers;
 using Dapper;
 using System.Linq;
@@ -22,14 +21,14 @@ public class SqlServerDbProvider : IDbProvider
 
     public DbConnection CreateConnection(string connectionString) => new SqlConnection(connectionString);
 
-    public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
+    public long Insert(string sql, object parameters, DbConnection connection, string sequenceName, int? commandTimeout = null)
     {
         sql = AddSelectIdStatement(sql, sequenceName);
         var results = connection.Query<dynamic>(sql, parameters, commandTimeout: commandTimeout);
         return GetId(results);
     }
 
-    public async Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
+    public async Task<long> InsertAsync(string sql, object parameters, DbConnection connection, string sequenceName, int? commandTimeout = null)
     {
         sql = AddSelectIdStatement(sql, sequenceName);
         var results = await connection.QueryAsync<dynamic>(sql, parameters, commandTimeout: commandTimeout);

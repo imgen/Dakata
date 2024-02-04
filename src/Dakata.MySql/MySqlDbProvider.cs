@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ public class MySqlDbProvider : IDbProvider
 
     private const string SelectIdStatement = ";select LAST_INSERT_ID() id";
 
-    public long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
+    public long Insert(string sql, object parameters, DbConnection connection, string sequenceName, int? commandTimeout = null)
     {
         // Sequence name will be ignored since MySQL doesn't support that
         sql += SelectIdStatement;
@@ -29,7 +28,7 @@ public class MySqlDbProvider : IDbProvider
         return GetId(results);
     }
 
-    public async Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null)
+    public async Task<long> InsertAsync(string sql, object parameters, DbConnection connection, string sequenceName, int? commandTimeout = null)
     {
         // Sequence name will be ignored since MySQL doesn't support that
         sql += SelectIdStatement;

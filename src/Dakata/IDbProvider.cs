@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using SqlKata.Compilers;
@@ -12,7 +11,7 @@ public interface IDbProvider
     DbConnection CreateConnection(string connectionString);
     Func<Compiler> SqlCompilerProvider { get; }
     string UtcNowExpression { get; }
-    long Insert(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null);
-    Task<long> InsertAsync(string sql, object parameters, IDbConnection connection, string sequenceName, int? commandTimeout = null);
+    long Insert(string sql, object parameters, DbConnection connection, string sequenceName, int? commandTimeout = null);
+    Task<long> InsertAsync(string sql, object parameters, DbConnection connection, string sequenceName, int? commandTimeout = null);
     int MaxParameterCount { get; }
 }

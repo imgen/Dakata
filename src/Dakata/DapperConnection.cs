@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Dapper;
 using Dapper.Contrib.Extensions;
@@ -27,10 +28,8 @@ public class DapperConnection
         DbProvider = dbProvider;
     }
 
-    private void Log(string sql, object param)
-    {
+    private void Log(string sql, object param) => 
         Logger(new SqlInfo(sql, param.AsDictionary()));
-    }
 
     public T ExecuteScalar<T>(string sql,
         object param = null,
@@ -78,14 +77,14 @@ public class DapperConnection
         query.ExecuteWithSqlKataQuery((sql, parameter) => Execute(sql, parameter, commandTimeout: commandTimeout));
     }
 
-    public T Execute<T>(Func<IDbConnection, T> func)
+    public T Execute<T>(Func<DbConnection, T> func)
     {
         using var conn = DbProvider.CreateConnection(_connectionString);
         conn.Open();
         return func(conn);
     }
 
-    public T Execute<T>(Func<IDbConnection, int?, T> func, int? commandTimeout)
+    public T Execute<T>(Func<DbConnection, int?, T> func, int? commandTimeout)
     {
         using var conn = DbProvider.CreateConnection(_connectionString);
         conn.Open();
@@ -102,14 +101,14 @@ public class DapperConnection
         return await ExecuteAsync(async conn => await conn.ExecuteAsync(sql, param, transaction, commandTimeout, commandType));
     }
 
-    public async Task<T> ExecuteAsync<T>(Func<IDbConnection, Task<T>> func)
+    public async Task<T> ExecuteAsync<T>(Func<DbConnection, Task<T>> func)
     {
         await using var conn = DbProvider.CreateConnection(_connectionString);
         await conn.OpenAsync();
         return await func(conn);
     }
 
-    public async Task<T> ExecuteAsync<T>(Func<IDbConnection, int?, Task<T>> func, int? commandTimeout)
+    public async Task<T> ExecuteAsync<T>(Func<DbConnection, int?, Task<T>> func, int? commandTimeout)
     {
         await using var conn = DbProvider.CreateConnection(_connectionString);
         await conn.OpenAsync();
